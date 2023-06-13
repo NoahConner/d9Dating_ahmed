@@ -10,7 +10,6 @@ export default function Map1() {
     longitudeDelta: 0.0421,
   });
   const [city, setCity] = useState(null);
-console.log('map1');
   useEffect(() => {
     const fetchCityName = async () => {
         const { latitude, longitude } = region;

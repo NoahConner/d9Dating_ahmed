@@ -11,11 +11,8 @@ const styles = StyleSheet.create({
   },
   heading: {
     marginBottom: moderateScale(30, 0.1),
-    // flexDirection: 'column',
-    // alignItems: 'center',
   },
   headingText: {
-    //fontFamily: Poppins,
     color: '#fff',
     textAlign: 'center',
     fontSize: moderateScale(32, 0.1),
@@ -33,18 +30,11 @@ const styles = StyleSheet.create({
     marginVertical: moderateScale(10, 0.1),
     flexDirection: 'row',
     alignItems: 'center',
-
-    // justifyContent: 'space-around',
-    // marginRight: moderateScale(-5, 0.1),
     height: moderateScale(40, 0.1),
   },
   inputTxt: {
-    // fontSize: moderateScale(12, 0.1),
-    // justifyContent: 'center',
-    // alignItems: 'center',
     color: '#fff',
     fontFamily: Poppins,
-    // marginTop: moderateScale(17, 0.1),
   },
   radioInput: {
     width: '100%',
@@ -55,7 +45,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   radio: {
-    // marginHorizontal: moderateScale(15, 0.1),
     flexDirection: 'row',
     justifyContent: 'space-between',
     flex: 0.3,
@@ -69,7 +58,6 @@ const styles = StyleSheet.create({
     bottom: moderateScale(25, 0.1),
   },
   btnText: {
-    //fontFamily: Poppins,
     lineHeight: moderateScale(15, 0.1),
     fontSize: moderateScale(14, 0.1),
     color: '#222222',
@@ -78,17 +66,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
   },
   bottomLink: {
-    // justifyContent: 'center',
     alignSelf: 'center',
-    marginBottom: moderateScale(5, 0.1),
-    // marginBottom: 36,
+    marginBottom: moderateScale(5, 0.1)
   },
   inputStyle: {
-    fontSize: moderateScale(12, 0.1),
-    //fontFamily: 'Gilroy-Medium',
+    fontSize: moderateScale(12, 0.1)
   },
   inputContainerStyle: {
     width: '75%',
@@ -118,8 +102,7 @@ const styles = StyleSheet.create({
   forgetPass: {
     color: '#FFFFFF',
     fontSize: moderateScale(10, 0.1),
-    lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
+    lineHeight: moderateScale(15, 0.1)
   },
 });
 

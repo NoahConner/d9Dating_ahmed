@@ -6,14 +6,11 @@ const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
-    // paddingHorizontal: moderateScale(12, 0.1),
     marginTop: moderateScale(10, 0.1),
     paddingBottom: moderateScale(70, 0.1),
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
-    //fontFamily: PoppinsBold,
-
     lineHeight: moderateScale(30, 0.1),
   },
   border: {
@@ -26,7 +23,6 @@ const styles = StyleSheet.create({
   chats: {
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(18, 0.1),
-    //fontFamily: Poppins,
   },
   img: {
     marginTop: moderateScale(5, 0.1),
@@ -53,6 +49,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(50 / 2, 0.1),
     borderWidth: moderateScale(2, 0.1),
     marginHorizontal: moderateScale(15, 0.1),
+    marginVertical: moderateScale(3, 0.1),
   },
 
   smallDp: {
@@ -78,7 +75,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: moderateScale(1, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontWeight: 700,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(15, 0.1),
@@ -99,16 +95,12 @@ const styles = StyleSheet.create({
     borderColor: '#222233',
     flexDirection: 'column',
   },
-  // input: {
-  //   marginVertical: moderateScale(5, 0.1),
-  // },
   text: {
     color: '#3f2949',
     marginTop: 10,
   },
 
   img: {
-    // height: moderateScale(300, 0.1),
     paddingHorizontal: moderateScale(10, 0.1),
   },
   optionView: {
@@ -117,14 +109,10 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // padding: moderateScale(10, 0.1),
-    // width: moderateScale(150, 0.1),
     paddingBottom: moderateScale(5, 0.1),
   },
   optionBtns: {
     fontSize: moderateScale(12, 0.1),
-    //fontFamily: Poppins,
-    // marginLeft: moderateScale(15, 0.1),
     flex: 0.7,
   },
   userName: {
@@ -162,16 +150,13 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(5, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(17, 0.1),
   },
   textRegular: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(15, 0.1),
     marginVertical: moderateScale(5, 0.1),
-    // height: moderateScale(30, 0.1),
   },
   img: {
     width: '100%',
@@ -210,7 +195,6 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(25, 0.1),
   },
   btnTxt: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(15, 0.1),
     lineHeight: moderateScale(19, 0.1),
     color: '#222222',
@@ -247,14 +231,9 @@ const styles = StyleSheet.create({
   funView: {
     position: 'absolute',
     right: 0,
-    // width: moderateScale(100, 0.1),
     top: moderateScale(90, 0.1),
-    // height: moderateScale(35, 0.1),
     flexDirection: 'row',
-    // justifyContent: 'flex-end',
     alignItems: 'center',
-    // backgroundColor: 'red',
-    // marginVertical: moderateScale(12, 0.1),
     marginRight: moderateScale(10, 0.1),
   },
   yellow: {
@@ -277,22 +256,18 @@ const styles = StyleSheet.create({
 
   count: {
     fontSize: moderateScale(7, 0.1),
-    //fontFamily: Poppins,
     color: '#000',
   },
   funText: {
     fontSize: moderateScale(11, 0.1),
-    //fontFamily: PoppinsBold,
   },
   footer: {
-    marginHorizontal: moderateScale(10, 0.1),
+    marginHorizontal: moderateScale(15, 0.1),
     marginVertical: moderateScale(10, 0.1),
   },
   capturebtntxt: {
-    // alignSelf:'center',
     fontSize: moderateScale(13, 0.1),
     alignSelf: 'center',
-    //fontFamily: Poppins,
     color: '#fff',
     paddingHorizontal: moderateScale(7, 0.1),
   },

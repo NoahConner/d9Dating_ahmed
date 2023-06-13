@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   logoText: {
     color: '#fff',
     textAlign: 'center',
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(12, 0.1),
     marginTop: moderateScale(5, 0.1),
   },
@@ -39,67 +38,13 @@ const styles = StyleSheet.create({
   heading1: {
     lineHeight: moderateScale(28, 0.1),
     color: '#fff',
-    //fontFamily: Poppins,
     fontSize: moderateScale(22, 0.1),
   },
   heading2: {
     lineHeight: moderateScale(35, 0.1),
     color: '#fff',
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(30, 0.1),
   },
-  // Old One
-  // animationView: {
-  //   width: moderateScale(400, 0.1),
-  //   height: moderateScale(400, 0.1),
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   position: 'relative',
-  // },
-  // circle1: {
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   position: 'absolute',
-  //   borderWidth: moderateScale(4, 0.1),
-  //   borderColor: '#FFD700',
-  //   borderRadius: moderateScale(116 / 2, 0.1),
-  //   width: moderateScale(116, 0.1),
-  //   height: moderateScale(116, 0.1),
-  // },
-  // circle2: {
-  //   position: 'absolute',
-  //   borderWidth: moderateScale(1, 0.1),
-  //   borderColor: '#FFD700',
-  //   borderRadius: moderateScale(196 / 2, 0.1),
-  //   width: moderateScale(196, 0.1),
-  //   height: moderateScale(196, 0.1),
-  // },
-  // circle3: {
-  //   position: 'absolute',
-  //   borderWidth: moderateScale(1, 0.1),
-  //   borderColor: '#FFD700',
-  //   borderRadius: moderateScale(268 / 2, 0.1),
-  //   width: moderateScale(268, 0.1),
-  //   height: moderateScale(268, 0.1),
-  // },
-  // circle4: {
-  //   position: 'absolute',
-  //   borderWidth: moderateScale(1, 0.1),
-  //   borderColor: '#FFD700',
-  //   borderRadius: moderateScale(344 / 2, 0.1),
-  //   width: moderateScale(344, 0.1),
-  //   height: moderateScale(344, 0.1),
-  // },
-  // round: {
-  //   borderColor: '#fff',
-  //   top: moderateScale(100, 0.1),
-  //   left: moderateScale(243, 0.1),
-  //   borderRadius: moderateScale(16, 0.1),
-  //   position: 'absolute',
-  //   borderWidth: moderateScale(3, 0.1),
-  //   borderRadius: moderateScale(50, 0.1),
-  // },
-
   animationView: {
     width: moderateScale(400, 0.1),
     height: moderateScale(400, 0.1),
@@ -189,7 +134,6 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(18, 0.1),
-    //fontFamily: Poppins,
     color: '#fff',
   },
   button: {

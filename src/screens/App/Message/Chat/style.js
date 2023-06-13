@@ -1,11 +1,12 @@
 import {Dimensions, StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
 
-const Poppins = '';
-const PoppinsBold = '';
+const Poppins = 'Poppins-Regular';
+const PoppinsBold = 'Poppins-Bold';
 
 const styles = StyleSheet.create({
   container: {
+    paddingHorizontal: moderateScale(20, 0.1),
     flexDirection: 'column',
     justifyContent: 'flex-start',
     // paddingBottom: moderateScale(70, 0.1),
@@ -15,15 +16,13 @@ const styles = StyleSheet.create({
     // margin: moderateScale(20, 0.1),
   },
   header: {
-    paddingHorizontal: moderateScale(10, 0.1),
-
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: moderateScale(-20, 0.1),
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
-    //fontFamily: PoppinsBold,
+    fontFamily: PoppinsBold,
     lineHeight: moderateScale(30, 0.1),
   },
   border: {
@@ -32,46 +31,19 @@ const styles = StyleSheet.create({
     paddingVertical: moderateScale(10, 0.1),
     borderBottomWidth: moderateScale(2, 0.1),
   },
-  options: {
-    width: moderateScale(30, 0.1),
-  },
-  optionView: {
-    flexDirection: 'row',
-    width: moderateScale(100, 0.1),
-    borderBottomWidth: moderateScale(1, 0.1),
-    borderBottomColor: 'grey',
-    alignItems: 'center',
-    paddingBottom: moderateScale(5, 0.1),
-  },
-  optionBtns: {
-    fontSize: moderateScale(12, 0.1),
-    fontFamily: Poppins,
-    // marginLeft: moderateScale(15, 0.1),
-    // flex: 0.7,
-  },
-  option: {
-    fontSize: moderateScale(14, 0.1),
-    marginRight: moderateScale(10, 0.1),
-  },
-  options: {
-    flex: 0.1,
-    justifyContent: 'flex-start',
-    marginTop: moderateScale(5, 0.1),
-    marginRight: moderateScale(-12, 0.1),
-  },
   btn: {
     flex: 0.5,
   },
   chats: {
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(18, 0.1),
-    //fontFamily: Poppins,
+    fontFamily: Poppins,
   },
   dp: {
-    width: moderateScale(55, 0.1),
-    height: moderateScale(55, 0.1),
-    borderWidth: moderateScale(2, 0.1),
-    borderRadius: moderateScale(55 / 2, 0.1),
+    width: moderateScale(61, 0.1),
+    height: moderateScale(61, 0.1),
+    borderRadius: moderateScale(61 / 2, 0.1),
+    marginRight: moderateScale(10, 0.1),
   },
   userName: {
     marginBottom: moderateScale(25, 0.1),
@@ -111,24 +83,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    //fontFamily: PoppinsBold,
+    fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(17, 0.1),
   },
   userName: {
-    //fontFamily: PoppinsBold,
+    fontFamily: PoppinsBold,
     color: '#fff',
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(14, 0.1),
   },
   textRegular: {
-    //fontFamily: Poppins,
+    fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(14, 0.1),
     marginVertical: moderateScale(5, 0.1),
   },
   textSmall: {
-    //fontFamily: Poppins,
+    fontFamily: Poppins,
     fontSize: moderateScale(8, 0.1),
     lineHeight: moderateScale(12, 0.1),
     marginVertical: moderateScale(5, 0.1),
@@ -144,45 +116,34 @@ const styles = StyleSheet.create({
   },
   options: {
     flex: 0.2,
+
     justifyContent: 'center',
     alignItems: 'flex-end',
     // marginLeft: moderateScale(140, 0.1),
     paddingBottom: moderateScale(15, 0.1),
   },
-  message: {
+  messege: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: moderateScale(10, 0.1),
     marginBottom: moderateScale(15, 0.1),
   },
-  chat: {
-    maxHeight: '85%',
-    minHeight: '85%',
-    // paddingBottom: moderateScale(15, 0.1),
-  },
   textSmall1: {
-    //fontFamily: Poppins,
+    fontFamily: Poppins,
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    marginVertical: moderateScale(2, 0.1),
+    marginVertical: moderateScale(5, 0.1),
     color: '#fff',
   },
-  textTo: {
-    flexDirection: 'column',
-
+  text: {
+    flexDirection: 'row',
     padding: moderateScale(15, 0.1),
     backgroundColor: '#4D4D4D',
     borderRadius: moderateScale(5, 0.1),
   },
-  textFrom: {
-    flexDirection: 'column',
-    padding: moderateScale(15, 0.1),
-    backgroundColor: '#333232',
-    borderRadius: moderateScale(5, 0.1),
-  },
-  messageInput: {
-    paddingLeft: moderateScale(10, 0.1),
-    bottom: moderateScale(30, 0.1),
+  row: {
+    position: 'absolute',
+    padding: moderateScale(10, 0.1),
+    bottom: moderateScale(0, 0.1),
     flexDirection: 'row',
     alignItems: 'center',
     // justifyContent: 'center',
@@ -200,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 0.1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: moderateScale(15, 0.1),
+    margin: moderateScale(15, 0.1),
   },
   circle: {
     // flex: 0.2,
@@ -211,14 +172,14 @@ const styles = StyleSheet.create({
     borderWidth: moderateScale(1, 0.1),
     alignItems: 'center',
     justifyContent: 'center',
-    // marginLeft: moderateScale(10, 0.1),
+    marginLeft: moderateScale(10, 0.1),
   },
   inputText: {
-    flex: 0.9,
+    flex: 0.8,
     // backgroundColor: 'red',
   },
   attach: {
-    flex: 0.1,
+    flex: 0.2,
     alignItems: 'flex-end',
     paddingRight: moderateScale(10, 0.1),
   },

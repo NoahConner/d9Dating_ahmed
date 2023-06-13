@@ -1,123 +1,272 @@
-import {TouchableOpacity, Text, SafeAreaView, View, Image} from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  SafeAreaView,
+  View,
+  Image,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {setTheme} from '../../../Redux/actions';
 import s from './style';
-import Header from '../../../Components/Header';
-import {FlatList} from 'react-native';
 import {ScrollView} from 'react-native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
-import Loader from '../../../Components/Loader';
 import axiosconfig from '../../../Providers/axios';
 import {useIsFocused} from '@react-navigation/native';
+import {Header, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import socket from '../../../utils/socket';
+import {dummyImage, socketRequest, width} from '../../../Constants/Index';
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {theme} from '../../../Constants/Index';
 
-const messages = [
+const dummyData = [
   {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../assets/images/png/mydp.png'),
-    active: '4 Hours ago',
-    icon: <Antdesign name="checkcircle" size={20} color="green" />,
-    icon1: <Antdesign name="closecircle" size={20} color="red" />,
+    created_at: '2023-06-07T07:01:22.000000Z',
+    id: 9,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'like your post',
+    type: 'Like',
+    type_id: '3',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
   },
   {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: '10:00pm',
-    userImage: require('../../../assets/images/png/u7.png'),
-    active: 'Nov 10 At 2:01 AM',
-    icon: <Antdesign name="checkcircle" size={20} color="green" />,
-    icon1: <Antdesign name="closecircle" size={20} color="red" />,
+    created_at: '2023-06-07T07:01:09.000000Z',
+    id: 8,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'oodd',
+    type: 'Comment',
+    type_id: '6',
+    updated_at: '2023-06-07T07:01:09.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
   },
   {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Friday',
-    userImage: require('../../../assets/images/png/u1.png'),
-    active: '4 Hours ago',
+    created_at: '2023-06-07T07:00:15.000000Z',
+    id: 7,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'beautiful',
+    type: 'Comment',
+    type_id: '5',
+    updated_at: '2023-06-07T07:00:15.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
   },
   {
-    from: 'Julie Watson',
-    text: 'Like your photo',
-    time: 'Monday',
-    userImage: require('../../../assets/images/png/u2.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'John Smith',
-    text: 'Who you might know is on profile',
-    time: 'Last Week',
-    userImage: require('../../../assets/images/png/u4.png'),
-    active: '4 Hours ago',
-  },
-  {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: 'Last Week',
-    userImage: require('../../../assets/images/png/u5.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../assets/images/png/u6.png'),
-    active: '4 Hours ago',
-  },
-  {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: 'Last Week',
-    userImage: require('../../../assets/images/png/u5.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../assets/images/png/u6.png'),
-    active: '4 Hours ago',
+    created_at: '2023-06-07T06:59:41.000000Z',
+    id: 6,
+    notifiable_id: '2',
+    read_status: '0',
+    status: '0',
+    text: 'hello',
+    type: 'Comment',
+    type_id: '4',
+    updated_at: '2023-06-07T06:59:41.000000Z',
+    user_id: '2',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 12:12:30',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T12:12:30.000000Z',
+      year: null,
+    },
   },
 ];
 const Notifications = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
-  const theme = useSelector(state => state.reducer.theme);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token, request, setRequest} = useAppContext(AppContext);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [loader, setLoader] = useState(false);
   const [data, setData] = useState([]);
-  const [accept, setAccept] = useState(false);
-  const [decline, setDecline] = useState(false);
+  const [notificationdata, setNotificationData] = useState(dummyData);
   const [response, setResponse] = useState('');
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [index, setIndex] = useState('');
+  const [myData, setMyData] = useState('');
   useEffect(() => {
     setResponse('');
-    getList();
+    getList(true);
+    if (request) {
+      setRequest(false);
+    }
   }, [isFocused]);
-  const id = route?.params?.data?.id;
-  console.log(route?.params?.data?.id, 'postidf');
+  useEffect(() => {
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+    getData();
 
+    const handleLike = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        getNotification();
+      }
+    };
+
+    const handleSocketLike = ({postId, postUserId, myId}) => {
+      handleLike({postId, postUserId, myId});
+    };
+    const handleComment = ({postId, postUserId, myId}) => {
+      console.log(postUserId, myData?.id, 'idssso flike');
+      if (postUserId == myData?.id) {
+        getNotification();
+      }
+    };
+
+    const handleSocketComment = ({postId, postUserId, myId}) => {
+      handleComment({postId, postUserId, myId});
+    };
+    const handleRequest = ({from, to, type}) => {
+      if (to == myData?.id && (type == 'connect' || type == 'connectRequest')) {
+        getList(false);
+      }
+      if (to == myData?.id && type == 'connectRequest') {
+        if (request) {
+          setRequest(false);
+        }
+      }
+    };
+
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
+    };
+    socket.on('request', handleSocketRequest);
+    socket.on('like', handleSocketLike);
+    socket.on('comment', handleSocketComment);
+
+    return () => {
+      socket.off('request', handleSocketRequest);
+      socket.off('like', handleSocketLike);
+      socket.off('comment', handleSocketComment);
+    };
+  }, [socket, myData]);
+  const id = route?.params?.data?.id;
   const matchId = () => {
-    console.log('avg');
     data.map((v, index) => {
-      console.log('ids', v.user_id);
       if (v.user_id == id) {
-        console.log('abc');
         const matchedId = v.user_id;
-        console.log(matchedId, index, 'mat');
         if (index !== -1 && flatListRef.current) {
           flatListRef.current.scrollToIndex({index, animated: true});
         }
       } else {
-        console.log('false');
       }
     });
   };
@@ -127,78 +276,21 @@ const Notifications = ({navigation, route}) => {
     index,
   });
 
-  const getList = async () => {
-    setLoader(true);
-    axiosconfig
-      .get(`request-list`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('elenenen', res.data);
-        setData(res?.data);
-        matchId();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+  const getList = async loader => {};
+
+  const getNotification = async () => {
+    setNotificationData(dummyData);
   };
-  const connectAccept = async id => {
+  const connectAccept = async connectId => {
     console.log('accept');
-    setIndex(id);
-    setLoader(true);
-    axiosconfig
-      .get(`connect-accept/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('data', res?.data);
-        setResponse('Connected');
-        setTimeout(() => {
-          getList();
-        }, 7000);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
   };
-  const connectDecline = async id => {
-    setLoader(true);
-    setIndex(id);
-    axiosconfig
-      .get(`connect-remove/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('data', res?.data);
-        setResponse('Declined');
-        setTimeout(() => {
-          getList();
-        }, 7000);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+  const connectDecline = async connectId => {
+    console.log('decline');
   };
 
   const renderItem = (elem, i) => {
-    console.log('elem data', elem?.item);
     return (
-      <View style={s.card}>
+      <View key={i} style={s.card}>
         <View style={s.dp}>
           <Image
             source={{
@@ -227,9 +319,6 @@ const Notifications = ({navigation, route}) => {
               </Text>
               <Text style={[s.name1]}> requested to follow you</Text>
             </View>
-            {/* <Text style={[s.textSmall, {color: '#787878'}]}>
-              {elem?.item?.active}
-            </Text> */}
           </View>
         </TouchableOpacity>
 
@@ -266,31 +355,84 @@ const Notifications = ({navigation, route}) => {
       </View>
     );
   };
-  return (
+  const NotificationRenderItem = (notification, i) => {
+    return (
+      <View key={i} style={s.card}>
+        <View style={s.dp}>
+          <Image
+            source={{
+              uri: notification?.item?.users?.image
+                ? notification?.item?.users?.image
+                : dummyImage,
+            }}
+            style={s.dp1}
+            resizeMode={'cover'}
+          />
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('ViewUser', {
+              screen: 'search',
+              post: {id: notification?.item?.users?.id},
+            });
+          }}
+          style={{flex: 1, alignSelf: 'center'}}>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flex: 1}}>
+              <Text style={[s.name, s.nameBold, {color: textColor}]}>
+                {notification?.item?.users?.name}{' '}
+                {notification?.item?.users?.last_name}
+              </Text>
+              <Text style={s.name1}>
+                {notification?.item?.type == 'Like'
+                  ? 'like your post'
+                  : 'comment on your post'}
+              </Text>
+            </View>
+            <Text style={s.name1}>
+              {moment(notification?.item?.created_at).fromNow()}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+  const renderEmptyComponent = () => {
+    return !data?.length ? (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <Text style={{color: 'white', fontSize: moderateScale(16, 0.1)}}>
+          No notifications
+        </Text>
+      </View>
+    ) : null;
+  };
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <Header navigation={navigation} />
-      <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}>
+      <View style={[s.container, {backgroundColor: color}]}>
         <View>
           <Text style={[s.HeadingText, {color: textColor}]}>Notifications</Text>
         </View>
-        <View style={s.txtView}>
-          <Text style={s.hTxt}>See New Activity</Text>
-        </View>
-        <View style={s.hView}>
-          <Text style={s.hTxt1}>This Week</Text>
-        </View>
-
         <FlatList
           ref={flatListRef}
           data={data}
           renderItem={renderItem}
           getItemLayout={getItemLayout}
-          // keyExtractor={(e, i) => i.toString()}
+          keyExtractor={(item, index) => String(index)}
           scrollEnabled={true}
         />
-      </ScrollView>
+        <FlatList
+          ref={flatListRef}
+          data={notificationdata}
+          renderItem={NotificationRenderItem}
+          getItemLayout={getItemLayout}
+          keyExtractor={(item, index) => String(index)}
+          scrollEnabled={true}
+          ListEmptyComponent={renderEmptyComponent}
+        />
+      </View>
     </SafeAreaView>
   );
 };

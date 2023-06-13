@@ -8,126 +8,459 @@ import {
   FlatList,
   RefreshControl,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import InstaStory from 'react-native-insta-story';
-import {Input, Button, Menu, Pressable} from 'native-base';
+import {Input, Menu, Pressable} from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
-import Pin from 'react-native-vector-icons/SimpleLineIcons';
-import {ScrollView} from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import Loader from '../../../../Components/Loader';
 import axiosconfig from '../../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 import {useIsFocused} from '@react-navigation/native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
-import PushNotification from 'react-native-push-notification';
 import io from 'socket.io-client';
 import socket from '../../../../utils/socket';
-import styles from './style';
 import {useNavigation, useRoute} from '@react-navigation/native';
-const SERVER_URL = 'http://your-server-address';
+import {Loader} from '../../../../Components/Index';
+import {
+  dummyImage,
+  getColor,
+  socketComment,
+  socketLike,
+} from '../../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import moment from 'moment';
+import {theme} from '../../../../Constants/Index';
 
+const funPostsdummy = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:33:14',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:33:14.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:33:14',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:33:14.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'Hii',
+    created_at: '2023-06-06T15:24:16.000000Z',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686065056base64_image.png',
+    location: 'C P West Manhattan',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-06T15:24:16.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T15:00:12.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-06 16:27:20',
+      device_token:
+        'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+      email: 'aina@designprosuk.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Alpha Phi Alpha Fraternity, Inc.',
+      id: 4,
+      image: null,
+      last_name: 'James',
+      location: 'C P West Manhattan',
+      month: null,
+      name: 'Aina',
+      notify: '0',
+      otp: '3117',
+      phone_number: '+1',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-06T16:27:20.000000Z',
+      year: null,
+    },
+    user_id: '4',
+  },
+];
+const sourceDatadummy = [
+  {
+    about_me: null,
+    created_at: '2023-06-06T15:00:12.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-06 16:27:20',
+    device_token:
+      'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+    email: 'aina@designprosuk.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Alpha Phi Alpha Fraternity, Inc.',
+    id: 4,
+    image: null,
+    last_name: 'James',
+    location: 'C P West Manhattan',
+    month: null,
+    name: 'Aina',
+    notify: '0',
+    otp: '3117',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T16:27:20.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T13:27:38.000000Z',
+    date: '6/06/1992',
+    date_login: '2023-06-06 15:17:51',
+    device_token:
+      'eHTkJdeDSb6FLKT_p7zLif:APA91bGcmu4pjgLJ4kNHDQ-50aaz0g42T1tuZQgFamW0K9yDuyczmxdkaQIu-xs2uyO0hhVUtZPzlCFZvrbR8SKsm18Ww_BsrVjziQzaMhCstjKjD6LFUOeHb475GJDonqNj1GOeQ3mN',
+    email: 'e.stone@designprosusa.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    last_name: 'Me',
+    location: 'London Greater London',
+    month: null,
+    name: 'Tester',
+    notify: '0',
+    otp: '2360',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T15:17:51.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:33:48',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'martin',
+    location: null,
+    month: null,
+    name: 'Emily',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:33:48.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-02T15:57:20.000000Z',
+    date: '6/02/2005',
+    date_login: '2023-06-02 15:57:53',
+    device_token:
+      'eRZHt3GHSpuMFYGrp_fjr-:APA91bHQq4L1AsH0l1TLjxNoEMVvtr2Z_HzvwrKNcP96E5RFncOKyL7-HQlY1S_jGj9lxR-IpMzIH1-y1r2TnxlW1kKlINIRIC1s_pbiI3KOD-U6fuk8dVW48z1VvBxP8FjDaMz8X6O4',
+    email: 'dominicxavier143@gmail.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Zeta Phi Beta Sorority Inc.',
+    id: 1,
+    image: null,
+    last_name: 'Xavier',
+    location: 'London Greater London',
+    month: null,
+    name: 'Dominic',
+    notify: '0',
+    otp: '5347',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-02T15:57:53.000000Z',
+    year: null,
+  },
+];
+const Likes = [
+  {
+    created_at: '2023-06-07T07:01:22.000000Z',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    location: '2020 Amphitheatre Pkwy, Mountain View, CA 94043, USA',
+    post_id: '4',
+    status: '1',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    user_name: 'Emily',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 10:57:12',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T10:57:12.000000Z',
+      year: null,
+    },
+  },
+];
 const FunInteraction = ({}) => {
-  const dispatch = useDispatch();
   const refRBSheet1 = useRef();
-  const scrollViewRef = useRef();
   const isFocused = useIsFocused();
-  const organizations = useSelector(state => state.reducer.organization);
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [refreshing, setRefreshing] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [postId, setPostId] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [refresh, setRefresh] = useState(true);
-  const [loader, setLoader] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [publicPost, setPublicPost] = useState([]);
   const [text, setText] = useState(null);
   const [userID, setUserID] = useState('');
   const [current, setCurrent] = useState('');
   const [comment, setComment] = useState('');
   const [itemHeights, setItemHeights] = useState([]);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
   const [dataSource, setDataSource] = useState([]);
+  let userList = [];
   const [filtered, setFiltered] = useState(dataSource);
   const [searching, setSearching] = useState(false);
-  const userToken = useSelector(state => state.reducer.userToken);
-  const [soc, setSoc] = useState(null);
-  const [dataSourceCords, setDataSourceCords] = useState([]);
+  const {token} = useAppContext(AppContext);
   const navigation = useNavigation();
   const route = useRoute();
   const flatListRef = useRef(null);
-  // Access the notification data from the route parameters
+  const [loadingStates, setLoadingStates] = useState({});
   const postID = route?.params?.data?.id;
-  console.log(route?.params?.data?.id, 'postidf');
   useEffect(() => {
-    const socket = io(socket);
-    setSoc(socket);
-    setUserId(userID);
-
-    // Clean up Socket.IO client on unmount
-    return () => {
-      socket.disconnect();
-      setSoc(null);
-      setUserId(null);
-    };
-  }, []);
-
-  // Emit 'likePost' event on post like
-  const handleLikePost = postId => {
-    if (soc) {
-      soc.emit('likePost', {postId, userId});
+    getID();
+  }, [isFocused]);
+  const getAllUsers = async loader => {
+    try {
+      const sourceData = sourceDatadummy;
+      userList = sourceData;
+      setDataSource(sourceData);
+      getPosts();
+    } catch (err) {
+      console.log(err);
     }
   };
 
-  useEffect(() => {
-    getID();
-    getPosts();
-    getAllUsers();
-  }, [isFocused]);
+  const getPosts = async loader => {
+    try {
+      const postData = await funPostsdummy;
+      await setPublicPost(postData);
+
+      await matchId(postData);
+      // await setTimeout(async () => {
+      //   await // setLoader(false);
+      // }, 0);
+    } catch (err) {
+      console.log(err);
+      // // setLoader(false);
+    }
+  };
 
   const getID = async () => {
     const id = await AsyncStorage.getItem('id');
     setUserID(id);
+    getAllUsers();
   };
-  const getColor = id => {
-    let color;
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
+
   const hitLike = async (id, userid, index) => {
-    socket.emit('likePost', {postId, userId});
-    setLoader(true);
-    await axiosconfig
-      .get(`like/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        toggleLike(index);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
+    toggleLike(index);
+    setLoadingStates(prevState => ({
+      ...prevState,
+      [id]: false,
+    }));
   };
+
+  useEffect(() => {
+    const handleLike = ({postId, postUserId, myId}) => {
+      setPublicPost(prevPosts => {
+        return prevPosts?.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            const likesIndex = updatedPost.post_likes.findIndex(
+              like => like.user_id === myId,
+            );
+            if (likesIndex !== -1) {
+              updatedPost.post_likes.splice(likesIndex, 1);
+            } else {
+              const myLikesIndex = updatedPost.post_likes.findIndex(
+                like => like.user_id === myId,
+              );
+              if (myLikesIndex !== -1) {
+                updatedPost.post_likes.splice(myLikesIndex, 1);
+              }
+              if (userList) {
+                userList?.map(user => {
+                  if (user?.id == myId) {
+                    updatedPost.post_likes.push({
+                      user_id: myId,
+                      users: {
+                        name: user?.name,
+                        last_name: user?.last_name,
+                      },
+                    });
+                  }
+                });
+              }
+            }
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+    socket.on('like', handleLike);
+    return () => {
+      socket.off('like', handleLike);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const handleComment = ({postId, postUserId, myId}) => {
+      setPublicPost(prevPosts => {
+        return prevPosts?.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            updatedPost.post_comments.push(myId);
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+
+    socket.on('comment', handleComment);
+
+    return () => {
+      socket.off('comment', handleComment);
+    };
+  }, [socket]);
 
   var lastTap = null;
   const handleDoubleTap = (id, index) => {
@@ -141,44 +474,17 @@ const FunInteraction = ({}) => {
   };
 
   const toggleLike = index => {
-    getPosts();
     setRefresh(!refresh);
   };
 
-  const getAllUsers = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('users-connect', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // console.log('All Users', JSON.stringify(res.data));
-        setDataSource([...res?.data?.friends, ...res?.data?.public]);
-        setLoader(false);
-        // console.log(dataSource);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
-  };
-
   const matchId = postId => {
-    console.log('avg', postId);
-    postId.map((post, index) => {
-      console.log('post id', post.id, postID);
+    postId?.map((post, index) => {
       if (post.id == postID) {
-        console.log('abc');
         const matchedId = post.id;
-        console.log(matchedId, index, 'mat');
         if (index !== -1 && flatListRef.current) {
           flatListRef.current.scrollToIndex({index, animated: true});
         }
       } else {
-        console.log('false');
       }
     });
   };
@@ -187,126 +493,95 @@ const FunInteraction = ({}) => {
     offset: 500 * index,
     index,
   });
-  const getPosts = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('fun-interaction', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log('public post', res?.data?.post_public);
-        const data = res?.data?.post_public;
-        setPublicPost(res?.data?.post_public);
-        matchId(res?.data?.post_public);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
-  };
 
   const report = async reptext => {
-    console.log('report');
-    setLoader(true);
-    const data = {
-      post_id: postId,
-      text: reptext,
-    };
-    await axiosconfig
-      .post('post-report', data, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log(res, 'response');
-        Alert.alert('post reported successfully');
-        getPosts();
-        refRBSheet1.current.close();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
+    // // setLoader(true);
+    // const data = {
+    //   post_id: postId,
+    //   text: reptext,
+    // };
+    // await axiosconfig
+    //   .post('post-report', data, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //       Accept: 'application/json',
+    //     },
+    //   })
+    //   .then(res => {
+    Alert.alert('post reported successfully');
+    // getPosts(true);
+    refRBSheet1.current.close();
+    //   // setLoader(false);
+    // })
+    // .catch(err => {
+    //   // setLoader(false);
+    //   console.log(err);
+    // });
   };
   const hide = async id => {
-    setLoader(true);
+    // setLoader(true);
     await axiosconfig
       .get(`post_action/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        console.log('sasa', res.data);
-        getPosts();
-        setLoader(false);
+        console.log(res, 'hello hide res');
+        getPosts(true);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
-        console.log(err);
+        // setLoader(false);
+        console.log(err, 'hello hide res');
       });
   };
 
   const addComment = async (id, index) => {
-    setLoader(true);
-    console.log('hisss', id);
-    if (!comment) {
-      setLoader(false);
-      return;
+    if (comment) {
+      // setLoader(true);
+      const data = {
+        text: comment,
+        post_id: id,
+      };
+      await axiosconfig
+        .post(`comment_add`, data, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
+          },
+        })
+        .then(res => {
+          setComment('');
+          getPosts(true);
+          setRefresh(!refresh);
+          // setLoader(false);
+        })
+        .catch(err => {
+          // setLoader(false);
+          setComment('');
+          console.log(err);
+        });
     }
-    const data = {
-      text: comment,
-      post_id: id,
-    };
-    await axiosconfig
-      .post(`comment_add`, data, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log('data', JSON.stringify(res.data));
-        setComment('');
-        getPosts();
-        setRefresh(!refresh);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        setComment('');
-        console.log(err);
-        // Alert.alert(err);
-      });
   };
 
   const deletePost = async id => {
-    setLoader(true);
-    // console.log(id);
+    // setLoader(true);
     await axiosconfig
       .get(`post_delete/${id}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
         Alert.alert(res?.data?.message);
-        getPosts(userToken);
-        // console.log(myData1);
-        setLoader(false);
+        getPosts(token);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
-        console.log(err, 'hhe');
+        // setLoader(false);
       });
   };
 
@@ -327,23 +602,20 @@ const FunInteraction = ({}) => {
   };
 
   const handleRefresh = () => {
-    // Perform your data fetching or refreshing logic here
     getID();
-    getPosts();
+    getPosts(true);
   };
 
   const renderItem = elem => {
     if (elem?.item?.privacy_option == '3') {
-      return; //hide friends' only me posts
+      return;
     }
-    //check if the user already liked the post
     let liked = false;
     elem?.item?.post_likes?.forEach(t => {
       if (t?.user_id == userID) {
         liked = true;
       }
     });
-
     return (
       <View
         style={s.col}
@@ -402,14 +674,13 @@ const FunInteraction = ({}) => {
               }}>
               <Menu.Item
                 onPress={() => {
-                  hide(elem?.item?.id);
+                  // hide(elem?.item?.id);
                 }}>
                 <View style={s.optionView}>
                   <Icon
                     name={'eye-slash'}
                     color={textColor}
                     size={moderateScale(13, 0.1)}
-                    // style={{marginRight: moderateScale(10, 0.1)}}
                     style={{flex: 0.3}}
                   />
                   <Text style={[s.optionBtns, {color: textColor}]}>Hide</Text>
@@ -440,14 +711,7 @@ const FunInteraction = ({}) => {
               ) : null}
               {userID == elem?.item?.user?.id ? (
                 <>
-                  <Menu.Item
-                    onPress={() =>
-                      deleteAlert(
-                        'Delete Post',
-                        'Are you sure you want to delete this post?',
-                        elem?.item?.id,
-                      )
-                    }>
+                  <Menu.Item onPress={() => {}}>
                     <View style={s.optionView}>
                       <Antdesign
                         name={'delete'}
@@ -486,7 +750,10 @@ const FunInteraction = ({}) => {
         </View>
         <View style={s.img}>
           <TouchableWithoutFeedback
-            onPress={() => handleDoubleTap(elem?.item?.id, elem?.index)}>
+            onPress={() => {
+              handleDoubleTap(elem?.item?.id, elem?.index);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
+            }}>
             <View style={s.img}>
               <Image
                 source={{uri: elem?.item?.image}}
@@ -496,13 +763,22 @@ const FunInteraction = ({}) => {
           </TouchableWithoutFeedback>
           <TouchableOpacity
             onPress={() => {
-              console.log('like');
+              setLoadingStates(prevState => ({
+                ...prevState,
+                [elem?.item?.id]: true,
+              }));
               hitLike(elem?.item?.id, elem?.item?.user_id, elem?.index);
-              // console.log(data[elem.index].post.liked);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
             style={s.likes}>
-            <Text style={s.likesCount}> {elem?.item?.post_likes?.length}</Text>
-
+            {loadingStates[elem?.item?.id] ? (
+              <ActivityIndicator size="small" color={'yellow'} />
+            ) : (
+              <Text style={s.likesCount}>
+                {' '}
+                {elem?.item?.post_likes?.length}
+              </Text>
+            )}
             <Icon
               name="heart"
               size={moderateScale(12, 0.1)}
@@ -514,12 +790,12 @@ const FunInteraction = ({}) => {
         <View style={s.footer}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Likes', {data: elem?.item?.post_likes});
+              navigation.navigate('Likes', {data: Likes});
             }}
             style={{marginBottom: moderateScale(5, 0.1)}}>
             {elem?.item?.post_likes?.length ? (
               <Text style={[s.name, {color: textColor}]}>
-                {`Liked by ${elem?.item?.post_likes[0]?.users?.name} ${elem?.item?.post_likes[0]?.users?.last_name} `}
+                {`Liked by Ava Simmon`}
                 {elem?.item?.post_likes?.length - 1
                   ? `and ${elem?.item?.post_likes?.length - 1} other`
                   : null}
@@ -579,8 +855,11 @@ const FunInteraction = ({}) => {
               }
               InputRightElement={
                 <TouchableOpacity
+                  disabled={comment == ''}
                   onPress={() => {
-                    addComment(elem?.item?.id, elem?.index);
+                    setComment('');
+                    // addComment(elem?.item?.id, elem?.index);
+                    // socketComment(elem?.item?.id, elem?.item?.user_id, userID);
                   }}
                   style={{marginRight: moderateScale(15, 0.1)}}>
                   <Feather
@@ -590,12 +869,7 @@ const FunInteraction = ({}) => {
                   />
                 </TouchableOpacity>
               }
-              // value={fname}
-              onEndEditing={() => {
-                // setDisable1(!disable1);
-              }}
-              // isReadOnly={!disable1}
-              // isFocused={disable1}
+              onEndEditing={() => {}}
               placeholder="Add Comment ..."
               placeholderTextColor={'grey'}
               value={current == elem.index ? comment : ''}
@@ -606,8 +880,12 @@ const FunInteraction = ({}) => {
             />
           </View>
           <View>
-            <Text style={[s.textRegular, {color: 'grey', marginVertical: 0}]}>
-              {`${new Date(elem?.item?.created_at).toLocaleString()}`}
+            <Text
+              style={[
+                s.textRegular,
+                {color: 'grey', marginVertical: 0, textTransform: 'capitalize'},
+              ]}>
+              {`${moment(elem?.item?.created_at).fromNow()}`}
             </Text>
           </View>
         </View>
@@ -668,10 +946,10 @@ const FunInteraction = ({}) => {
     setFiltered([]);
     setSearching(false);
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <View style={[s.container, s.col, {backgroundColor: color}]}>
         <View style={s.searchContainer}>
           <Input
@@ -718,8 +996,8 @@ const FunInteraction = ({}) => {
             <FlatList
               data={filtered}
               renderItem={searchItem}
-              keyExtractor={(e, i) => i.toString()}
-              scrollEnabled
+              keyExtractor={(item, index) => String(index)}
+              scrollEnabled={true}
               extraData={refresh}
             />
           </View>
@@ -755,9 +1033,8 @@ const FunInteraction = ({}) => {
           ref={flatListRef}
           data={publicPost}
           renderItem={elem => renderItem(elem)}
-          keyExtractor={(elem, index) => {
-            index.toString();
-          }}
+          keyExtractor={(item, index) => String(index)}
+          scrollEnabled={true}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
@@ -782,7 +1059,6 @@ const FunInteraction = ({}) => {
               alignSelf: 'center',
               marginBottom: moderateScale(10, 0.1),
             }}>
-            {/* {loader ? <Loader /> : null} */}
             <Text style={[s.rb, {color: textColor}]}>Report</Text>
           </View>
           <View

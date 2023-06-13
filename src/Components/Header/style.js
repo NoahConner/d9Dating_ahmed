@@ -26,7 +26,6 @@ export default StyleSheet.create({
   },
   nmaeTxt: {
     fontSize: moderateScale(16),
-    // //fontFamily: 'Poppins-Medium',
     marginTop: 3,
     color: '#999',
   },

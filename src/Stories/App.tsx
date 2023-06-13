@@ -9,14 +9,13 @@ import {
   View,
 } from "react-native";
 import { StoryType } from "./index";
-import { useSelector } from "react-redux";
 const { CubeNavigationHorizontal } = require("react-native-3dcube-navigation");
 import styles from "./styles";
 import StoryContainer from "./StoryContainer";
-
+import {AppContext, useAppContext} from '../Context/AppContext';
+import Loader from '../Components/Loader';
 const Stories = (props) => {
   const theme =props.theme;
-  const userToken = useSelector(state=> state.reducer.userToken)
   const color = theme === 'dark' ? '#fff' : '#222222';
 
   const [isModelOpen, setModel] = useState(false);
@@ -24,11 +23,17 @@ const Stories = (props) => {
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentScrollValue, setCurrentScrollValue] = useState(0);
   const [storyColor, setStoryColor] = useState('green');
+  const {storyLoader, setStoryLoader} = useAppContext(AppContext);
+  const [seenStories, setSeenStories] =useState([]);
   const modalScroll = useRef(null);
 
-  // useEffect(()=> {
-
-  // }, [])
+  useEffect(() => {
+    // if (storyLoader) {
+    //   setTimeout(() => {
+    //     setStoryLoader(false);
+    //   }, 1500);
+    // }
+  }, [storyLoader, setStoryLoader]);
 
   const onStorySelect = (index) => {
     setCurrentUserIndex(index);
@@ -43,6 +48,7 @@ const Stories = (props) => {
     const newIndex = currentUserIndex + 1;
     if (props.data.length - 1 > currentUserIndex) {
       setCurrentUserIndex(newIndex);
+      setSeenStories((prev)=> [...prev,newIndex])
       if (!isScroll) {
         //erro aqui
         try {
@@ -88,16 +94,18 @@ const Stories = (props) => {
         renderItem={({ item, index }) => (
           <View style={styles.boxStory}>
             <TouchableOpacity onPress={() => {
+              
+                 setCurrentUserIndex(index);
+                 setSeenStories((prev)=> [...prev,index])
+                 onStorySelect(index);
               if(props.setColorFun){
- props.setColorFun('grey')
+                 props.setColorFun('grey')
               }
-             
-              onStorySelect(index);
               setStoryColor('grey')
              console.log('index',item, index, currentUserIndex)}
            }
               >
-              <View style={[styles.superCircle, props.containerAvatarStyle, {borderColor:props.color? props.color:storyColor}]}>
+              <View style={[styles.superCircle, props.containerAvatarStyle,  {borderColor: props.color ? props.color : seenStories.includes(index)? storyColor:'green'},]}>
                 <Image
                   style={[styles.circle, props.avatarStyle]}
                   source={{ uri: item.profile }}

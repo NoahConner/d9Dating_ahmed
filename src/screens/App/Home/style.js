@@ -1,5 +1,6 @@
 import {Dimensions, StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
+import {height} from '../../../Constants/Index';
 
 const Poppins = '';
 const PoppinsBold = '';
@@ -7,7 +8,6 @@ const PoppinsBold = '';
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    paddingBottom: '15%',
   },
   stories: {
     alignItems: 'flex-start',
@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
   },
   rb: {
     fontSize: moderateScale(16, 0.1),
-    //fontFamily: Poppins,
     lineHeight: moderateScale(18, 0.1),
   },
   button: {
@@ -34,7 +33,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: 'gray',
-    //fontFamily: Poppins,
     fontSize: moderateScale(12, 0.1),
   },
   hv: {
@@ -82,7 +80,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: moderateScale(1, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontWeight: 700,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(15, 0.1),
@@ -103,9 +100,6 @@ const styles = StyleSheet.create({
     borderColor: '#222233',
     flexDirection: 'column',
   },
-  // input: {
-  //   marginVertical: moderateScale(5, 0.1),
-  // },
   text: {
     color: '#3f2949',
     marginTop: 10,
@@ -130,27 +124,17 @@ const styles = StyleSheet.create({
     height: moderateScale(350, 0.1),
     borderRadius: moderateScale(12, 0.1),
   },
-
-  // img: {
-  //   height: moderateScale(400, 0.1),
-  //   paddingHorizontal: moderateScale(10, 0.1),
-  //   borderRadius: moderateScale(10, 0.1),
-  // },
   optionView: {
     flexDirection: 'row',
     borderBottomWidth: moderateScale(1, 0.1),
     borderBottomColor: 'grey',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // padding: moderateScale(10, 0.1),
-    // width: moderateScale(150, 0.1),
     paddingBottom: moderateScale(5, 0.1),
   },
   optionBtns: {
     fontSize: moderateScale(12, 0.1),
     color: 'red',
-    //fontFamily: Poppins,
-    // marginLeft: moderateScale(15, 0.1),
     flex: 0.7,
   },
   userName: {
@@ -175,7 +159,6 @@ const styles = StyleSheet.create({
   myStory: {
     width: moderateScale(70, 0.1),
     height: moderateScale(70, 0.1),
-    // marginTop: moderateScale(10, 0.1),
     marginLeft: moderateScale(15, 0.1),
     marginBottom: moderateScale(50, 0.1),
     borderRadius: moderateScale(70 / 2, 0.1),
@@ -188,21 +171,14 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(5, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(17, 0.1),
   },
   textRegular: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(15, 0.1),
     marginVertical: moderateScale(5, 0.1),
-    // height: moderateScale(30, 0.1),
   },
-  // img: {
-  //   width: '100%',
-  //   alignItems: 'center',
-  // },
   option: {
     fontSize: moderateScale(14, 0.1),
     marginRight: moderateScale(10, 0.1),
@@ -236,7 +212,6 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(25, 0.1),
   },
   btnTxt: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(15, 0.1),
     lineHeight: moderateScale(19, 0.1),
     color: '#222222',
@@ -272,15 +247,12 @@ const styles = StyleSheet.create({
   },
   funView: {
     position: 'absolute',
-    right: 0,
-    // width: moderateScale(100, 0.1),
-    top: moderateScale(90, 0.1),
-    // height: moderateScale(35, 0.1),
+    zIndex: 1000,
+    right: moderateScale(10, 0.1),
+    top: moderateScale(120, 0.1),
+
     flexDirection: 'row',
-    // justifyContent: 'flex-end',
     alignItems: 'center',
-    // backgroundColor: 'red',
-    // marginVertical: moderateScale(12, 0.1),
     marginRight: moderateScale(10, 0.1),
   },
   yellow: {
@@ -303,22 +275,18 @@ const styles = StyleSheet.create({
 
   count: {
     fontSize: moderateScale(7, 0.1),
-    //fontFamily: Poppins,
     color: '#000',
   },
   funText: {
     fontSize: moderateScale(11, 0.1),
-    //fontFamily: PoppinsBold,
   },
   footer: {
     marginHorizontal: moderateScale(15, 0.1),
     marginVertical: moderateScale(10, 0.1),
   },
   capturebtntxt: {
-    // alignSelf:'center',
     fontSize: moderateScale(13, 0.1),
     alignSelf: 'center',
-    //fontFamily: Poppins,
     color: '#fff',
     paddingHorizontal: moderateScale(7, 0.1),
   },

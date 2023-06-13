@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     width: moderateScale(18, 0.1),
     height: moderateScale(18, 0.1),
     borderRadius: moderateScale(18 / 2, 0.1),
-    // padding: moderateScale(5, 0.1),
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: '#fff',
@@ -52,12 +51,10 @@ const styles = StyleSheet.create({
   textBold: {
     fontSize: moderateScale(20, 0.1),
     lineHeight: moderateScale(30, 0.1),
-    //fontFamily: PoppinsBold,
     marginRight: moderateScale(10, 0.1),
   },
   inputSection: {
     marginTop: moderateScale(20, 0.1),
-    // paddingHorizontal: moderateScale(25, 0.1),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -71,6 +68,7 @@ const styles = StyleSheet.create({
   option: {
     fontSize: moderateScale(12, 0.1),
     marginRight: moderateScale(4, 0.1),
+    marginTop: moderateScale(4, 0.1),
   },
   input: {
     marginVertical: moderateScale(15, 0.1),
@@ -82,7 +80,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     position: 'absolute',
     top: moderateScale(44, 0.1),
-    // right: moderateScale(5, 0.1),
     zIndex: 100000,
     width: moderateScale(150, 0.1),
     flexDirection: 'column',
@@ -101,19 +98,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: moderateScale(1, 0.1),
     borderBottomColor: 'grey',
     justifyContent: 'flex-start',
-    // padding: moderateScale(10, 0.1),
     width: moderateScale(150, 0.1),
     paddingBottom: moderateScale(5, 0.1),
   },
   optionBtns: {
     fontSize: moderateScale(12, 0.1),
     fontFamily: Poppins,
-    // marginLeft: moderateScale(15, 0.1),
-    // flex: 0.6,
   },
   smallText: {
     fontSize: moderateScale(12, 0.1),
-    //fontFamily: PoppinsBold,
     position: 'absolute',
     left: moderateScale(40, 0.1),
     width: moderateScale(150, 0.1),
@@ -121,7 +114,6 @@ const styles = StyleSheet.create({
     color: '#898989',
   },
   text: {
-    //fontFamily: PoppinsBold,
     flex: 0.5,
     fontSize: moderateScale(12, 0.1),
   },

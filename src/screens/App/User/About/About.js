@@ -1,28 +1,25 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {setTheme} from '../../../../Redux/actions';
-import Header from '../../../../Components/Header';
-import Loader from '../../../../Components/Loader';
 import s from './style';
+import {Header, Loader} from '../../../../Components/Index';
+import {theme} from '../../../../Constants/Index';
 
 const About = ({navigation}) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [loader, setLoader] = useState(false);
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <View style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={s.container}>
         <View style={{left: moderateScale(-10)}}>
           <Header navigation={navigation} />
         </View>
         <View style={s.hView}>
-          <Text style={[s.hTxt,{color: textColor}]}>About</Text>
+          <Text style={[s.hTxt, {color: textColor}]}>About</Text>
         </View>
         <View style={s.Ctxt}>
           <Text style={s.txt}>

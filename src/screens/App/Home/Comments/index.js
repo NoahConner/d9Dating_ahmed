@@ -1,107 +1,272 @@
 import {TouchableOpacity, Text, SafeAreaView, View, Image} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {setTheme} from '../../../../Redux/actions';
 import s from './style';
-import Header from '../../../../Components/Header';
 import {FlatList} from 'react-native';
 import {ScrollView} from 'react-native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
-
 import Entypo from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../../provider/axios';
-import Loader from '../../../../Components/Loader';
-// import Toast from 'react-native-simple-toast';
 import Feather from 'react-native-vector-icons/Feather';
 import {Input} from 'native-base';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, getColor} from '../../../../Constants/Index';
+import {theme} from '../../../../Constants/Index';
 
-const messages = [
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../../assets/images/png/mydp.png'),
-    active: '4 Hours ago',
-    icon: <Antdesign name="checkcircle" size={20} color="green" />,
-    icon1: <Antdesign name="closecircle" size={20} color="red" />,
+const dummyPost = {
+  action: '0',
+  caption: 'public post',
+  created_at: '2023-06-07T06:59:09.000000Z',
+  id: 4,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+  location: 'Dufferin St London',
+  post_comments: [
+    {
+      created_at: '2023-06-07T06:59:41.000000Z',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 4,
+      image: null,
+      post_id: '4',
+      status: '1',
+      text: 'hello',
+      updated_at: '2023-06-07T06:59:41.000000Z',
+      user_id: '2',
+      user_name: 'Emily',
+      users: {
+        about_me: 'my about info',
+        created_at: '2023-06-06T12:21:34.000000Z',
+        date: '6/06/2005',
+        date_login: '2023-06-07 08:04:39',
+        device_token:
+          'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+        email: 'emilymartin9875@gmail.com',
+        email_verified_at: null,
+        gender: 'Female',
+        group: 'Omega Psi Phi Fraternity, Inc.',
+        id: 2,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+        last_name: 'martin',
+        location: null,
+        month: null,
+        name: 'Emily',
+        notify: '0',
+        otp: '8405',
+        phone_number: '+443334443333',
+        post_privacy: '1',
+        privacy_option: '1',
+        status: '1',
+        story_privacy: '00000000001',
+        theme_mode: null,
+        updated_at: '2023-06-07T10:56:56.000000Z',
+        year: null,
+      },
+    },
+    {
+      created_at: '2023-06-07T07:00:15.000000Z',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 5,
+      image: null,
+      post_id: '4',
+      status: '1',
+      text: 'beautiful',
+      updated_at: '2023-06-07T07:00:15.000000Z',
+      user_id: '2',
+      user_name: 'Emily',
+      users: {
+        about_me: 'my about info',
+        created_at: '2023-06-06T12:21:34.000000Z',
+        date: '6/06/2005',
+        date_login: '2023-06-07 08:04:39',
+        device_token:
+          'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+        email: 'emilymartin9875@gmail.com',
+        email_verified_at: null,
+        gender: 'Female',
+        group: 'Omega Psi Phi Fraternity, Inc.',
+        id: 2,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+        last_name: 'martin',
+        location: null,
+        month: null,
+        name: 'Emily',
+        notify: '0',
+        otp: '8405',
+        phone_number: '+443334443333',
+        post_privacy: '1',
+        privacy_option: '1',
+        status: '1',
+        story_privacy: '00000000001',
+        theme_mode: null,
+        updated_at: '2023-06-07T10:56:56.000000Z',
+        year: null,
+      },
+    },
+    {
+      created_at: '2023-06-07T07:01:09.000000Z',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 6,
+      image: null,
+      post_id: '4',
+      status: '1',
+      text: 'oodd',
+      updated_at: '2023-06-07T07:01:09.000000Z',
+      user_id: '2',
+      user_name: 'Emily',
+      users: {
+        about_me: 'my about info',
+        created_at: '2023-06-06T12:21:34.000000Z',
+        date: '6/06/2005',
+        date_login: '2023-06-07 08:04:39',
+        device_token:
+          'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+        email: 'emilymartin9875@gmail.com',
+        email_verified_at: null,
+        gender: 'Female',
+        group: 'Omega Psi Phi Fraternity, Inc.',
+        id: 2,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+        last_name: 'martin',
+        location: null,
+        month: null,
+        name: 'Emily',
+        notify: '0',
+        otp: '8405',
+        phone_number: '+443334443333',
+        post_privacy: '1',
+        privacy_option: '1',
+        status: '1',
+        story_privacy: '00000000001',
+        theme_mode: null,
+        updated_at: '2023-06-07T10:56:56.000000Z',
+        year: null,
+      },
+    },
+  ],
+  post_likes: [
+    {
+      created_at: '2023-06-07T07:01:22.000000Z',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 3,
+      image: null,
+      location: '2020 Amphitheatre Pkwy, Mountain View, CA 94043, USA',
+      post_id: '4',
+      status: '1',
+      updated_at: '2023-06-07T07:01:22.000000Z',
+      user_id: '2',
+      user_name: 'Emily',
+      users: {
+        about_me: 'my about info',
+        created_at: '2023-06-06T12:21:34.000000Z',
+        date: '6/06/2005',
+        date_login: '2023-06-07 10:57:12',
+        device_token:
+          'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+        email: 'emilymartin9875@gmail.com',
+        email_verified_at: null,
+        gender: 'Female',
+        group: 'Omega Psi Phi Fraternity, Inc.',
+        id: 2,
+        image:
+          'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+        last_name: 'martin',
+        location: null,
+        month: null,
+        name: 'Emily',
+        notify: '0',
+        otp: '8405',
+        phone_number: '+443334443333',
+        post_privacy: '1',
+        privacy_option: '1',
+        status: '1',
+        story_privacy: '00000000001',
+        theme_mode: null,
+        updated_at: '2023-06-07T10:57:12.000000Z',
+        year: null,
+      },
+    },
+  ],
+  privacy_option: '1',
+  status: '1',
+  updated_at: '2023-06-07T06:59:09.000000Z',
+  user: {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'martin',
+    location: null,
+    month: null,
+    name: 'Emily',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    year: null,
   },
-  {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: '10:00pm',
-    userImage: require('../../../../assets/images/png/u7.png'),
-    active: 'Nov 10 At 2:01 AM',
-    icon: <Antdesign name="checkcircle" size={20} color="green" />,
-    icon1: <Antdesign name="closecircle" size={20} color="red" />,
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Friday',
-    userImage: require('../../../../assets/images/png/u1.png'),
-    active: '4 Hours ago',
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Like your photo',
-    time: 'Monday',
-    userImage: require('../../../../assets/images/png/u2.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'John Smith',
-    text: 'Who you might know is on profile',
-    time: 'Last Week',
-    userImage: require('../../../../assets/images/png/u4.png'),
-    active: '4 Hours ago',
-  },
-  {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: 'Last Week',
-    userImage: require('../../../../assets/images/png/u5.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../../assets/images/png/u6.png'),
-    active: '4 Hours ago',
-  },
-  {
-    from: 'John Smith',
-    text: 'Like your photo',
-    time: 'Last Week',
-    userImage: require('../../../../assets/images/png/u5.png'),
-    active: 'Nov 10 At 2:01 AM',
-  },
-  {
-    from: 'Julie Watson',
-    text: 'Who you might know is on profile',
-    time: 'Now',
-    userImage: require('../../../../assets/images/png/u6.png'),
-    active: '4 Hours ago',
-  },
-];
+  user_id: '2',
+};
+
+const userDatadummy = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
 
 const Comments = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const flatListRef = useRef(null);
   const {data} = route.params;
-  const userToken = useSelector(state => state.reducer.userToken);
-  const theme = useSelector(state => state.reducer.theme);
-  const organizations = useSelector(state => state.reducer.organization);
+  const {token} = useAppContext(AppContext);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [comment, setComment] = useState('');
   const [commentID, setCommentID] = useState('');
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
-  const [comments, setComments] = useState(data?.post_comments);
+  const [comments, setComments] = useState(dummyPost.post_comments);
   const [loader, setLoader] = useState(false);
   const [userID, setUserID] = useState('');
   const [edit, setEdit] = useState(false);
@@ -110,53 +275,15 @@ const Comments = ({navigation, route}) => {
   const [post, setPost] = useState(null);
   const Cid = route?.params?.data?.id;
   const Pid = route?.params?.data?.Pid;
+
   useEffect(() => {
     getID();
-    if (route?.params?.from) {
-      if (route?.params?.from == 'home') {
-        getPosts(data?.id);
-      } else {
-        getPublicPosts(data?.id);
-      }
-      // console.log('from', data?.id);
-    } else {
-      // console.log('comments notification ', Pid);
-      getPosts(Pid);
-      getPublicPosts(Pid);
-    }
-
-    // extractDate();
+    getPosts(Pid);
+    getPublicPosts(Pid);
   }, []);
 
-  // console.log(route?.params?.data?.id, 'commentId');
   const getUserData = async id => {
-    setLoader(true);
-    axiosconfig
-      .get(`user_view/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        setUserData(res?.data?.user_details);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
-  };
-  const getDate = old => {
-    let code = new Date(old);
-    let min = new Date(code).getMinutes();
-    let sec = new Date(code).getSeconds();
-    let hours = new Date(code).getHours();
-    return `${hours}:${min}:${sec}s`;
-  };
-  const extractDate = () => {
-    var d1 = new Date('March 16, 2022');
-    var d2 = new Date('April 6, 2022');
-    var sub = d2.getTime() - d1.getTime();
+    setUserData(userDatadummy);
   };
 
   const getID = async () => {
@@ -165,34 +292,18 @@ const Comments = ({navigation, route}) => {
     getUserData(id);
   };
 
-  const getColor = id => {
-    let color;
-
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
   const getItemLayout = (data, index) => ({
     length: 57,
     offset: 57 * index,
     index,
   });
   const matchId = comments => {
-    // console.log('to check matched id');
     comments.map((p, index) => {
-      // console.log(p?.id, 'all comments ids');
       if (p?.id == Cid) {
-        const matchedId = p?.id;
-        // console.log(matchedId, index, 'mat');
         if (index !== -1 && flatListRef.current) {
           flatListRef.current.scrollToIndex({index, animated: true});
         }
       } else {
-        // console.log('false');
       }
     });
   };
@@ -220,12 +331,11 @@ const Comments = ({navigation, route}) => {
     await axiosconfig
       .post(edit ? 'comment_update' : 'comment_add', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        // // console.log('data', JSON.stringify(res.data));
         setComment('');
         setEdit(false);
         setCommentID('');
@@ -235,16 +345,12 @@ const Comments = ({navigation, route}) => {
         } else {
           getPosts(postid);
         }
-        // matchId(commentID);
-        // setRefresh(!refresh);
       })
       .catch(err => {
         setLoader(false);
         setComment('');
         setEdit(false);
         setCommentID('');
-        // console.log(err);
-        // Alert.alert(err);
       });
   };
 
@@ -256,11 +362,10 @@ const Comments = ({navigation, route}) => {
 
   const deleteComment = async commentid => {
     setLoader(true);
-    // // console.log(userToken, 'get');
     await axiosconfig
       .get(`comment-delete/${commentid}`, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
@@ -275,64 +380,29 @@ const Comments = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
-        // Alert.alert(err);
       });
   };
 
   const getPosts = async postid => {
-    // // console.log('swer');
-    await axiosconfig
-      .get('user_details', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('friendx', res.data.post_friends, postid);
-        getUpdatedComments(res.data.post_friends, postid);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+    // getUpdatedComments(dummyPost, postid);
+    setPost(dummyPost);
   };
 
   const getPublicPosts = async postid => {
-    // // console.log('swer');
-    await axiosconfig
-      .get('fun-interaction', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('public', res?.data?.post_public, postid);
-        getUpdatedComments(res?.data?.post_public, postid);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+    setPost(dummyPost);
+    // getUpdatedComments(dummyPost, postid);
   };
 
   const getUpdatedComments = (array, postid) => {
-    let temp = array.filter(elem => elem.id == postid);
-    setPost(temp[0]);
-    // console.log(temp[0], 'post datatas');
-    setComments(temp[0]?.post_comments);
-    matchId(temp[0]?.post_comments);
-    setLoader(false);
-    setRefresh(!refresh);
-    // // console.log(temp[0]?.post_comments, comments, 'whhwyw');
+    // let temp = array.filter(elem => elem.id == postid);
+    // setPost(temp[0]);
+    // setComments(temp[0]?.post_comments);
+    // matchId(temp[0]?.post_comments);
+    // setLoader(false);
+    // setRefresh(!refresh);
   };
 
   const renderItem = (elem, i) => {
-    // // console.log(elem?.item);
     return (
       <View style={s.card}>
         <View
@@ -379,7 +449,7 @@ const Comments = ({navigation, route}) => {
             <View style={s.icon}>
               <TouchableOpacity
                 onPress={() => {
-                  deleteComment(elem?.item?.id);
+                  // deleteComment(elem?.item?.id);
                 }}>
                 <Antdesign
                   name={'delete'}
@@ -394,7 +464,7 @@ const Comments = ({navigation, route}) => {
             <View style={s.icon}>
               <TouchableOpacity
                 onPress={() => {
-                  onEdit(elem?.item?.id, elem?.item?.text);
+                  // onEdit(elem?.item?.id, elem?.item?.text);
                 }}>
                 <Entypo
                   name={'edit'}
@@ -408,10 +478,10 @@ const Comments = ({navigation, route}) => {
       </View>
     );
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <View
         style={{
           alignItems: 'center',
@@ -428,9 +498,6 @@ const Comments = ({navigation, route}) => {
         <View>
           <Text style={[s.HeadingText, {color: textColor}]}>Comments</Text>
         </View>
-        {/* <View style={s.txtView}>
-          <Text style={s.hTxt}>{post?.created_at}</Text>
-        </View> */}
       </View>
 
       <ScrollView
@@ -458,13 +525,13 @@ const Comments = ({navigation, route}) => {
           ref={flatListRef}
           data={comments}
           renderItem={renderItem}
-          keyExtractor={(e, i) => i.toString()}
+          keyExtractor={(item, index) => String(index)}
           scrollEnabled={true}
           extraData={refresh}
           getItemLayout={getItemLayout}
         />
         {userData ? (
-          <View style={{marginBottom: 20}}>
+          <View style={{}}>
             <Input
               w="100%"
               height={moderateScale(50, 0.1)}
@@ -499,11 +566,12 @@ const Comments = ({navigation, route}) => {
               InputRightElement={
                 <TouchableOpacity
                   onPress={() => {
-                    if (route?.params?.from) {
-                      addComment(data?.id);
-                    } else {
-                      addComment(Pid);
-                    }
+                    setComment('');
+                    // if (route?.params?.from) {
+                    //   addComment(data?.id);
+                    // } else {
+                    //   addComment(Pid);
+                    // }
                   }}
                   style={{marginRight: moderateScale(20, 0.1)}}>
                   <Feather

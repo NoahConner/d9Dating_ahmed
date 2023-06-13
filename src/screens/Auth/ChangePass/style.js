@@ -16,13 +16,11 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(60, 0.1),
   },
   headingText: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(32, 0.1),
     lineHeight: moderateScale(48, 0.1),
     fontWeight : '700'
   },
   headingText1: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(32, 0.1),
     lineHeight: moderateScale(48, 0.1),
     fontWeight: '300'
@@ -48,7 +46,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnText: {
-    //fontFamily: Poppins,
     lineHeight: moderateScale(20, 0.1),
     fontSize: moderateScale(13, 0.1),
     color: '#222222',
@@ -56,14 +53,12 @@ const styles = StyleSheet.create({
   forgetPass: {
     color: '#FFFFFF',
     fontSize: moderateScale(10, 0.1),
-    lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
+    lineHeight: moderateScale(15, 0.1)
   },
   forgetPass1: {
     color: '#FFD700',
     fontSize: moderateScale(10, 0.1),
-    lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
+    lineHeight: moderateScale(15, 0.1)
   },
   bottomLink: {
      marginTop: moderateScale(200)

@@ -17,12 +17,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: moderateScale(22, 0.1),
     lineHeight: moderateScale(30, 0.1),
-    //fontFamily: Poppins,
     fontWeight: '700',
   },
   txt: {
     fontSize: moderateScale(12, 0.1),
-    //fontFamily: Poppins,
     lineHeight: moderateScale(18, 0.1),
     color: '#7D7D7D',
   },

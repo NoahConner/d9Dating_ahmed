@@ -4,26 +4,23 @@ import {
   View,
   ToastAndroid,
   TouchableOpacity,
-  Alert
+  Alert,
 } from 'react-native';
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import s from './style';
 import Feather from 'react-native-vector-icons/Feather';
-import {Input, FormControl, Button,} from 'native-base';
+import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import Icon2 from 'react-native-vector-icons/Fontisto';
-import {useDispatch, useSelector} from 'react-redux';
+
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {setTheme} from '../../../Redux/actions';
-import Header from '../../../Components/Header';
 import axiosconfig from '../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Loader from '../../../Components/Loader';
-
+import {Header, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import {theme} from '../../../Constants/Index';
 const ChangePass = ({navigation, route}) => {
-  const dispatch = useDispatch();
   const screen = route?.params?.screen;
-  console.log(screen);
   const [email, setEmail] = useState(route.params.email);
   const [otp, setOtp] = useState(route.params.otp);
   const [password, setPassword] = useState(null);
@@ -32,90 +29,29 @@ const ChangePass = ({navigation, route}) => {
   const [showConfPass, setShowConfPass] = useState(true);
   const [submitted, setSubmitted] = useState();
   const [loader, setLoader] = useState(false);
-  const theme = useSelector(state => state.reducer.theme);
+
   const showToast = msg => {
     ToastAndroid.show(msg, ToastAndroid.LONG);
   };
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
 
   const submit = () => {
-    console.log('submit');
-    setSubmitted(false);
-    let sub = false;
-    if (confirmPassword == null || confirmPassword == '') {
-      setSubmitted(true);
-      sub = true;
-      return;
-    }
-    if (password == null || password == '') {
-      setSubmitted(true);
-      sub = true;
-      return;
-    }
-    if (password != confirmPassword) {
-      alert('password does not match');
-      return;
-    }
-    if (!sub) {
-      setLoader(true);
-      var data = {
-        email: email,
-        password: password,
-      };
-      console.log({data});
-      if (screen == 'reset') {
-        var data = {
-          password: password,
-        };
-      } else {
-        console.log(email, otp);
-        var data = {
-          email: email,
-          password: password,
-          password_confirm: confirmPassword,
-          token: otp,
-        };
-      }
-      setLoader(true);
-      axiosconfig
-        .post(
-          screen == 'Reset' ? 'password_update' : 'reset',
-          data,
-          screen == 'Reset'
-            ? {
-                headers: {
-                  Authorization: `Bearer ${userToken}`,
-                },
-              }
-            : null,
-        )
-        .then(res => {
-          setLoader(false);
-          console.log(res?.data, 'change password data');
-          Alert.alert(res?.data?.message);
-          {
-            screen == 'Reset'
-              ? (AsyncStorage.setItem('password', password),
-                navigation.navigate('Settings'))
-              : (AsyncStorage.setItem('password', password),
-                navigation.navigate('Login'));
-          }
-          //   navigation.navigate('ChangePass')
-        })
-        .catch(err => {
-          setLoader(false);
-          console.log(err.response, 'aaa');
-          alert(err?.response?.data?.message);
-        });
+    Alert.alert('password successfully changed');
+    {
+      screen == 'Reset'
+        ? (AsyncStorage.setItem('password', '123'),
+          navigation.navigate('Settings'))
+        : (AsyncStorage.setItem('password', '123'),
+          navigation.navigate('Login'));
     }
   };
 
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
-
       <Header navigation={navigation} />
       <View style={[s.container, {backgroundColor: color}]}>
         <View style={{width: '100%', alignItems: 'center'}}>
@@ -204,8 +140,7 @@ const ChangePass = ({navigation, route}) => {
                 confirmPassword ? (
                   <View style={s.eye}>
                     <TouchableOpacity
-                      onPress={() => setShowConfPass(!showConfPass)}
-                    >
+                      onPress={() => setShowConfPass(!showConfPass)}>
                       <Feather
                         name={showConfPass ? 'eye' : 'eye-off'}
                         color={Textcolor}
@@ -226,7 +161,6 @@ const ChangePass = ({navigation, route}) => {
           <View style={s.button}>
             <Button
               onPressIn={() => {
-                // alert('password changed successfully')
                 submit();
               }}
               size="sm"
@@ -238,8 +172,7 @@ const ChangePass = ({navigation, route}) => {
               borderRadius={50}
               w={moderateScale(140, 0.1)}
               h={moderateScale(35, 0.1)}
-              alignItems={'center'}
-            >
+              alignItems={'center'}>
               <Text style={s.btnText}>Save</Text>
             </Button>
           </View>

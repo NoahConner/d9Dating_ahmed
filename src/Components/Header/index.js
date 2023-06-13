@@ -10,8 +10,7 @@ import {
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import Inicon from 'react-native-vector-icons/Ionicons';
-import {setTheme} from '../../Redux/actions';
-import {useSelector, useDispatch} from 'react-redux';
+import {theme} from '../../Constants/Index';
 
 const Header = ({
   navigation,
@@ -22,12 +21,11 @@ const Header = ({
   float,
   ListingK,
 }) => {
-  const theme = useSelector(state => state.reducer.theme);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
 
   return (
-    <View style={[[s.main, s.container, ]]}>
+    <View style={[[s.main, s.container]]}>
       <View>
         <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
           <Inicon

@@ -1,65 +1,38 @@
 import {
-  ImageBackground,
   SafeAreaView,
   Text,
   View,
   TouchableOpacity,
   Alert,
-  ToastAndroid,
-  ActivityIndicator,
-  Linking,
   ScrollView,
-  Image,
-  Dimensions,
-  Platform,
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import axiosconfig from '../../../provider/axios';
-import OTPModal from '../../../Components/otpModal/otpModal.js';
 import s from './style';
 import Feather from 'react-native-vector-icons/Feather';
-import {Input, Button, Radio, ListItem, Menu, Pressable} from 'native-base';
+import {Input, Button, Menu, Pressable} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import PhoneInput from 'react-native-phone-input';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RadioButton from '../../../Components/Radio';
-import {useDispatch, useSelector} from 'react-redux';
-import {setTheme, setUserToken} from '../../../Redux/actions';
-import Header from '../../../Components/Header';
 import moment from 'moment';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
-import MapView, {
-  PROVIDER_GOOGLE,
-  Marker,
-  ProviderPropType,
-} from 'react-native-maps';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import style from '../../../Components/Header/style';
-import Loader from '../../../Components/Loader';
 import socket from '../../../utils/socket';
-
-const Organization = [
-  {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
-  {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},
-  {id: 'Omega Psi Phi Fraternity, Inc.', color: 'red'},
-  {id: 'Delta Sigma Theta Sorority Inc.', color: 'yellow'},
-  {id: 'Kappa Alpha Psi Fraternity, Inc.', color: 'orange'},
-  {id: 'Sigma Gamma Rho Sorority Inc.', color: 'brown'},
-  {id: 'Phi Beta Sigma Fraternity, Inc.', color: 'pink'},
-  {id: 'Zeta Phi Beta Sorority Inc.', color: 'purple'},
-  {id: 'Iota Phi Theta Fraternity, Inc.', color: 'blue'},
-];
+import {Organization, emailReg} from '../../../Constants/Index';
+import {Header, OTPModal, Loader} from '../../../Components/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import Geocoder from 'react-native-geocoding';
+import Geolocation from '@react-native-community/geolocation';
+import GetLocation from 'react-native-get-location';
+import {theme} from '../../../Constants/Index';
 
 const Register = ({navigation}) => {
-  const dispatch = useDispatch();
-  const FCMtoken = useSelector(state => state.reducer.fToken);
+  const {setToken} = useAppContext(AppContext);
   const phonenum = useRef();
   const [fname, setFname] = useState(null);
   const [lastname, setLastname] = useState(null);
   const [email, setEmail] = useState(null);
-  const [phone, setPhone] = useState(null);
   const [disable, setDisable] = useState(false);
   const [password, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
@@ -71,11 +44,8 @@ const Register = ({navigation}) => {
   const [onsubmit, setOnsubmit] = useState(false);
   const [gender, setGender] = useState('Female');
   const [date, setDate] = useState(null);
-  const [open, setOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [otp, setOtp] = useState();
-  const theme = useSelector(state => state.reducer.theme);
-  const [icon, setIcon] = useState('globe');
   const [isSelected, setIsSelected] = useState([
     {
       id: 1,
@@ -97,53 +67,15 @@ const Register = ({navigation}) => {
     },
   ]);
   const [organization, setOrganization] = useState(null);
-  const [value, setValue] = useState([
-    {
-      label: 'Public',
-      value: '1',
-      icon: () => (
-        <Entypo
-          name={'globe'}
-          color={Textcolor}
-          size={moderateScale(15, 0.1)}
-        />
-      ),
-    },
-    {
-      label: 'Freinds',
-      value: '2',
-      icon: () => (
-        <Icon
-          name={'user-friends'}
-          color={Textcolor}
-          size={moderateScale(15, 0.1)}
-        />
-      ),
-    },
-    {
-      label: 'Only me',
-      value: '3',
-      icon: () => (
-        <Entypo name={'lock'} color={Textcolor} size={moderateScale(15, 0.1)} />
-      ),
-    },
-  ]);
   const [d, setD] = useState('');
   const [m, setM] = useState('');
   const [y, setY] = useState('');
-  const {width, height} = Dimensions.get('window');
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
-  const ASPECT_RATIO = width / height;
-  const LATITUDE = 35.4828833;
-  const LONGITUDE = -97.7593856;
-  const LATITUDE_DELTA = 0.0922;
-  const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-  const userLocation = useSelector(state => state.reducer.location);
-  const [location, setLocation] = useState(userLocation);
-  console.log(FCMtoken, 'fcmToken');
+  const [location, setLocation] = useState('');
+  const [locationon, setlocationon] = useState(true);
+  const [address, setaddress] = useState(null);
 
-  useEffect(() => {}, []);
   const onRadioBtnClick = item => {
     let updatedState = isSelected.map(isSelectedItem =>
       isSelectedItem.id === item.id
@@ -152,124 +84,55 @@ const Register = ({navigation}) => {
     );
     setIsSelected(updatedState);
     setGender(item.name);
-    console.log(item.name);
   };
 
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() - 18);
 
   const validateEmail = e => {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    if (emailRegex.test(e)) {
+    if (emailReg.test(e)) {
       setIsEmail(true);
     } else {
       setIsEmail(false);
     }
   };
-  const submit = () => {
-    setOnsubmit(true);
-    let sub = true;
 
-    if (fname == null) {
-      sub = false;
-      return false;
-    }
-    if (lastname == null) {
-      sub = false;
-      return false;
-    }
-    if (email == null || email == '') {
-      sub = false;
-      return false;
-    }
-    if (date == null) {
-      sub = false;
-      return false;
-    }
-    if (password == null) {
-      sub = false;
-      return false;
-    }
-    if (date == null) {
-      sub = false;
-      return false;
-    }
-    if (organization == null) {
-      sub = false;
-      return false;
-    }
-    if (password != confirmPassword) {
-      Alert.alert('password does not match');
-      sub = false;
-      return false;
-    }
-    if (!phonenum.current.isValidNumber()) {
-      Alert.alert('Please enter valid Phone Number');
-      sub = false;
-      return false;
-    }
-    if (sub) {
-      onSignupUser();
-    }
+  const submit = () => {
+    onSignupUser();
   };
-  // const context = useContext(AppContext)
+
   const onSignupUser = () => {
-    setLoader(true);
     setOnsubmit(false);
-    var data = {
-      email: email,
-    };
-    axiosconfig
-      .post('otp', data)
-      .then(res => {
-        if (modalVisible == false) {
-          Alert.alert(res?.data?.message);
-          console.log(res, 'signup data ');
-          setTimeout(() => {
-            setModalVisible(!modalVisible);
-          }, 3000);
-          // setOnsubmit(true)
-          setLoader(false);
-        } else {
-          Alert.alert('code sent');
-        }
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-        console.log(err.response?.data?.message, 'error messagaae');
-        Alert.alert(err?.response?.data?.message);
-      });
+    if (modalVisible == false) {
+      Alert.alert('check email');
+      setTimeout(() => {
+        setModalVisible(!modalVisible);
+      }, 3000);
+    } else {
+      Alert.alert('code sent');
+    }
   };
-  const fcmToken = token => {
-    console.log('fcm token');
-    setLoader(true);
-    var data = {
-      device_token: FCMtoken,
-    };
-    console.log(token, 'access token');
-    console.log(data, 'devive token data');
-    axiosconfig
-      .post('device-token', data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        console.log(res, 'token');
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-      });
-  };
-  const storeData = async value => {
-    try {
-      await AsyncStorage.setItem('@auth_token', value);
-      context.setuserToken(value);
-    } catch (e) {}
-  };
+
+  // const fcmToken = token => {
+  //   setLoader(true);
+  //   var data = {
+  //     device_token: FCMtoken,
+  //   };
+  //   axiosconfig
+  //     .post('device-token', data, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     })
+  //     .then(res => {
+  //       setLoader(false);
+  //     })
+  //     .catch(err => {
+  //       setLoader(false);
+  //       console.log(err, 'errors');
+  //     });
+  // };
+
   const handleSubmit = () => {
     setLoader(true);
     setOnsubmit(false);
@@ -280,36 +143,26 @@ const Register = ({navigation}) => {
       otp: otp,
       phone_number: phonenum.current.getValue(),
       gender: gender,
-      location: userLocation,
+      location: address,
       group: organization,
       password: password,
       confirm_password: confirmPassword,
       date: date,
       type: 'user',
     };
-    console.log(data, 'data');
-    axiosconfig
-      .post('register', data)
-      .then(res => {
-        Alert.alert(res?.data?.message);
-        AsyncStorage.setItem('password', password);
-        AsyncStorage.setItem('userToken', res?.data?.access_token);
-        let id = res?.data?.userInfo.toString();
-        AsyncStorage.setItem('id', id);
-        dispatch(setUserToken(res?.data?.access_token));
-        fcmToken(res?.data?.access_token);
-        socket.auth = {username: email};
-        socket.connect();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errors');
-        console.log(err?.response?.data?.message, 'msg');
-        Alert.alert(err.response?.data?.message);
-      });
+
+    Alert.alert('registered successfully');
+    AsyncStorage.setItem('password', '123');
+    AsyncStorage.setItem('userToken', '123');
+    let id = '2';
+    AsyncStorage.setItem('id', id);
+
+    setToken('123');
+    // fcmToken(res?.data?.access_token);
+    socket.auth = {username: email};
+    socket.connect();
   };
-  // const context = useContext(AppContext)
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -331,16 +184,56 @@ const Register = ({navigation}) => {
     setM(month);
     setY(year);
     setD(dateex);
-    console.log(year, 'year');
     setDate(`${month}/${dateex}/${year}`);
-
     hideDatePicker();
   };
 
-  return (
+  useEffect(() => {
+    // console.log(location, 'seet');
+    // getCurrentLocation();
+  }, []);
+
+  useEffect(() => {
+    console.log(location, 'new');
+  }, [location]);
+
+  const getCurrentLocation = () => {
+    // setLoader(true);
+    try {
+      Geolocation.getCurrentPosition(location => {
+        setLocation(location);
+        console.log(location, 'location');
+        getPhysicalAddress(location);
+      });
+    } catch (error) {
+      setlocationon(false);
+      const {code, message} = error;
+      // setLoader(false);
+    }
+  };
+
+  const getPhysicalAddress = location => {
+    Geocoder.init('AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU');
+    setTimeout(() => {
+      Geocoder.from(location?.coords?.latitude, location?.coords.longitude)
+        .then(json => {
+          var addressComponent = json.results[0].formatted_address;
+          console.log('hi', addressComponent);
+          setaddress(addressComponent);
+          // setLoader(false);
+        })
+        .catch(error => {
+          console.warn(error);
+          // setLoader(false);
+        });
+    }, 1000);
+  };
+
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView
       style={{flex: 1, backgroundColor: theme === 'dark' ? '#222222' : '#fff'}}>
-      {loader ? <Loader /> : null}
       <ScrollView>
         <View
           style={[
@@ -352,15 +245,6 @@ const Register = ({navigation}) => {
           </View>
           <View style={s.heading}>
             <Text style={[s.headingText, {color: Textcolor}]}>Sign Up</Text>
-            {/* <Text
-              style={[
-                s.headingText,
-                {fontFamily: 'Poppins-Bold', color: Textcolor},
-              ]}
-            >
-              {' '}
-              Account
-            </Text> */}
           </View>
           <ScrollView
             style={{
@@ -381,8 +265,6 @@ const Register = ({navigation}) => {
                   flex: 0.6,
                   flexDirection: 'row',
                   alignItems: 'center',
-
-                  // justifyContent: 'space-between',
                 }}>
                 <View style={{flex: 0.5}}>
                   <Input
@@ -436,7 +318,7 @@ const Register = ({navigation}) => {
                   justifyContent: 'space-between',
                 }}>
                 {isSelected.map((item, i) => (
-                  <View style={s.radio}>
+                  <View style={s.radio} key={i}>
                     <RadioButton
                       onPress={() => onRadioBtnClick(item)}
                       selected={item.selected}
@@ -524,7 +406,6 @@ const Register = ({navigation}) => {
               <View
                 style={{
                   flex: 0.6,
-                  // marginVertical: moderateScale(15, 0.1),
                   paddingVertical: moderateScale(9, 0.1),
 
                   borderBottomColor:
@@ -532,11 +413,6 @@ const Register = ({navigation}) => {
                   borderBottomWidth: 1,
                 }}>
                 <PhoneInput
-                  style={
-                    {
-                      // bottom: Platform.OS == 'ios' ? 0 : moderateScale(-10, 0.1),
-                    }
-                  }
                   initialCountry={'us'}
                   textProps={{
                     placeholder: 'Enter Phone Number',
@@ -557,22 +433,6 @@ const Register = ({navigation}) => {
                     }
                   }}
                 />
-                {/* <Input
-                  w={{
-                    base: '100%',
-                    md: '25%',
-                  }}
-                  style={{
-                    marginTop: moderateScale(-15, 0.1),
-                    borderBottomColor:
-                      onsubmit && isPhone == false ? 'red' : Textcolor,
-                    borderBottomWidth: 1,
-                  }}
-                  variant="unstyled"
-                  // placeholderTextColor={Textcolor}
-                  isReadOnly={true}
-                  color={Textcolor}
-                /> */}
               </View>
             </View>
 
@@ -600,7 +460,6 @@ const Register = ({navigation}) => {
                   onChangeText={e => {
                     validateEmail(e);
                     setEmail(e);
-                    // validateEmail();
                   }}
                 />
                 {onsubmit && isEmail === false && email != null ? (
@@ -632,8 +491,6 @@ const Register = ({navigation}) => {
                   borderWidth={moderateScale(1, 0.1)}
                   borderBottomColor={'grey'}
                   backgroundColor={color}
-                  // marginRight={moderateScale(5, 0.1)}
-
                   top={moderateScale(24, 0.1)}
                   borderColor={Textcolor}
                   trigger={triggerProps => {
@@ -649,11 +506,8 @@ const Register = ({navigation}) => {
                             onsubmit && organization == null
                               ? 'red'
                               : Textcolor,
-                          // marginBottom: moderateScale(-10, 0.1),
                           paddingLeft: moderateScale(10, 0.1),
-                          // width: moderateScale(170, 0.1),
                           alignItems: 'center',
-                          // marginTop: moderateScale(18, 0.1),
                         }}>
                         <Text
                           style={[
@@ -683,6 +537,7 @@ const Register = ({navigation}) => {
                   {Organization.map((v, i) => {
                     return (
                       <Menu.Item
+                        key={i}
                         style={{width: 400}}
                         onPress={() => {
                           setOrganization(v.id);
@@ -705,7 +560,13 @@ const Register = ({navigation}) => {
               <View style={{flex: 0.6}}>
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('Map', {from: 'register'})
+                    // navigation.navigate('Map', {from: 'register'})
+                    navigation.navigate('Map', {
+                      address: address,
+                      location: location,
+                      setLocation: setLocation,
+                      setaddress: setaddress,
+                    })
                   }>
                   <Input
                     w={{
@@ -717,10 +578,11 @@ const Register = ({navigation}) => {
                       borderBottomColor:
                         onsubmit && location == null ? 'red' : Textcolor,
                     }}
+                    isReadOnly={true}
                     variant="unstyled"
                     editable={false}
-                    placeholder={userLocation ? userLocation : 'Enter Location'}
-                    onChangeText={() => setLocation(location)}
+                    value={address}
+                    placeholder={'Add Location'}
                     placeholderTextColor={Textcolor}
                     color={Textcolor}
                     fontSize={moderateScale(12, 0.1)}
@@ -880,7 +742,6 @@ const Register = ({navigation}) => {
             setOtp={setOtp}
             handleSubmit={handleSubmit}
             screen={'register'}
-            // loader={loader}
           />
         ) : (
           <></>

@@ -8,14 +8,10 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: moderateScale(12, 0.1),
     height: '100%',
-    // paddingEnd: moderateScale(-20,0.1),
-    // flexDirection: 'column',
-    // justifyContent: 'flex-start',
     paddingBottom: moderateScale(70, 0.1),
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
-    //fontFamily: PoppinsBold,
     lineHeight: moderateScale(30, 0.1),
   },
   dp1: {
@@ -46,7 +42,6 @@ const styles = StyleSheet.create({
   chats: {
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(18, 0.1),
-    //fontFamily: Poppins,
   },
   dp: {
     width: moderateScale(53, 0.1),
@@ -95,14 +90,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(15, 0.1),
   },
   details: {
     width: moderateScale(200, 0.1),
-    // height: moderateScale(58, 0.1),
-    // backgroundColor:'gray',
     flexDirection: 'column',
     marginTop: moderateScale(5, 0.1),
   },
@@ -112,23 +104,20 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     borderBottomWidth: moderateScale(1, 0.1),
     paddingVertical: moderateScale(10, 0.1),
+    marginBottom: moderateScale(5, 0.1),
   },
   name1: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    // paddingLeft: moderateScale(10),
     alignSelf: 'center',
     color: '#7B7A7A',
   },
   textRegular: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(14, 0.1),
     marginVertical: moderateScale(5, 0.1),
   },
   textSmall: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(13, 0.1),
     marginVertical: moderateScale(5, 0.1),
@@ -144,7 +133,6 @@ const styles = StyleSheet.create({
   },
   hTxt: {
     color: '#7B7A7A',
-    //fontFamily: Poppins,
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
   },
@@ -152,7 +140,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: moderateScale(15, 0.1),
     lineHeight: moderateScale(22, 0.1),
-    //fontFamily: Poppins,
     fontWeight: '700',
   },
   hView: {

@@ -8,13 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
-import {setUserToken, setTheme, setExist} from '../../../../Redux/actions';
 import s from './style';
-import Header from '../../../../Components/Header';
 import Inicon from 'react-native-vector-icons/Ionicons';
-import img1 from '../../../../assets/images/png/mydp.png';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import Iconn from 'react-native-vector-icons/Fontisto';
 import Icon3 from 'react-native-vector-icons/AntDesign';
@@ -26,25 +22,19 @@ import moon from '../../../../assets/images/png/moon.png';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Feather from 'react-native-vector-icons/Feather';
 import axiosconfig from '../../../../Providers/axios';
-import Loader from '../../../../Components/Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useIsFocused} from '@react-navigation/native';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage} from '../../../../Constants/Index';
+import {theme} from '../../../../Constants/Index';
 
 const Settings = ({navigation, route}) => {
-  const dispatch = useDispatch();
-  // const {data} = route?.params;
-  const userToken = useSelector(state => state.reducer.userToken);
-  const userData = useSelector(state => state.reducer.userData);
+  const {token, setToken} = useAppContext(AppContext);
   const isFocused = useIsFocused();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
-  const textColor = theme === 'light' ? '#000' : '#fff';
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
-  // const color2 = theme === 'dark' ? '#343434' : '#fff';
+  const textColor = theme === 'dark' ? '#fff' : '#000';
   const refRBSheet = useRef();
-
   const [darkMode, setDarkMode] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -56,106 +46,32 @@ const Settings = ({navigation, route}) => {
   const [submitted, setSubmitted] = useState();
 
   useEffect(() => {}, []);
+
   const showToast = msg => {
     Alert.alert(msg);
   };
 
   const deleteAccount = async () => {
-    // refRBSheet.current.close();
-    console.log('submit');
     setSubmitted(true);
-    let sub = true;
-
-    if (password == null || password == '') {
-      // setSubmitted(true);
-      sub = false;
-      return false;
-    }
-    if (confirmPassword == null || confirmPassword == '') {
-      // setSubmitted(true);
-      sub = false;
-      return false;
-    }
-
-    if (sub) {
-      console.log('avvv');
-      const body = {
-        old_password: password,
-      };
-      await axiosconfig
-        .post('account_delete', body, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        })
-        .then(res => {
-          // clear(res?.data?.messsage);
-          console.log(res);
-          console.log(res?.data?.message);
-          alert(res?.data?.message);
-          AsyncStorage.removeItem('userToken');
-          AsyncStorage.removeItem('userData');
-
-          dispatch(setUserToken(null));
-        })
-        .catch(err => {
-          console.log(err);
-          alert(err.response?.data?.message);
-          console.log(err.response?.data?.message);
-        });
-    }
+    Alert.alert('Account Deleted');
+    AsyncStorage.removeItem('token');
+    AsyncStorage.removeItem('userData');
+    AsyncStorage.setItem('already', 'exist');
+    setToken(null);
   };
-  const setThemeApi = async theme => {
-    setLoader(true);
-    await axiosconfig
-      .get('theme-mode', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log('data', res?.data);
-        dispatch(setTheme(theme));
 
-        // console.log('public post', JSON.stringify(res?.data?.post_public));
-        // console.log('user id',JSON.stringify(res?.data?.post_public?.user_id));
-        // setPublicPost([res?.data?.post_public]);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+  const setThemeApi = async theme => {
+    console.log(theme, 'theme');
   };
 
   const LogoutApi = async () => {
-    console.log(userToken);
-    // const value = await AsyncStorage.getItem('userToken')
-    // console.log(value, 'tokenLogout');
-    setLoader(true);
-    await axiosconfig
-      .get('logout', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(async res => {
-        setLoader(false);
-        clearToken();
-        let exist = await AsyncStorage.getItem('already');
-        dispatch(setExist(exist));
-        console.log(res?.data, 'logoutToken');
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'errrr');
-      });
+    clearToken();
+    let exist = await AsyncStorage.getItem('already');
+    setToken(null);
   };
   const clearToken = async () => {
-    dispatch(setUserToken(null));
-    await AsyncStorage.removeItem('userToken');
+    setToken(null);
+    await AsyncStorage.removeItem('token');
     await AsyncStorage.removeItem('password');
   };
 
@@ -165,8 +81,7 @@ const Settings = ({navigation, route}) => {
 
       <Header navigation={navigation} />
       <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}
-      >
+        contentContainerStyle={[s.container, {backgroundColor: color}]}>
         <View style={{flexDirection: 'row'}}>
           <View style={s.dp}>
             <Image
@@ -189,11 +104,9 @@ const Settings = ({navigation, route}) => {
         <View style={s.inputSection}>
           <TouchableOpacity
             onPress={() => {
-              console.log('hiii');
               navigation.navigate('Privacy');
             }}
-            style={s.input}
-          >
+            style={s.input}>
             <Input
               w="100%"
               isReadOnly
@@ -210,7 +123,6 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Privacy"
               placeholderTextColor={textColor}
             />
@@ -219,8 +131,7 @@ const Settings = ({navigation, route}) => {
             onPress={() => {
               navigation.navigate('Help');
             }}
-            style={[s.input]}
-          >
+            style={[s.input]}>
             <Input
               w="100%"
               isReadOnly
@@ -238,15 +149,13 @@ const Settings = ({navigation, route}) => {
                   <Text style={[s.smallText]}>Help Center, Contact Us</Text>
                 </View>
               }
-              // value={fname}
               placeholder="Help"
               placeholderTextColor={textColor}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={s.input}
-            onPress={() => navigation.navigate('ResetPass')}
-          >
+            onPress={() => navigation.navigate('ResetPass')}>
             <Input
               w="100%"
               isReadOnly
@@ -263,7 +172,6 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Reset Password"
               placeholderTextColor={textColor}
             />
@@ -271,8 +179,7 @@ const Settings = ({navigation, route}) => {
 
           <TouchableOpacity
             style={s.input}
-            onPress={() => navigation.navigate('Block')}
-          >
+            onPress={() => navigation.navigate('Block')}>
             <Input
               w="100%"
               isReadOnly
@@ -289,15 +196,13 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Blocked Users"
               placeholderTextColor={textColor}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={s.input}
-            onPress={() => navigation.navigate('HiddenPosts')}
-          >
+            onPress={() => navigation.navigate('HiddenPosts')}>
             <Input
               w="100%"
               isReadOnly
@@ -314,7 +219,6 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Hidden Posts"
               placeholderTextColor={textColor}
             />
@@ -322,8 +226,7 @@ const Settings = ({navigation, route}) => {
 
           <TouchableOpacity
             style={s.input}
-            onPress={() => refRBSheet.current.open()}
-          >
+            onPress={() => refRBSheet.current.open()}>
             <Input
               w="100%"
               isReadOnly
@@ -340,7 +243,6 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Delete My Account"
               placeholderTextColor={textColor}
             />
@@ -349,9 +251,6 @@ const Settings = ({navigation, route}) => {
               closeOnDragDown={true}
               closeOnPressMask={false}
               customStyles={{
-                wrapper: {
-                  //  backgroundColor: "transparent",
-                },
                 container: {
                   backgroundColor: textColor,
                   borderRadius: moderateScale(15, 0.1),
@@ -359,8 +258,7 @@ const Settings = ({navigation, route}) => {
                 draggableIcon: {
                   backgroundColor: color,
                 },
-              }}
-            >
+              }}>
               <View style={s.input1}>
                 <Input
                   w={{
@@ -385,8 +283,7 @@ const Settings = ({navigation, route}) => {
                     password ? (
                       <View style={s.eye}>
                         <TouchableOpacity
-                          onPress={() => setshowPass(!showPass)}
-                        >
+                          onPress={() => setshowPass(!showPass)}>
                           <Feather
                             name={showPass ? 'eye' : 'eye-off'}
                             color={color}
@@ -399,7 +296,6 @@ const Settings = ({navigation, route}) => {
                     )
                   }
                   errorMessage={passwordError}
-                  // color={textColor}
                   fontSize={moderateScale(14, 0.1)}
                   secureTextEntry={showPass}
                 />
@@ -439,8 +335,7 @@ const Settings = ({navigation, route}) => {
                     confirmPassword ? (
                       <View style={s.eye}>
                         <TouchableOpacity
-                          onPress={() => setshowConfPass(!showConfPass)}
-                        >
+                          onPress={() => setshowConfPass(!showConfPass)}>
                           <Feather
                             name={showConfPass ? 'eye' : 'eye-off'}
                             color={color}
@@ -471,8 +366,7 @@ const Settings = ({navigation, route}) => {
                   borderRadius={50}
                   w={moderateScale(140, 0.1)}
                   h={moderateScale(35, 0.1)}
-                  alignItems={'center'}
-                >
+                  alignItems={'center'}>
                   <Text style={{color: '#222222'}}>Delete Account</Text>
                 </Button>
               </View>
@@ -483,8 +377,7 @@ const Settings = ({navigation, route}) => {
             onPress={() => {
               LogoutApi();
             }}
-            style={s.input}
-          >
+            style={s.input}>
             <Input
               w="100%"
               isReadOnly
@@ -501,7 +394,6 @@ const Settings = ({navigation, route}) => {
                   />
                 </View>
               }
-              // value={fname}
               placeholder="Log Out"
               placeholderTextColor={textColor}
             />
@@ -515,11 +407,8 @@ const Settings = ({navigation, route}) => {
               onValueChange={() => {
                 setDarkMode(!darkMode);
                 if (theme === 'dark') {
-                  console.log('hi1');
                   setThemeApi('light');
                 } else {
-                  console.log('hi2');
-
                   setThemeApi('dark');
                 }
               }}

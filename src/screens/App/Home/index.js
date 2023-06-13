@@ -14,7 +14,6 @@ import {
 } from 'react-native';
 import PhotoEditor from 'react-native-photo-editor';
 import React, {useState, useRef, useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {Input, Button, Stack, Menu, Pressable} from 'native-base';
@@ -36,36 +35,528 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../provider/axios';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import CustomAlert from '../../../Components/AlertModal';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {
-  setOrganization,
-  setStories,
-  addSocketUsers,
-} from '../../../Redux/actions';
+  dummyImage,
+  getColor,
+  theme,
+  socketLike,
+  captureImage,
+  chooseFile,
+} from '../../../Constants/Index';
+import moment from 'moment';
+const dummyToken =
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5ODk1ZTI5Ni00NGE0LTQ3NGQtODk3Zi1mZTMxNDI4ZjM5Y2UiLCJqdGkiOiJmNGY1Y2RmMTUwOWQ4Y2EyZDYwZjYzNWJmZjEyOWMzNDUwYWFjMjZjMDgyYjk5YzE2ZjgyZGFmMjVlYzQ5MTk5ZjZiNThlMDE0MTI3ZTM0ZiIsImlhdCI6MTY4NjU1MTgyNi43NDI0NTQsIm5iZiI6MTY4NjU1MTgyNi43NDI0NTcsImV4cCI6MTcxODE3NDIyNi43MjQ1NTYsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.kAdmgrg_7pimuKzi603LVLbCIdBqAz2JpXvsCvgdFcdK3LSRIUcxQBDEWxC2R2X2ChHq5vkSUscroVj3c8047Xlw9knqqcU0FJHCyNgrwnooGIAK9-DaDSNCeQiR3EbR8Nw0lYW6K845U4i8zBlXc1LO8cJ8tFPX0tVh7Vu51uYHSiNhCkQ-hL2fkfaCURiJBp7souV2MqbtVbZdK9OQzXmp171aXdeq_XyQIBI5O8gLHJLCgpklcTI9ZnhCyxwHwFSmznNi5uq7ItJ41Wx6_PIUUrUh2mclfY072uzH2q-b2JwBrcBvQTULjmnLi4gs1-YSpyBvoSS-ae2F_-pkuLL-83RwASr8F6f7f6KY6SdDjqt3C0nfql1ac7hV6bA35wOaII7SjiZnFuzd3-EKsD1k1ATpxp6PoG09gJn-Y95C7eeaia5xe5Um_8K9vf7wm0ODXrwnEJJzsXXRsN6F0VMYHXJoL0QDUMpTGK-VL_g9b-xeNhV5RWFRyWfIzDijEpfhxbtTWiJs9aVL32CDxvWlXKYdcQytkyBH0PxKGwcbgysOpVybzjJyZJip_MVeAQZogQw25iGtT-kCUu1DLYWqegRx1oOI7jXK4cWaIatWQoLghqh8EwDD-JNFgukd9pF6uW28x9qcU5DwVoLSBTPaHLrZ9ePK-nowLzcRfDo';
 
-const Organization = [
-  {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
-  {id: 'Alpha Kappa Alpha Sorority Inc.', color: 'green'},
-  {id: 'Omega Psi Phi Fraternity, Inc.', color: 'red'},
-  {id: 'Delta Sigma Theta Sorority Inc.', color: 'yellow'},
-  {id: 'Kappa Alpha Psi Fraternity, Inc.', color: 'orange'},
-  {id: 'Sigma Gamma Rho Sorority Inc.', color: 'brown'},
-  {id: 'Phi Beta Sigma Fraternity, Inc.', color: 'pink'},
-  {id: 'Zeta Phi Beta Sorority Inc.', color: 'purple'},
-  {id: 'Iota Phi Theta Fraternity, Inc.', color: 'blue'},
+const mystory = {
+  about_me: null,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  user_stories: [],
+  year: null,
+};
+const allposts = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+];
+const funPostsdummy = [
+  {
+    action: '0',
+    caption: 'public post',
+    created_at: '2023-06-07T06:59:09.000000Z',
+    id: 4,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686121149base64_image.png',
+    location: 'Dufferin St London',
+    post_comments: [[Object], [Object], [Object]],
+    post_likes: [[Object]],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:59:09.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'first post',
+    created_at: '2023-06-07T06:12:34.000000Z',
+    id: 3,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686118354base64_image.png',
+    location: '14 Red Lion Square',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-07T06:12:34.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 07:27:08',
+      device_token:
+        'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T07:29:02.000000Z',
+      year: null,
+    },
+    user_id: '2',
+  },
+  {
+    action: '0',
+    caption: 'Hii',
+    created_at: '2023-06-06T15:24:16.000000Z',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686065056base64_image.png',
+    location: 'C P West Manhattan',
+    post_comments: [],
+    post_likes: [],
+    privacy_option: '1',
+    status: '1',
+    updated_at: '2023-06-06T15:24:16.000000Z',
+    user: {
+      about_me: null,
+      created_at: '2023-06-06T15:00:12.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-06 16:27:20',
+      device_token:
+        'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+      email: 'aina@designprosuk.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Alpha Phi Alpha Fraternity, Inc.',
+      id: 4,
+      image: null,
+      last_name: 'James',
+      location: 'C P West Manhattan',
+      month: null,
+      name: 'Aina',
+      notify: '0',
+      otp: '3117',
+      phone_number: '+1',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-06T16:27:20.000000Z',
+      year: null,
+    },
+    user_id: '4',
+  },
+];
+const otherStoriesDummy = [
+  {
+    organization: undefined,
+    profile: dummyImage,
+    stories: [
+      {
+        created: '2023-06-06T12:21:34.000000Z',
+        duration: 10,
+        id: '20',
+        isReadMore: true,
+        type: 'image',
+        url: 'https://designprosusa.com/the_night/storage/app/1686552891base64_image.png',
+        url_readmore: 'https://github.com/iguilhermeluis',
+      },
+      {
+        created: '2023-06-06T12:21:34.000000Z',
+        duration: 10,
+        id: '21',
+        isReadMore: true,
+        type: 'image',
+        url: 'https://designprosusa.com/the_night/storage/app/1686552997base64_image.png',
+        url_readmore: 'https://github.com/iguilhermeluis',
+      },
+    ],
+    title: 'Noah Conner',
+    user_id: 3,
+    username: 'Noah Conner',
+  },
+  {
+    organization: undefined,
+    profile:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    stories: [
+      {
+        created: '2023-06-06T12:21:34.000000Z',
+        duration: 10,
+        id: '23',
+        isReadMore: true,
+        type: 'image',
+        url: 'https://designprosusa.com/the_night/storage/app/1686552891base64_image.png',
+        url_readmore: 'https://github.com/iguilhermeluis',
+      },
+      {
+        created: '2023-06-06T12:21:34.000000Z',
+        duration: 10,
+        id: '24',
+        isReadMore: true,
+        type: 'image',
+        url: 'https://designprosusa.com/the_night/storage/app/1686552997base64_image.png',
+        url_readmore: 'https://github.com/iguilhermeluis',
+      },
+    ],
+    title: 'Andy Jones',
+    user_id: 4,
+    username: 'Andy Jones',
+  },
+];
+const dummyUser = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
+const userslist = [
+  {
+    about_me: null,
+    created_at: '2023-06-06T15:00:12.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-06 16:27:20',
+    device_token:
+      'cydbRyXrTIac1T9wDKRogG:APA91bHyxSBNXeF7BxouxNc4vAij97kttA3T59YU-P2a7OYLKz8qUQ86hhfAeZfTpnnZgnZqh4NF-2c0paAALe56Sifx7oHDfdjU3h_E_aQokQyVojmPRzsvYDX_8nKs-w-I02bfuRHc',
+    email: 'aina@designprosuk.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Alpha Phi Alpha Fraternity, Inc.',
+    id: 4,
+    image: null,
+    last_name: 'James',
+    location: 'C P West Manhattan',
+    month: null,
+    name: 'Aina',
+    notify: '0',
+    otp: '3117',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T16:27:20.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T13:27:38.000000Z',
+    date: '6/06/1992',
+    date_login: '2023-06-06 15:17:51',
+    device_token:
+      'eHTkJdeDSb6FLKT_p7zLif:APA91bGcmu4pjgLJ4kNHDQ-50aaz0g42T1tuZQgFamW0K9yDuyczmxdkaQIu-xs2uyO0hhVUtZPzlCFZvrbR8SKsm18Ww_BsrVjziQzaMhCstjKjD6LFUOeHb475GJDonqNj1GOeQ3mN',
+    email: 'e.stone@designprosusa.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    last_name: 'Me',
+    location: 'London Greater London',
+    month: null,
+    name: 'Tester',
+    notify: '0',
+    otp: '2360',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-06T15:17:51.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:33:48',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 2,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'martin',
+    location: null,
+    month: null,
+    name: 'Emily',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:33:48.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    created_at: '2023-06-02T15:57:20.000000Z',
+    date: '6/02/2005',
+    date_login: '2023-06-02 15:57:53',
+    device_token:
+      'eRZHt3GHSpuMFYGrp_fjr-:APA91bHQq4L1AsH0l1TLjxNoEMVvtr2Z_HzvwrKNcP96E5RFncOKyL7-HQlY1S_jGj9lxR-IpMzIH1-y1r2TnxlW1kKlINIRIC1s_pbiI3KOD-U6fuk8dVW48z1VvBxP8FjDaMz8X6O4',
+    email: 'dominicxavier143@gmail.com',
+    email_verified_at: null,
+    gender: 'Male',
+    group: 'Zeta Phi Beta Sorority Inc.',
+    id: 1,
+    image: null,
+    last_name: 'Xavier',
+    location: 'London Greater London',
+    month: null,
+    name: 'Dominic',
+    notify: '0',
+    otp: '5347',
+    phone_number: '+1',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-02T15:57:53.000000Z',
+    year: null,
+  },
+];
+const Likes = [
+  {
+    created_at: '2023-06-07T07:01:22.000000Z',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 3,
+    image: null,
+    location: '2020 Amphitheatre Pkwy, Mountain View, CA 94043, USA',
+    post_id: '4',
+    status: '1',
+    updated_at: '2023-06-07T07:01:22.000000Z',
+    user_id: '2',
+    user_name: 'Emily',
+    users: {
+      about_me: 'my about info',
+      created_at: '2023-06-06T12:21:34.000000Z',
+      date: '6/06/2005',
+      date_login: '2023-06-07 10:57:12',
+      device_token:
+        'fZYK_18WRRCK7bRQlIS0KC:APA91bEzzPVuCC0Jx-GbQA81cX8nfRgGQrhVDvpaphQxSBMLX2DSZj618DzwnKyAk9srilIQ4L6RtdpAYFGzuCMHfC2Y3g2gBbVESvPODUFG-7NzdJVmQA5pNS4ttkRZiKY7KQB_76B1',
+      email: 'emilymartin9875@gmail.com',
+      email_verified_at: null,
+      gender: 'Female',
+      group: 'Omega Psi Phi Fraternity, Inc.',
+      id: 2,
+      image:
+        'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+      last_name: 'martin',
+      location: null,
+      month: null,
+      name: 'Emily',
+      notify: '0',
+      otp: '8405',
+      phone_number: '+443334443333',
+      post_privacy: '1',
+      privacy_option: '1',
+      status: '1',
+      story_privacy: '00000000001',
+      theme_mode: null,
+      updated_at: '2023-06-07T10:57:12.000000Z',
+      year: null,
+    },
+  },
 ];
 
 const Home = ({navigation, route}) => {
-  const dispatch = useDispatch();
-
+  const {setLiked} = useAppContext(AppContext);
   const refRBSheet = useRef();
   const refRBSheet1 = useRef();
   const flatListRef = useRef(null);
   const isFocused = useIsFocused();
-  const theme = useSelector(state => state.reducer.theme);
-  const userToken = useSelector(state => state.reducer.userToken);
-  const organizations = useSelector(state => state.reducer.organization);
-  const storyID = useSelector(state => state.reducer.storyID);
-  const storiesData = useSelector(state => state.reducer.stories);
+  const userToken = dummyToken;
+  const [storiesData, setStoriesData] = useState([]);
+  let userList = userslist;
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [refresh, setRefresh] = useState(true);
@@ -74,279 +565,133 @@ const Home = ({navigation, route}) => {
   const [myStories, setMyStories] = useState([]);
   const [storyCircle, setStoryCircle] = useState('green');
   const [loader, setLoader] = useState(false);
-  const [posts, setPosts] = useState([]);
-  const [userID, setUserID] = useState('');
+  const [posts, setPosts] = useState(allposts);
+  const [userID, setUserID] = useState(dummyUser?.id);
   const [comment, setComment] = useState('');
   const [current, setCurrent] = useState('');
-  const [otherStories, setOtherStories] = useState([]);
+  const [otherStories, setOtherStories] = useState(otherStoriesDummy);
   const [postId, setPostId] = useState(null);
-  const [userData, setUserData] = useState('');
+  const [userData, setUserData] = useState(dummyUser);
   const [text, setText] = useState(null);
-  const [funPostsData, setFunPostsData] = useState('');
-  const socketUsers = useSelector(state => state.reducer.socketUsers);
+  const [funPostsData, setFunPostsData] = useState(funPostsdummy);
   const [dummyImage, setDummyImage] = useState(
     'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
   );
-  const [index, setIndex] = useState(null);
-  const postID = route?.params?.data?.id;
+  const [loadingStates, setLoadingStates] = useState({});
 
   useEffect(() => {
-    dispatch(setOrganization(Organization));
-    // console.log('organisation', organizations);
-    getPosts();
-    if (postID) {
-      console.log(postID, 'data id ');
-      getPosts(postID);
-    } else {
-      console.log('ssssssssss');
-      getPosts();
-    }
     getStories();
-    getID();
-    funPosts();
-    // console.log(storyID, 'setUD');
+    getData();
   }, [isFocused]);
 
-  useEffect(() => {
-    socket.on('like', ({username, from}) => {
-      console.log('socekeeyy like', username, from);
-    });
-  }, [socket]);
-  useEffect(() => {
-    socket.on('users', users => {
-      users.forEach(user => {
-        user.self = user.userID === socket.id;
-      });
-      console.log(users, 'client');
-      dispatch(addSocketUsers(users));
-    });
-  }, [socket]);
-
-  useEffect(() => {
-    getID();
-  }, []);
-
-  const getID = async () => {
-    const id = await AsyncStorage.getItem('id');
-    setUserID(id);
-    getData(id);
-  };
-
   const getData = async id => {
-    // // console.log('get data');
-    setLoader(true);
-    axiosconfig
-      .get(`user_view/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        // console.log('data', res.data.user_details);
-        setUserData(res?.data?.user_details);
-        const data = JSON.stringify(res?.data?.user_details);
-        AsyncStorage.setItem('userData', data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-      });
-  };
-  const matchId = (postId, id) => {
-    console.log(id, 'postID');
-    console.log('avg', postId);
-    postId.map((post, index) => {
-      console.log('post id', post.id, id);
-      if (post.id == postID) {
-        // console.log('abc');
-        const matchedId = post.id;
-        // setIndex(index);
-        console.log(matchedId, index, 'mat');
-        if (index !== -1 && flatListRef.current) {
-          flatListRef.current.scrollToIndex({index, animated: true});
-        }
-      } else {
-        console.log('false a');
-      }
-    });
+    const data = JSON.stringify(dummyUser);
+    AsyncStorage.setItem('userData', data);
   };
 
-  const handleShowAlert = () => {
-    setShowAlert(true);
-  };
-
-  const handleCloseAlert = () => {
-    setShowAlert(false);
-  };
   const getItemLayout = (data, index) => ({
     length: 500,
     offset: 500 * index,
     index,
   });
 
-  const getPosts = async pid => {
-    setLoader(true);
-    await axiosconfig
-      .get('user_details', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        setPosts(res?.data?.post_friends);
-        if (pid) {
-          matchId(res?.data?.post_friends, pid);
-        } else {
-          console.log('no data from params');
-        }
-        setOtherStoriesData(res?.data?.stories);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-        // showToast(err.response);
-      });
-  };
-
-  const funPosts = async () => {
-    setLoader(true);
-    await axiosconfig
-      .get('fun-interaction', {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('public post', JSON.stringify(res?.data?.post_public));
-        const data = res?.data?.post_public;
-        setFunPostsData(res?.data?.post_public);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-      });
-  };
   const report = async repText => {
-    setLoader(true);
-    const data = {
-      post_id: postId,
-      text: repText,
-    };
-    console.log(data, 'data');
-    await axiosconfig
-      .post('post-report', data, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('Posts', res.data);
-        getPosts();
-        refRBSheet1.current.close();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-        // showToast(err.response);
-      });
+    console.log('report');
   };
   const hide = async id => {
-    setLoader(true);
-    await axiosconfig
-      .get(`post_action/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        console.log('Post hide', res.data);
-        getPosts();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err, 'hide error');
-        // showToast(err.response);
-      });
-  };
-
-  const setOtherStoriesData = data => {
-    let temp = [];
-
-    data?.forEach(elem => {
-      let tempelem = {
-        user_id: elem.id,
-        profile: elem.image ? elem?.image : dummyImage,
-        group: elem.organization,
-        username: elem.name + ' ' + elem.last_name,
-        title: elem.name + ' ' + elem.last_name,
-        stories: elem.stories.map(item => {
-          return {
-            id: item.story_id,
-            url: item.story_image,
-            type: 'image',
-            duration: 10,
-            isReadMore: true,
-            url_readmore: 'https://github.com/iguilhermeluis',
-            created: elem.created_at,
-          };
-        }),
-      };
-      temp.push(tempelem);
-    });
-    setOtherStories(temp);
-    setLoader(false);
+    console.log('hide');
   };
 
   const hitLike = async (id, index, data) => {
-    setLoader(true);
-    await axiosconfig
-      .get(`like/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('data', JSON.stringify(res.data));
-        toggleLike(index);
-        searchUserOnSocket(data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-        // showToast(err.response);
+    console.log('like');
+  };
+
+  useEffect(() => {
+    const handleLike = ({postId, postUserId, myId}) => {
+      setPosts(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            const likesIndex = updatedPost.post_likes.findIndex(
+              like => like.user_id === myId,
+            );
+            if (likesIndex !== -1) {
+              updatedPost.post_likes.splice(likesIndex, 1);
+            } else {
+              const myLikesIndex = updatedPost.post_likes.findIndex(
+                like => like.user_id === myId,
+              );
+              if (myLikesIndex !== -1) {
+                updatedPost.post_likes.splice(myLikesIndex, 1);
+              }
+              if (userList) {
+                userList?.map(user => {
+                  if (user?.id == myId) {
+                    setLiked(true);
+                    updatedPost.post_likes.push({
+                      user_id: myId,
+                      users: {
+                        name: user?.name,
+                        last_name: user?.last_name,
+                      },
+                    });
+                  }
+                });
+              }
+            }
+            return updatedPost;
+          }
+          return post;
+        });
       });
-  };
+    };
 
-  const socketLike = (user, name) => {
-    console.log('user name', user, name);
-    socket.emit('like', {
-      username: name,
-      to: user.userID,
-    });
-  };
+    socket.on('like', handleLike);
 
-  const searchUserOnSocket = user => {
-    console.log(user, 'aoxjw');
-    // let temp = {backendUser: userData, socketUser: {}};
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == user?.email) {
-        console.log('found', index);
-        socketLike(elem, user?.name);
+    return () => {
+      socket.off('like', handleLike);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const handleComment = ({postId, postUserId, myId}) => {
+      setPosts(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id === postId) {
+            const updatedPost = {...post};
+            updatedPost.post_comments.push(myId);
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+
+    socket.on('comment', handleComment);
+
+    return () => {
+      socket.off('comment', handleComment);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const handleRequest = ({from, to, type}) => {
+      if (to == userData?.id && (type == 'connect' || type == 'disconnect')) {
+        // getPosts(null, false);
       }
-    });
-  };
+    };
 
+    const handleSocketRequest = ({from, to, type}) => {
+      handleRequest({from, to, type});
+    };
+    socket.on('request', handleSocketRequest);
+
+    return () => {
+      socket.off('request', handleSocketRequest);
+    };
+  }, [socket, userData]);
   var lastTap = null;
+
   const handleDoubleTap = (id, index, data) => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
@@ -357,354 +702,14 @@ const Home = ({navigation, route}) => {
     }
   };
 
-  const toggleLike = index => {
-    // // console.log('hello');
-    getPosts();
-    setRefresh(!refresh);
-  };
-
-  const requestCameraPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'Camera Permission',
-            message: 'App needs camera permission',
-          },
-        );
-        // If CAMERA Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
-      }
-    } else return true;
-  };
-
-  const requestExternalWritePermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-          },
-        );
-        // If WRITE_EXTERNAL_STORAGE Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
-
-  const requestExternalReadPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-          },
-        );
-        // If WRITE_EXTERNAL_STORAGE Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
-
-  const captureImage = async type => {
-    let options = {
-      mediaType: type,
-      maxWidth: Dimensions.get('screen').width,
-      maxHeight: moderateScale(370, 0.1),
-      quality: 1,
-      videoQuality: 'low',
-      durationLimit: 30, //Video max duration in seconds
-      saveToPhotos: true,
-    };
-    let isCameraPermitted = await requestCameraPermission();
-    let isStoragePermitted = await requestExternalWritePermission();
-    let isReadStoragePermitted = await requestExternalReadPermission();
-
-    if (isCameraPermitted || isStoragePermitted || isReadStoragePermitted) {
-      launchCamera(options, response => {
-        // console.log('Response = ', response);
-
-        if (response.didCancel) {
-          alert('User cancelled camera picker');
-          return;
-        } else if (response.errorCode == 'camera_unavailable') {
-          alert('Camera not available on device');
-          return;
-        } else if (response.errorCode == 'permission') {
-          alert('Permission not satisfied');
-          return;
-        } else if (response.errorCode == 'others') {
-          alert(response.errorMessage);
-          return;
-        }
-        let source = response;
-        // console.log(source.assets[0].uri, 'uri');
-        // setStoryImage(true);
-        refRBSheet.current.close();
-        convert(source);
-      });
-    }
-  };
-
-  const chooseFile = async type => {
-    var options = {
-      title: 'Select Image',
-      customButtons: [
-        {
-          name: 'customOptionKey',
-          title: 'Choose file from Custom Option',
-        },
-      ],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    launchImageLibrary(options, res => {
-      // console.log('Response = ', res);
-      if (res.didCancel) {
-        // console.log('User cancelled image picker');
-      } else if (res.error) {
-        // console.log('ImagePicker Error: ', res.error);
-      } else if (res.customButton) {
-        // console.log('User tapped custom button: ', res.customButton);
-        alert(res.customButton);
-      } else {
-        let source = res;
-        // // console.log(source.assets[0].uri, 'uri');
-        // setStoryImage(source.assets[0].uri);
-        refRBSheet.current.close();
-        // // console.log(source)
-        convert(source);
-        // setStoryImage(true);
-      }
-    });
-  };
-
-  const getColor = id => {
-    let color;
-
-    // // console.log(id, 'idddg');
-    Organization?.forEach(elem => {
-      if (elem.id == id) {
-        // // console.log(id, 'idddg');
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
-  const _onPress = async imageToeEdit => {
-    setTimeout(() => {
-      // // console.log(imageToeEdit, 'eitors');
-
-      try {
-        PhotoEditor.Edit({
-          path:
-            Platform.OS == 'ios'
-              ? imageToeEdit
-              : RNFS.DocumentDirectoryPath + '/photo.jpg',
-          // stickers: [
-          //   'sticker0',
-          //   'sticker1',
-          //   'sticker2',
-          //   'sticker3',
-          //   'sticker4',
-          //   'sticker5',
-          //   'sticker6',
-          //   'sticker7',
-          //   'sticker8',
-          //   'sticker9',
-          //   'sticker10',
-          // ],
-          hiddenControls: ['save'],
-          colors: undefined,
-          onDone: res => {
-            // console.log('on done', res);
-            // setPath(`file://${res}`);
-            convertToBase64(`file://${res}`);
-            let temp = storiesData[0].stories;
-            // temp.push({
-            //   story_id: Stories[0]?.stories?.length + 1,
-            //   story_image: `file://${res}`,
-            //   swipeText: 'Custom swipe text for this story',
-            //   onPress: () => // console.log('story 1 swiped'),
-            // });
-            temp.push({
-              id: storiesData[0]?.stories?.length + 1,
-              url: `file://${res}`,
-              type: 'image',
-              duration: 30,
-              isReadMore: true,
-              url_readmore: 'https://github.com/iguilhermeluis',
-              created: new Date(),
-            });
-
-            // setLoader(true);
-            setMyStories(temp);
-            dispatch(setStories([{...storiesData[0], stories: temp}]));
-
-            // addStory(myStories);
-          },
-          onCancel: () => {
-            // console.log('on cancel');
-          },
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }, 1000);
-  };
-
-  const getMyStories = () => {
-    let temp = myStories;
-    temp.push({
-      story_id: myStories.length + 1,
-      story_image: `file://${res}`,
-      swipeText: 'Custom swipe text for this story',
-      onPress: () => console.log('story 1 swiped'),
-    });
-    // setLoader(true);
-    setMyStories(temp);
+  useEffect(() => {
     setStoryCircle('green');
-    addStory(myStories);
-  };
-  const convert = source => {
-    // let binaryFile = Image.resolveAssetSource(require('./assets/photo.jpg'));
+    console.log(storiesData);
+  }, [storiesData]);
 
-    if (Platform.OS == 'ios') {
-      _onPress(source.assets[0].uri);
-    } else {
-      let photoPath = RNFS.DocumentDirectoryPath + '/photo.jpg';
-      RNFS.moveFile(source.assets[0].uri, photoPath)
-        .then(() => {
-          // console.log('FILE WRITTEN!');
-          _onPress();
-        })
-        .catch(err => {
-          // console.log(err.message);
-        });
-    }
-  };
-
-  const convertToBase64 = async image => {
-    await RNFS.readFile(image, 'base64')
-      .then(res => {
-        let base64 = `data:image/png;base64,${res}`;
-        // setStoryImage(base64);
-        createStory(base64);
-      })
-      .catch(err => {
-        // console.log(err);
-        // showToast('Profile picture not updated');
-        // setLoader(false);
-      });
-  };
-
-  const createStory = async base64 => {
-    setLoader(true);
-    if (!base64) {
-      s;
-      setLoader(false);
-      return;
-    }
-    const data = {
-      story_id: storiesData[0]?.stories?.length + 1,
-      image: base64,
-      swipe_text: 'Custom swipe text for this story',
-      privacy_option: '1',
-    };
-
-    // const data = {
-    //   id: storiesData[0]?.stories?.length + 1,
-    //   url: base64,
-    //   type: 'image',
-    //   duration: 30,
-    //   isReadMore: true,
-    //   url_readmore: 'https://github.com/iguilhermeluis',
-    //   created: new Date(),
-    // };
-    await axiosconfig
-      .post(`story_store`, data, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('data', JSON.stringify(res.data));
-        // setComment('');
-        setStoryCircle('green');
-        getStories();
-        // setRefresh(!refresh);
-        dispatch(set);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err);
-        getStories();
-        // Alert.alert(err);
-      });
-  };
-
-  const handleRefresh = () => {
-    // Perform your data fetching or refreshing logic here
-    getID();
-    funPosts();
-  };
-
-  const addComment = async (id, index) => {
-    setLoader(true);
-    // // console.log('hisss', id);
-    if (!comment) {
-      setLoader(false);
-      return;
-    }
-    const data = {
-      text: comment,
-      post_id: id,
-    };
-    await axiosconfig
-      .post(`comment_add`, data, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('data', JSON.stringify(res.data));
-        setComment('');
-        getPosts();
-        setRefresh(!refresh);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        setComment('');
-        // console.log(err);
-        // Alert.alert(err);
-      });
-  };
+  const handleRefresh = () => {};
 
   const getStories = async token => {
-    setLoader(true);
     await axiosconfig
       .get('story_index', {
         headers: {
@@ -713,110 +718,37 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
-        // // console.log('storylo', JSON.stringify(res.data?.user));
         createStoryData(res.data?.user, token);
-        // // console.log(myData1);
       })
       .catch(err => {
-        setLoader(false);
-        // console.log(err, 'jhjj');
-        // showToast(err.response);
+        console.log(err);
       });
   };
 
   const createStoryData = (data, token) => {
-    // // console.log('sent data', data);
-    // let temp = {
-    //   user_id: data.id,
-    //   user_image: data.image ? data.image : dummyImage,
-    //   organization: data.organization,
-    //   user_name: data.name,
-    //   stories: data.stories.map(elem => {
-    //     return {...elem, onPress: () => // console.log('story 1 swiped')};
-    //   }),
-    // };
-
-    // dispatch(setStories([temp]));
-    // setLoader(false);
-
-    // console.log('sent data', data);
     let temp = {
       user_id: data.id,
       profile: data.image ? data.image : dummyImage,
       organization: data.organization,
       username: data.name + ' ' + data.last_name,
       title: data.name + ' ' + data.last_name,
-      stories: data.stories.map(elem => {
-        return {
-          id: elem.story_id,
-          url: elem.story_image,
-          type: 'image',
-          duration: 10,
-          isReadMore: true,
-          url_readmore: 'https://github.com/iguilhermeluis',
-          created: data.created_at,
-        };
-      }),
+      stories: [],
     };
-    dispatch(setStories([temp]));
-    setLoader(false);
+    setStoriesData([temp]);
   };
 
   const deleteStory = async id => {
-    setLoader(true);
-    // // console.log(id);
-    await axiosconfig
-      .get(`story_delete/${storyID}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('afterDelete', res?.data?.message);
-        Alert.alert(res?.data?.message);
-        getStories(userToken);
-        id(false);
-        // // console.log(myData1);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err, 'hhe');
-        // showToast(err.response);
-      });
+    Alert.alert('Story Deleted');
   };
 
   const deletePost = async id => {
-    setLoader(true);
-    // console.log(id);
-    await axiosconfig
-      .get(`post_delete/${id}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-          Accept: 'application/json',
-        },
-      })
-      .then(res => {
-        // // console.log('afterDelete', res?.data?.message);
-        Alert.alert(res?.data?.message);
-        getPosts(userToken);
-        // // console.log(myData1);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        // console.log(err, 'hhe');
-        // showToast(err.response);
-      });
+    console.log('deletePost');
   };
 
   const deleteAlert = (title, text, id) => {
-    //function to make two option alert
     Alert.alert(
-      //This is title
       title,
-      //This is body text
+
       text,
       [
         {
@@ -827,21 +759,20 @@ const Home = ({navigation, route}) => {
         {text: 'No', onPress: () => console.log('No Pressed'), style: 'cancel'},
       ],
       {cancelable: false},
-      //on clicking out side, Alert will not dismiss
     );
   };
 
   const renderItem = elem => {
     if (elem?.item?.privacy_option == '3' && elem?.item?.user?.id != userID) {
-      return; //hide friends' only me posts
+      return;
     }
-    //check if the user already liked the post
     let liked = false;
     elem?.item?.post_likes?.forEach(t => {
       if (t?.user_id == userID) {
         liked = true;
       }
     });
+
     return (
       <View style={s.col}>
         <View style={s.header}>
@@ -902,14 +833,13 @@ const Home = ({navigation, route}) => {
               }}>
               <Menu.Item
                 onPress={() => {
-                  hide(elem?.item?.id);
+                  // hide(elem?.item?.id);
                 }}>
                 <View style={s.optionView}>
                   <Icon
                     name={'eye-slash'}
                     color={textColor}
                     size={moderateScale(13, 0.1)}
-                    // style={{marginRight: moderateScale(10, 0.1)}}
                     style={{flex: 0.3}}
                   />
                   <Text style={[s.optionBtns, {color: textColor}]}>Hide</Text>
@@ -941,14 +871,7 @@ const Home = ({navigation, route}) => {
               ) : null}
               {userID == elem?.item?.user?.id ? (
                 <>
-                  <Menu.Item
-                    onPress={() =>
-                      deleteAlert(
-                        'Delete Post',
-                        'Are you sure you want to delete this post?',
-                        elem?.item?.id,
-                      )
-                    }>
+                  <Menu.Item onPress={() => {}}>
                     <View style={s.optionView}>
                       <Antdesign
                         name={'delete'}
@@ -985,9 +908,10 @@ const Home = ({navigation, route}) => {
         </View>
         <View style={s.img}>
           <TouchableWithoutFeedback
-            onPress={() =>
-              handleDoubleTap(elem?.item?.id, elem?.index, elem?.item?.user)
-            }>
+            onPress={() => {
+              handleDoubleTap(elem?.item?.id, elem?.index, elem?.item?.user);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
+            }}>
             <View style={s.img}>
               <Image
                 source={{uri: elem?.item?.image}}
@@ -997,12 +921,22 @@ const Home = ({navigation, route}) => {
           </TouchableWithoutFeedback>
           <TouchableOpacity
             onPress={() => {
-              // send();
+              // setLoadingStates(prevState => ({
+              //   ...prevState,
+              //   [elem?.item?.id]: true,
+              // }));
               hitLike(elem?.item?.id, elem?.index, elem?.item?.user);
-              // // console.log(data[elem.index].post.liked);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
             style={s.likes}>
-            <Text style={s.likesCount}> {elem?.item?.post_likes?.length}</Text>
+            {loadingStates[elem?.item?.id] ? (
+              <ActivityIndicator size="small" color={'yellow'} />
+            ) : (
+              <Text style={s.likesCount}>
+                {' '}
+                {elem?.item?.post_likes?.length}
+              </Text>
+            )}
 
             <Icon
               name="heart"
@@ -1015,12 +949,12 @@ const Home = ({navigation, route}) => {
         <View style={s.footer}>
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate('Likes', {data: elem?.item?.post_likes});
+              navigation.navigate('Likes', {data: Likes});
             }}
             style={{marginBottom: moderateScale(5, 0.1)}}>
             {elem?.item?.post_likes?.length ? (
               <Text style={[s.name, {color: textColor}]}>
-                {`Liked by ${elem?.item?.post_likes[0]?.users?.name} ${elem?.item?.post_likes[0]?.users?.last_name} `}
+                {`Liked by Ava Simmon `}
                 {elem?.item?.post_likes?.length - 1
                   ? `and ${elem?.item?.post_likes?.length - 1} other`
                   : null}
@@ -1078,8 +1012,11 @@ const Home = ({navigation, route}) => {
               }
               InputRightElement={
                 <TouchableOpacity
+                  disabled={comment == ''}
                   onPress={() => {
-                    addComment(elem?.item?.id, elem?.index);
+                    setComment('');
+                    // addComment(elem?.item?.id, elem?.index);
+                    // socketComment(elem?.item?.id, elem?.item?.user_id, userID);
                   }}
                   style={{marginRight: moderateScale(15, 0.1)}}>
                   <Feather
@@ -1089,10 +1026,7 @@ const Home = ({navigation, route}) => {
                   />
                 </TouchableOpacity>
               }
-              // value={fname}
-              onEndEditing={() => {
-                // setDisable1(!disable1);
-              }}
+              onEndEditing={() => {}}
               placeholder="Add Comment ..."
               placeholderTextColor={'grey'}
               value={current == elem.index ? comment : ''}
@@ -1103,8 +1037,12 @@ const Home = ({navigation, route}) => {
             />
           </View>
           <View>
-            <Text style={[s.textRegular, {color: 'grey', marginVertical: 0}]}>
-              {`${new Date(elem?.item?.created_at).toLocaleString()}`}
+            <Text
+              style={[
+                s.textRegular,
+                {color: 'grey', marginVertical: 0, textTransform: 'capitalize'},
+              ]}>
+              {`${moment(elem?.item?.created_at).fromNow()}`}
             </Text>
           </View>
         </View>
@@ -1115,15 +1053,6 @@ const Home = ({navigation, route}) => {
   return (
     <SafeAreaView style={{display: 'flex', flex: 1, backgroundColor: color}}>
       {loader ? <Loader /> : null}
-
-      {/* <TouchableOpacity style={s.button} onPress={handleShowAlert}>
-        <Text style={s.buttonText}>Show Alert</Text>
-      </TouchableOpacity>
-      <CustomAlert
-        visible={showAlert}
-        onClose={handleCloseAlert}
-        message="This is a custom alert!"
-      /> */}
 
       <View style={[s.container, s.col, {backgroundColor: color}]}>
         <ScrollView
@@ -1316,7 +1245,7 @@ const Home = ({navigation, route}) => {
           </View>
           <Text style={[s.funText, {color: textColor}]}>Fun Interaction</Text>
         </TouchableOpacity>
-        <View style={{height: moderateScale(22, 0.1)}}></View>
+        <View style={{height: moderateScale(40, 0.1)}}></View>
         {!posts?.length ? (
           <View
             style={{
@@ -1388,7 +1317,10 @@ const Home = ({navigation, route}) => {
             <Button
               transparent
               style={s.capturebtn}
-              onPressIn={() => captureImage('photo')}>
+              onPressIn={() => {
+                captureImage('image', refRBSheet, setStoriesData);
+                // captureImage('image', refRBSheet, storiesData, setStoriesData);
+              }}>
               <View style={{flexDirection: 'row'}}>
                 <Ionicons name="camera" style={s.capturebtnicon} />
                 <Text style={s.capturebtntxt}>Open Camera</Text>
@@ -1397,7 +1329,9 @@ const Home = ({navigation, route}) => {
             <Button
               transparent
               style={s.capturebtn}
-              onPressIn={() => chooseFile('photo')}>
+              onPressIn={() => {
+                chooseFile('image', refRBSheet, setStoriesData);
+              }}>
               <View style={{flexDirection: 'row'}}>
                 <Ionicons name="md-image-outline" style={s.capturebtnicon} />
                 <Text style={s.capturebtntxt}>Open Gallery</Text>

@@ -1,59 +1,71 @@
 import 'react-native-gesture-handler';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  TouchableOpacity,
-  PermissionsAndroid,
-  Text,
-} from 'react-native';
-import React, {useEffect} from 'react';
+import {KeyboardAvoidingView, Platform, PermissionsAndroid} from 'react-native';
+import React, {memo, useEffect} from 'react';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
-import {NativeBaseProvider, Box, useToast} from 'native-base';
+import {NavigationContainer} from '@react-navigation/native';
+import {NativeBaseProvider, useToast} from 'native-base';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import MyStatusBar from './src/Components/StatusBar';
-import {useSelector, useDispatch} from 'react-redux';
-import {setTheme, setUserToken, setExist, setFToken} from './src/Redux/actions';
 import RNBootSplash from 'react-native-bootsplash';
 import BottomTabs from './src/Navigation/BottomTabs';
 import AuthStack from './src/Navigation/Stacks/AuthStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from './src/Providers/axios';
 import messaging from '@react-native-firebase/messaging';
-import PushNotification from 'react-native-push-notification';
 import socket from './src/utils/socket';
-// import PushNotification from 'react-native-push-notification';
 import SplashScreen from 'react-native-splash-screen';
-import * as RootNavigation from './RootNavigation';
 import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import {moderateScale} from 'react-native-size-matters';
+import {AppContext, AppProvider, useAppContext} from './src/Context/AppContext';
 
-const App = ({navigation}) => {
-  const dispatch = useDispatch();
-  const toast = useToast();
-  const userToken = useSelector(state => state.reducer.userToken);
-  const theme = useSelector(state => state.reducer.theme);
+const user_details = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
 
+const App = () => {
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
     if (enabled) {
-      console.log('Authorization status:', authStatus);
     }
   }
+  // const checkToken = async () => {
+  //   const fcmToken = await messaging().getToken();
+  //   if (fcmToken) {
+  //     dispatch(setFToken(fcmToken));
+  //   }
 
-  const checkToken = async () => {
-    const fcmToken = await messaging().getToken();
-    if (fcmToken) {
-      // console.log(fcmToken, 'fcmToken');
-      dispatch(setFToken(fcmToken));
-    }
-  };
+  // };
 
   const requestNotificationPermission = async () => {
     try {
@@ -62,21 +74,16 @@ const App = ({navigation}) => {
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // console.log('Notification permission granted');
           await AsyncStorage.setItem('permission', 'granted');
         } else {
-          // console.log('Notification permission denied');
           await AsyncStorage.setItem('permission', 'denied');
         }
       } else {
         const status = await request(PERMISSIONS.IOS.NOTIFICATIONS);
         if (status === RESULTS.GRANTED) {
           await AsyncStorage.setItem('permission', 'granted');
-
-          // console.log('Notification permission granted');
         } else {
           await AsyncStorage.setItem('permission', 'denied');
-          // console.log('Notification permission denied');
         }
       }
     } catch (error) {
@@ -85,7 +92,6 @@ const App = ({navigation}) => {
   };
 
   useEffect(() => {
-    // alert('hi');
     checkNotPer();
   }, []);
 
@@ -105,9 +111,7 @@ const App = ({navigation}) => {
               : PERMISSIONS.IOS.NOTIFICATIONS,
           );
           if (status === RESULTS.GRANTED) {
-            // console.log('status', status);
             await AsyncStorage.setItem('permission', 'granted');
-            console.log('Notification permission already granted');
           } else {
             await requestNotificationPermission();
           }
@@ -120,42 +124,12 @@ const App = ({navigation}) => {
     }
   };
   useEffect(() => {
-    // Replace with your server URL
     socket.on('connect', () => {
       console.log('Socket connected');
     });
-
-    // socket.on('private_message', ({content, from, time}) => {
-    //   toast.show({
-    //     title: 'Hello world1',
-    //     placement: 'top',
-    //     render: () => {
-    //       return (
-    //         <TouchableOpacity
-    //           style={{
-    //             borderRadius: moderateScale(10, 0.1),
-    //             paddingVertical: moderateScale(10, 0.1),
-    //             paddingHorizontal: moderateScale(15, 0.1),
-    //             backgroundColor: '#FFD700',
-    //             flexDirection: 'row',
-    //           }}
-    //           onPress={() => {
-    //             console.log('not logging');
-    //           }}>
-    //           <Icon name={'envelope'} color={'#000'} size={18} />
-    //           <Text style={{color: '#000', marginLeft: moderateScale(10, 0.1)}}>
-    //             You have a new message
-    //           </Text>
-    //         </TouchableOpacity>
-    //       );
-    //     },
-    //   });
-    // });
-
     socket.on('disconnect', reason => {
       console.log('Socket disconnected');
       console.log('Reason:', reason);
-      updateLastSeen();
     });
     socket.on('error', error => {
       console.error('Socket error:', error);
@@ -163,7 +137,6 @@ const App = ({navigation}) => {
     socket.on('connect_error', error => {
       console.log('Connection error:', error);
     });
-    // Clean up the socket on component unmount
     return () => {
       socket.disconnect();
     };
@@ -171,126 +144,58 @@ const App = ({navigation}) => {
 
   useEffect(() => {
     requestUserPermission();
-    checkToken();
+    // checkToken();
   }, []);
+
+  useEffect(() => {}, []);
+
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
+const AppContent = memo(() => {
+  const {token, setToken} = useAppContext(AppContext);
 
   useEffect(() => {
     const init = async () => {
-      // …do multiple sync or async task
       getToken();
+      
     };
 
     init().finally(async () => {
       if (Platform.OS == 'ios') {
         await RNBootSplash.hide({fade: true, duration: 500});
       } else {
-        SplashScreen.hide();
+        setTimeout(() => {
+          SplashScreen.hide();
+        }, 1500);
       }
     });
   }, []);
-
-  useEffect(() => {
-    const handleAppStateChange = nextAppState => {
-      if (nextAppState === 'active') {
-        console.log('App is in the foreground');
-      } else {
-        console.log('App is in the background');
-        updateLastSeen();
-      }
-    };
-
-    AppState.addEventListener('change', handleAppStateChange);
-
-    // Clean up the event listener on component unmount
-    // return () => {
-    //   AppState.removeEventListener('change', handleAppStateChange);
-    // };
-  }, []);
-  const updateLastSeen = async () => {
-    let token = await AsyncStorage.getItem('userToken');
-    if (token) {
-      await axiosconfig
-        .post(
-          `last-seen`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-        .then(res => {
-          console.log('last seen', res.data);
-        })
-        .catch(err => {
-          console.log(err, 'last seen err1');
-        });
-    }
-  };
 
   const getToken = async () => {
     let token = await AsyncStorage.getItem('userToken');
     let exist = await AsyncStorage.getItem('already');
     let userData = await AsyncStorage.getItem('userData');
     userData = JSON.parse(userData);
-    // console.log(token);
-    dispatch(setExist(exist));
-    setThemeMode(token);
     if (token) {
       socket.auth = {username: userData?.email};
       socket.connect();
     }
-    dispatch(setUserToken(token));
-  };
-
-  const setThemeMode = async token => {
-    let SP = await AsyncStorage.getItem('id');
-
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        if (
-          res?.data?.user_details?.theme_mode == null ||
-          res?.data?.user_details?.theme_mode == '' ||
-          res?.data?.user_details?.theme_mode == 0
-        ) {
-          dispatch(setTheme('dark'));
-        } else {
-          dispatch(setTheme('light'));
-        }
-        if (Platform.OS == 'android') {
-          console.log('close splash');
-          // SplashScreen.hide();
-        }
-      })
-      .catch(err => {
-        if (Platform.OS == 'android') {
-          SplashScreen.hide();
-        }
-        // setLoader(false);
-        console.log('error', err);
-        // showToast(err.response);
-      });
+    setToken(token);
   };
 
   return (
     <NativeBaseProvider>
       <SafeAreaProvider>
         <MyStatusBar backgroundColor="#000" barStyle="light-content" />
-        <KeyboardAvoidingView
-          style={{flex: 1}}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <NavigationContainer ref={navigationRef}>
-            {userToken === null ? <AuthStack /> : <BottomTabs />}
-          </NavigationContainer>
-        </KeyboardAvoidingView>
+        <NavigationContainer ref={navigationRef}>
+          {token === null ? <AuthStack /> : <BottomTabs />}
+        </NavigationContainer>
       </SafeAreaProvider>
     </NativeBaseProvider>
   );
-};
-
+});
 export default App;

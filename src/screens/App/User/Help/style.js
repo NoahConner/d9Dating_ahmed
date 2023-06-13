@@ -6,11 +6,11 @@ const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
+    flex: 1,
     width: '100%',
     height: '100%',
     paddingHorizontal: moderateScale(20, 0.1),
-    paddingBottom: '10%'
+    paddingBottom: '10%',
   },
 
   hView: {
@@ -20,12 +20,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: moderateScale(22, 0.1),
     lineHeight: moderateScale(30, 0.1),
-    //fontFamily: Poppins,
     fontWeight: '700',
   },
   txt: {
     fontSize: moderateScale(12, 0.1),
-    //fontFamily: Poppins,
     lineHeight: moderateScale(18, 0.1),
     color: '#7D7D7D',
   },
@@ -33,26 +31,24 @@ const styles = StyleSheet.create({
     marginVertical: moderateScale(20, 0.1),
   },
   button: {
-    flex:0.2,
+    flex: 0.2,
     top: moderateScale(15, 0.1),
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: moderateScale(20,0.1),
-    bottom: moderateScale(15,0.1)
+    marginVertical: moderateScale(20, 0.1),
+    bottom: moderateScale(15, 0.1),
   },
-  row:{
-    top: moderateScale(280,0.1),
-    justifyContent:'center',
-    alignItems:'center',
-    paddingHorizontal: moderateScale(5,0.1),
-    borderWidth:0.9,
-    borderColor:'white',
-    bottom:0,
-    // flex:1,
-    flexDirection:'row',
-    // height: moderateScale(60,0.1),
-    backgroundColor:'white'
-  }
+  row: {
+    top: moderateScale(280, 0.1),
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: moderateScale(5, 0.1),
+    borderWidth: 0.9,
+    borderColor: 'white',
+    bottom: 0,
+    flexDirection: 'row',
+    backgroundColor: 'white',
+  },
 });
 
 export default styles;

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(10, 0.1),
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf:'center'
+    alignSelf: 'center',
   },
   circle: {
     padding: moderateScale(2, 0.1),
@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
     width: moderateScale(18, 0.1),
     height: moderateScale(18, 0.1),
     borderRadius: moderateScale(18 / 2, 0.1),
-    // padding: moderateScale(5, 0.1),
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: '#fff',
@@ -65,7 +64,6 @@ const styles = StyleSheet.create({
   dltTxt: {
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(20, 0.1),
-    //fontFamily: Poppins,
     fontWeight: '300',
     color: '#222222',
   },
@@ -77,12 +75,10 @@ const styles = StyleSheet.create({
   textBold: {
     fontSize: moderateScale(20, 0.1),
     lineHeight: moderateScale(30, 0.1),
-    //fontFamily: PoppinsBold,
     marginRight: moderateScale(10, 0.1),
   },
   inputSection: {
     marginTop: moderateScale(20, 0.1),
-    // paddingHorizontal: moderateScale(25, 0.1),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -94,9 +90,8 @@ const styles = StyleSheet.create({
   },
   input: {
     marginVertical: moderateScale(15, 0.1),
-    alignSelf:'center',
-    justifyContent:'center'
-    // marginHorizontal: moderateScale(10, 0.1),
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   input1: {
     marginVertical: moderateScale(15, 0.1),
@@ -106,7 +101,6 @@ const styles = StyleSheet.create({
     marginHorizontal: moderateScale(15, 0.1),
   },
   text: {
-    //fontFamily: PoppinsBold,
     flex: 0.5,
     fontSize: moderateScale(12, 0.1),
   },
@@ -125,7 +119,6 @@ const styles = StyleSheet.create({
   },
   smallText: {
     fontSize: moderateScale(6, 0.1),
-    //fontFamily: Poppins,
     position: 'absolute',
     left: moderateScale(40, 0.1),
     width: moderateScale(100, 0.1),

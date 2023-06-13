@@ -1,13 +1,9 @@
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-
-const Poppins = '';
-const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
     height: '100%',
-    paddingBottom: '15%',
   },
   stories: {
     alignItems: 'flex-start',
@@ -52,7 +48,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: moderateScale(1, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(15, 0.1),
   },
@@ -72,16 +67,12 @@ const styles = StyleSheet.create({
     borderColor: '#222233',
     flexDirection: 'column',
   },
-  // input: {
-  //   marginVertical: moderateScale(5, 0.1),
-  // },
   text: {
     color: '#3f2949',
     marginTop: 10,
   },
 
   img: {
-    // height: moderateScale(300, 0.1),
     paddingHorizontal: moderateScale(10, 0.1),
   },
   optionView: {
@@ -90,15 +81,11 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // padding: moderateScale(10, 0.1),
-    // width: moderateScale(150, 0.1),
     paddingBottom: moderateScale(5, 0.1),
   },
   optionBtns: {
     fontSize: moderateScale(12, 0.1),
-    color:'red',
-    //fontFamily: Poppins,
-    // marginLeft: moderateScale(15, 0.1),
+    color: 'red',
     flex: 0.7,
   },
   userName: {
@@ -136,16 +123,13 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(5, 0.1),
   },
   name: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(17, 0.1),
   },
   textRegular: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(14, 0.1),
     marginVertical: moderateScale(5, 0.1),
-    // height: moderateScale(30, 0.1),
   },
   img: {
     width: '100%',
@@ -160,8 +144,8 @@ const styles = StyleSheet.create({
     marginTop: moderateScale(5, 0.1),
     marginRight: moderateScale(-12, 0.1),
   },
-  check:{
-  backgroundColor:'red'
+  check: {
+    backgroundColor: 'red',
   },
   likes: {
     backgroundColor: 'rgba(195, 195, 195, 0.6)',
@@ -210,22 +194,18 @@ const styles = StyleSheet.create({
 
   count: {
     fontSize: moderateScale(7, 0.1),
-    //fontFamily: Poppins,
     color: '#000',
   },
   funText: {
     fontSize: moderateScale(11, 0.1),
-    //fontFamily: PoppinsBold,
   },
   footer: {
     marginHorizontal: moderateScale(15, 0.1),
     marginVertical: moderateScale(10, 0.1),
   },
   capturebtntxt: {
-    // alignSelf:'center',
     fontSize: moderateScale(13, 0.1),
     alignSelf: 'center',
-    //fontFamily: Poppins,
     color: '#fff',
     paddingHorizontal: moderateScale(7, 0.1),
   },
@@ -261,7 +241,6 @@ const styles = StyleSheet.create({
   },
   rb: {
     fontSize: moderateScale(16, 0.1),
-    //fontFamily: Poppins,
     lineHeight: moderateScale(18, 0.1),
   },
   hText: {
@@ -269,7 +248,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: 'gray',
-    //fontFamily: Poppins,
     fontSize: moderateScale(12, 0.1),
   },
   hv: {
@@ -278,8 +256,6 @@ const styles = StyleSheet.create({
   list: {
     marginVertical: moderateScale(9, 0.1),
     borderBottomColor: 'gray',
-    // alignSelf:'center',
-    // borderBottomWidth: moderateScale(0.5,0.1)
   },
 });
 

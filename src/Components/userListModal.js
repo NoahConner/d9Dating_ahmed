@@ -12,11 +12,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
-import {useDispatch, useSelector} from 'react-redux';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {addSocketUsers, addUsers} from '../Redux/actions';
+import {dummyImage, getColor, theme} from '../Constants/Index';
+
 const Poppins = '';
 const PoppinsBold = '';
 const Users = [
@@ -91,20 +91,11 @@ const UserListModal = ({
   navigation,
   handleCreateRoom,
 }) => {
-  const dispatch = useDispatch();
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [searchText, setSearchText] = useState('');
   const [searchedList, setSearchedList] = useState([]);
-  const [socketUser, setSocketUser] = useState({});
-  const [backendUser, setBackendUser] = useState({});
-
   const [user, setUser] = useState({});
-
-  const organization = useSelector(state => state.reducer.organization);
-  const users = useSelector(state => state.reducer.users);
-  const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [disable, setDisable] = useState(false);
 
   useEffect(() => {
@@ -122,71 +113,9 @@ const UserListModal = ({
     setDisable(false);
   };
 
-  const filterUser = () => {
-    // let temp = users.filter(
-    //   elem => elem.from.toLowerCase() != value.toLowerCase(),
-    // );
-    // console.log(temp);
-    let temp = socketUsers.filter(elem => {
-      if (!elem.self) {
-        return elem;
-      }
-    });
-    console.log(temp, 'temp');
-    // setUsers(temp);
-    dispatch(addSocketUsers(temp));
-  };
+  const filterUser = () => {};
 
-  const getUsername = async () => {
-    try {
-      const value = await AsyncStorage.getItem('username');
-      if (value !== null) {
-        console.log(value);
-        setUser(value);
-        filterUser(value);
-      }
-    } catch (e) {
-      console.error('Error while loading username!');
-    }
-  };
-
-  const handleChange = text => {
-    setSearchText(text);
-    if (!text) {
-      clearData();
-    } else {
-      let searched = users.filter(item => {
-        let itm = `${item?.name} ${item?.last_name}`;
-        console.log('item', itm, text);
-        if (itm?.toLowerCase().trim().includes(text.toLowerCase().trim())) {
-          return item;
-        }
-      });
-
-      setSearchedList(searched);
-    }
-  };
-
-  const getColor = id => {
-    let color;
-
-    organization?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
-  const searchUserOnSocket = userData => {
-    setUser({backendUser: userData, socketUser: {}});
-    socketUsers.findLast((elem, index) => {
-      if (elem?.username == userData?.email) {
-        console.log('found', index);
-        setUser({backendUser: userData, socketUser: elem});
-      }
-    });
-  };
+  const handleChange = text => {};
   const renderItem = (elem, i) => {
     return (
       <TouchableOpacity
@@ -194,7 +123,8 @@ const UserListModal = ({
         onPress={() => {
           setSearchText(`${elem?.item?.name} ${elem?.item?.last_name}`);
           setDisable(true);
-          searchUserOnSocket(elem?.item);
+          setModalVisible(!modalVisible);
+          navigation.navigate('InnerChat', {userData: elem?.item});
         }}>
         <View
           style={[
@@ -204,7 +134,7 @@ const UserListModal = ({
             },
           ]}>
           <Image
-            source={{uri: elem?.item?.image}}
+            source={{uri: elem?.item?.image ? elem?.item?.image : dummyImage}}
             style={styles.dp1}
             resizeMode={'cover'}
           />
@@ -216,9 +146,6 @@ const UserListModal = ({
               {elem?.item?.name} {elem?.item?.last_name}
             </Text>
           </View>
-          {/* <Text style={[styles.textSmall, {color: '#787878'}]}>
-            {elem?.item?.userID}
-          </Text> */}
         </View>
       </TouchableOpacity>
     );
@@ -272,33 +199,20 @@ const UserListModal = ({
             <FlatList
               data={searchedList}
               renderItem={renderItem}
-              keyExtractor={(e, i) => i.toString()}
+              keyExtractor={(item, index) => String(index)}
               scrollEnabled={true}
               showsVerticalScrollIndicator={false}
             />
           ) : (
             <FlatList
-              data={users}
+              data={[]}
               renderItem={renderItem}
-              keyExtractor={(e, i) => i.toString()}
+              keyExtractor={(item, index) => String(index)}
               scrollEnabled={true}
               showsVerticalScrollIndicator={false}
             />
           )}
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            if (searchText && disable == true) {
-              console.log('start chat');
-              console.log(user);
-              handleCreateRoom(user);
-            } else {
-              Alert.alert('select a user to chat');
-            }
-          }}
-          style={styles.btn}>
-          <Text style={[styles.btnTxt]}>Start Chat</Text>
-        </TouchableOpacity>
       </View>
     </Modal>
   );
@@ -327,7 +241,6 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(25, 0.1),
   },
   btnTxt: {
-    //fontFamily: Poppins,
     fontWeight: '700',
     fontSize: moderateScale(14, 0.1),
     lineHeight: moderateScale(19.5, 0.1),
@@ -337,7 +250,6 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(15, 0.1),
     textAlign: 'center',
     fontSize: moderateScale(16, 0.1),
-    //fontFamily: Poppins,
   },
   list: {
     width: '100%',
@@ -361,13 +273,11 @@ const styles = StyleSheet.create({
     lineHeight: moderateScale(22, 0.1),
   },
   textRegular: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(11, 0.1),
     lineHeight: moderateScale(14, 0.1),
     marginVertical: moderateScale(5, 0.1),
   },
   textSmall: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(12, 0.1),
     marginVertical: moderateScale(5, 0.1),
@@ -387,6 +297,5 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(55 / 2, 0.1),
     marginRight: moderateScale(20, 0.1),
     borderWidth: 2,
-    // flex: 0.23,
   },
 });

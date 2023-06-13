@@ -1,56 +1,73 @@
-import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  PermissionsAndroid,
-  Alert,
-} from 'react-native';
+import {Text, View, Image, TouchableOpacity, Alert} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import {setPostLocation, setTheme} from '../../../Redux/actions';
-import {useSelector, useDispatch} from 'react-redux';
-import Header from '../../../Components/Header';
-import Vector from '../../../assets/images/png/Vector.png';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Button, Stack, Menu, Pressable, Input, ScrollView} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Loader from '../../../Components/Loader';
 import {useIsFocused} from '@react-navigation/native';
-import {
-  launchCamera,
-  launchImageLibrary,
-  showImagePicker,
-} from 'react-native-image-picker';
 import axiosconfig from '../../../provider/axios';
-import RNFS from 'react-native-fs';
+import {Header, Loader} from '../../../Components/Index';
+import {
+  captureImage,
+  chooseFile,
+  dummyImage,
+  getColor,
+} from '../../../Constants/Index';
+import {AppContext, useAppContext} from '../../../Context/AppContext';
+import {theme} from '../../../Constants/Index';
+
+const dummyData = {
+  about_me: null,
+  block_status: 0,
+  connected: 0,
+  created_at: '2023-06-06T12:21:34.000000Z',
+  date: '6/06/2005',
+  date_login: '2023-06-07 07:27:08',
+  device_token:
+    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+  email: 'emilymartin9875@gmail.com',
+  email_verified_at: null,
+  gender: 'Female',
+  group: 'Omega Psi Phi Fraternity, Inc.',
+  id: 2,
+  image:
+    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+  last_name: 'martin',
+  location: null,
+  month: null,
+  name: 'Emily',
+  notify: '0',
+  otp: '8405',
+  phone_number: '+443334443333',
+  post_privacy: '1',
+  privacy_option: '1',
+  status: '1',
+  story_privacy: '00000000001',
+  theme_mode: null,
+  updated_at: '2023-06-07T07:29:02.000000Z',
+  year: null,
+};
 
 const CreatePost = ({navigation, route}) => {
   const privacy = route?.params?.elem?.privacy_option;
-  const organization = useSelector(state => state.reducer.organization);
+
+  const [address, setaddress] = useState('');
 
   useEffect(() => {
-    console.log('sefsst', route?.params?.elem);
     if (privacy == '1') {
-      console.log(privacy, 'aaaaa');
-
       setStory('Public');
     } else if (privacy == '2') {
-      console.log(privacy, 'aaaaa');
-
       setStory('Friends');
     } else {
-      console.log(privacy, 'aaaaa');
-
+      s;
       setStory('Only Me');
     }
   }, []);
 
-  const theme = useSelector(state => state.reducer.theme);
   const [filePath, setFilePath] = useState(
     route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
       ? route?.params?.elem?.image
@@ -68,9 +85,6 @@ const CreatePost = ({navigation, route}) => {
   const [loader, setLoader] = useState(false);
   const isFocused = useIsFocused();
   const [userData, setUserData] = useState([]);
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
 
   const [value, setValue] = useState([
     {
@@ -105,240 +119,35 @@ const CreatePost = ({navigation, route}) => {
   ]);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
-  const userToken = useSelector(state => state.reducer.userToken);
-  const dispatch = useDispatch();
+  const {token} = useAppContext(AppContext);
   const refRBSheet = useRef();
-  const postLocation = useSelector(state => state.reducer.postLocation);
-  const [location, setLocation] = useState(
-    route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
-      ? route?.params?.elem?.location
-      : 'Select Location....',
-  );
+  const [location, setLocation] = useState('');
   const [story, setStory] = useState(
     route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
       ? route?.params?.elem?.privacy_option
       : 'Public',
   );
 
-  const requestCameraPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'Camera Permission',
-            message: 'App needs camera permission',
-          },
-        );
-        // If CAMERA Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        return false;
-      }
-    } else return true;
-  };
-
-  const requestExternalWritePermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'External Storage Write Permission',
-            message: 'App needs write permission',
-          },
-        );
-        // If WRITE_EXTERNAL_STORAGE Permission is granted
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (err) {
-        console.warn(err);
-        alert('Write permission err', err);
-      }
-      return false;
-    } else return true;
-  };
-
-  const captureImage = async type => {
-    let options = {
-      mediaType: type,
-      maxWidth: moderateScale(300, 0.1),
-      maxHeight: moderateScale(270, 0.1),
-      quality: 1,
-      videoQuality: 'low',
-      durationLimit: 30, //Video max duration in seconds
-      saveToPhotos: true,
-    };
-    let isCameraPermitted = await requestCameraPermission();
-    let isStoragePermitted = await requestExternalWritePermission();
-    if (isCameraPermitted || isStoragePermitted) {
-      launchCamera(options, response => {
-        console.log('Response = ', response);
-
-        if (response.didCancel) {
-          alert('User cancelled camera picker');
-          return;
-        } else if (response.errorCode == 'camera_unavailable') {
-          alert('Camera not available on device');
-          return;
-        } else if (response.errorCode == 'permission') {
-          alert('Permission not satisfied');
-          return;
-        } else if (response.errorCode == 'others') {
-          alert(response.errorMessage);
-          return;
-        }
-
-        convertImage(response.assets[0].uri);
-        refRBSheet.current.close();
-        console.log(response, 'image');
-      });
-    }
-  };
-  const getColor = id => {
-    let color;
-
-    organization?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
-
-  const convertImage = async image => {
-    await RNFS.readFile(image, 'base64')
-      .then(res => {
-        let base64 = `data:image/png;base64,${res}`;
-        setFilePath(base64);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
-  const chooseFile = async type => {
-    var options = {
-      title: 'Select Image',
-      customButtons: [
-        {
-          name: 'customOptionKey',
-          title: 'Choose file from Custom Option',
-        },
-      ],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-    launchImageLibrary(options, res => {
-      console.log('Response = ', res);
-      if (res.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (res.error) {
-        console.log('ImagePicker Error: ', res.error);
-      } else if (res.customButton) {
-        console.log('User tapped custom button: ', res.customButton);
-        alert(res.customButton);
-      } else {
-        let source = res;
-        console.log(source.assets[0].uri, 'uri');
-
-        convertImage(source.assets[0].uri);
-        console.log(filePath, 'filepath');
-        refRBSheet.current.close();
-      }
-    });
-  };
   const onsubmit = () => {
-    if (caption == '' || caption == null) {
-      alert('please write caption');
-      return;
-    } else if (filePath == '' || filePath == null) {
-      console.log('h11ea');
-      alert('please select an image');
-      return;
-    } else {
-      let data = {
-        image: filePath,
-        caption: caption,
-        privacy_option:
-          story == 'Public' ? '1' : story == 'Friends' ? '2' : '3',
-        location:
-          route?.params?.from == 'Home'
-            ? route.params.elem.location
-            : postLocation,
-      };
-      console.log(data, 'dataaaa');
-      setLoader(true);
-      axiosconfig
-        .post(
-          route?.params?.from == 'Home'
-            ? `post_update/${route.params.elem.id}`
-            : 'post_store',
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          },
-        )
-        .then(res => {
-          setLoader(false);
-          alert(res?.data?.message);
-          console.log(res, 'post');
-          setFilePath(null);
-          setCaption(null);
-          dispatch(setPostLocation(null));
-
-          navigation.navigate('Home');
-        })
-        .catch(err => {
-          setLoader(false);
-          console.log(err, 'aaa');
-          Alert.alert(err?.response?.data?.message);
-        });
-    }
+    Alert.alert('Post uploaded');
+    navigation.navigate('Home');
   };
 
   useEffect(() => {
-    if (
-      route?.params?.from == 'Home' ||
-      route?.params?.from == 'funInteraction'
-    ) {
-      dispatch(setPostLocation(route?.params?.elem?.location));
-    }
-
     getData();
   }, []);
 
   const getData = async () => {
-    console.log('get data ');
-    let SP = await AsyncStorage.getItem('id');
-    // setLoader(true);
-    axiosconfig
-      .get(`user_view/${SP}`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('data user', res?.data?.user_details);
-        setUserData(res?.data?.user_details);
-      })
-      .catch(err => {
-        // setLoader(false);
-        console.log(err);
-        // showToast(err.response);
-      });
+    setUserData(dummyData);
   };
-  return (
+
+  return loader ? (
+    <Loader />
+  ) : (
     <ScrollView
       style={{flex: 1, backgroundColor: theme == 'dark' ? '#222222' : '#fff'}}>
       <View>
         <View style={[s.container]}>
-          {loader ? <Loader /> : null}
-
           <View>
             <Header navigation={navigation} />
           </View>
@@ -369,9 +178,7 @@ const CreatePost = ({navigation, route}) => {
                   borderWidth={moderateScale(1, 0.1)}
                   borderBottomColor={'grey'}
                   backgroundColor={color}
-                  // marginRight={moderateScale(5, 0.1)}
-
-                  top={moderateScale(24, 0.1)}
+                  // top={moderateScale(24, 0.1)}
                   borderColor={Textcolor}
                   trigger={triggerProps => {
                     return (
@@ -387,7 +194,6 @@ const CreatePost = ({navigation, route}) => {
                           paddingLeft: moderateScale(10, 0.1),
                           width: moderateScale(180, 0.1),
                           height: moderateScale(33, 0.1),
-                          // justifyContent:'center',
                           alignItems: 'center',
                         }}>
                         <Entypo
@@ -482,12 +288,12 @@ const CreatePost = ({navigation, route}) => {
           </View>
           <TouchableOpacity
             onPress={() => {
-              route?.params?.from == 'Home' ||
-              route?.params?.from == 'funInteraction'
-                ? null
-                : navigation.navigate('Map', {
-                    from: 'createPost',
-                  });
+              navigation.navigate('Map', {
+                address: address,
+                location: location,
+                setLocation: setLocation,
+                setaddress: setaddress,
+              });
             }}>
             <View style={[s.mText]}>
               <Text
@@ -497,7 +303,7 @@ const CreatePost = ({navigation, route}) => {
                   color: Textcolor,
                   fontSize: moderateScale(14, 0.1),
                 }}>
-                {postLocation ? postLocation : 'Enter location...'}
+                {address ? address : 'Enter location...'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -509,7 +315,6 @@ const CreatePost = ({navigation, route}) => {
                     if (route?.params?.from == 'Home') {
                       return;
                     } else {
-                      console.log('here');
                       refRBSheet.current.open();
                     }
                   }}>
@@ -529,7 +334,6 @@ const CreatePost = ({navigation, route}) => {
                       style={{
                         width: moderateScale(153, 0.1),
                         height: moderateScale(136, 0.1),
-                        // backgroundColor: 'white'
                       }}
                       source={require('../../../assets/images/png/Vector.png')}
                     />
@@ -573,19 +377,13 @@ const CreatePost = ({navigation, route}) => {
                     md: 'row',
                   }}
                   space={4}>
-                  <Button
-                    transparent
-                    style={s.capturebtn}
-                    onPress={() => captureImage('photo')}>
+                  <Button transparent style={s.capturebtn} onPress={() => {}}>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons name="camera" style={s.capturebtnicon} />
                       <Text style={s.capturebtntxt}>Open Camera</Text>
                     </View>
                   </Button>
-                  <Button
-                    transparent
-                    style={s.capturebtn}
-                    onPress={() => chooseFile('photo')}>
+                  <Button transparent style={s.capturebtn} onPress={() => {}}>
                     <View style={{flexDirection: 'row'}}>
                       <Ionicons
                         name="md-image-outline"

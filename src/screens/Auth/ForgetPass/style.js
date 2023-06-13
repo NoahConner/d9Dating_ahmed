@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
   container: {
     height: '100%',
     width: '100%', alignItems: 'center'
-    // justifyContent: 'space-evenly',
     
   },
   header: {
@@ -19,13 +18,11 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(60, 0.1),
   },
   headingText: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(32, 0.1),
     lineHeight: moderateScale(48, 0.1),
     fontWeight: '700',
   },
   headingText1: {
-    //fontFamily: Poppins,
     fontSize: moderateScale(32, 0.1),
     lineHeight: moderateScale(48, 0.1),
     fontWeight: '300',
@@ -46,7 +43,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnText: {
-    //fontFamily: Poppins,
     lineHeight: moderateScale(20, 0.1),
     fontSize: moderateScale(13, 0.1),
     color: '#222222',
@@ -55,13 +51,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
   },
   forgetPass1: {
     color: '#FFD700',
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(15, 0.1),
-    //fontFamily: Poppins,
   },
   bottomLink: {
     marginBottom: Platform.OS == 'ios' ? moderateScale(100, 0.1) : 0,

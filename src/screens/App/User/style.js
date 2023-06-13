@@ -1,4 +1,4 @@
-import {Dimensions, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {moderateScale} from 'react-native-size-matters';
 
 const Poppins = '';
@@ -6,7 +6,6 @@ const PoppinsBold = '';
 
 const styles = StyleSheet.create({
   container: {
-    // paddingHorizontal: moderateScale(20, 0.1),
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
@@ -22,7 +21,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   btnText: {
-    //fontFamily: Poppins,
     lineHeight: moderateScale(20, 0.1),
     fontSize: moderateScale(13, 0.1),
     color: '#222222',
@@ -49,7 +47,6 @@ const styles = StyleSheet.create({
     width: moderateScale(18, 0.1),
     height: moderateScale(18, 0.1),
     borderRadius: moderateScale(18 / 2, 0.1),
-    // padding: moderateScale(5, 0.1),
     justifyContent: 'center',
     alignItems: 'center',
     borderColor: '#fff',
@@ -63,7 +60,6 @@ const styles = StyleSheet.create({
   textBold: {
     fontSize: moderateScale(20, 0.1),
     lineHeight: moderateScale(30, 0.1),
-    //fontFamily: PoppinsBold,
     marginRight: moderateScale(10, 0.1),
   },
   inputSection: {
@@ -83,7 +79,6 @@ const styles = StyleSheet.create({
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
-    //fontFamily: PoppinsBold,
     lineHeight: moderateScale(30, 0.1),
   },
   radio: {
@@ -96,17 +91,14 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     fontSize: moderateScale(14, 0.1),
-    // fontFamily: 'Inter-Medium',
     color: '#fff',
   },
   text: {
-    //fontFamily: PoppinsBold,
     fontSize: moderateScale(12, 0.1),
   },
   radioInput: {
     width: '100%',
     marginTop: moderateScale(15, 0.1),
-    // marginBottom: moderateScale(100, 0.1),
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
@@ -116,10 +108,8 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(100, 0.1),
   },
   capturebtntxt: {
-    // alignSelf:'center',
     fontSize: moderateScale(13, 0.1),
     alignSelf: 'center',
-    //fontFamily: Poppins,
     color: '#fff',
     paddingHorizontal: moderateScale(7, 0.1),
   },

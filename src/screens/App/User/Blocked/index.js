@@ -8,86 +8,99 @@ import {
   Image,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
-import Loader from '../../../../Components/Loader';
-import Header from '../../../../Components/Header/index';
 import {moderateScale} from 'react-native-size-matters';
-import {useDispatch, useSelector} from 'react-redux';
 import axiosconfig from '../../../../Providers/axios';
 import s from './style';
 import {useIsFocused} from '@react-navigation/native';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {dummyImage, getColor} from '../../../../Constants/Index';
+import {theme} from '../../../../Constants/Index';
+
+const blocked = [
+  {
+    about_me: null,
+    block_status: 0,
+    connected: 0,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Omega Psi Phi Fraternity, Inc.',
+    id: 5,
+    image: dummyImage,
+    last_name: 'Simmon',
+    location: null,
+    month: null,
+    name: 'Ava',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    year: null,
+  },
+  {
+    about_me: null,
+    block_status: 0,
+    connected: 0,
+    created_at: '2023-06-06T12:21:34.000000Z',
+    date: '6/06/2005',
+    date_login: '2023-06-07 07:27:08',
+    device_token:
+      'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
+    email: 'emilymartin9875@gmail.com',
+    email_verified_at: null,
+    gender: 'Female',
+    group: 'Alpha Phi Alpha Fraternity, Inc.',
+    id: 8,
+    image:
+      'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
+    last_name: 'Marry',
+    location: null,
+    month: null,
+    name: 'Andy',
+    notify: '0',
+    otp: '8405',
+    phone_number: '+443334443333',
+    post_privacy: '1',
+    privacy_option: '1',
+    status: '1',
+    story_privacy: '00000000001',
+    theme_mode: null,
+    updated_at: '2023-06-07T07:29:02.000000Z',
+    year: null,
+  },
+];
 
 const Block = ({navigation}) => {
   const [loader, setLoader] = useState(false);
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const organizations = useSelector(state => state.reducer.organization);
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
   const [data, setData] = useState([]);
   const isFocused = useIsFocused();
-  const [dummyImage, setDummyImage] = useState(
-    'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png',
-  );
 
   useEffect(() => {
     block_list();
   }, [isFocused]);
 
-  const getColor = id => {
-    let color;
-    organizations?.forEach(elem => {
-      if (elem.id == id) {
-        color = elem.color;
-      }
-    });
-    return color;
-  };
+  const unblock = async id => {};
 
-  const unblock = async id => {
-    console.log('aaaa');
-    setLoader(true);
-    console.log(userToken, 'hgh');
-    await axiosconfig
-      .get(`block/${id}`, {
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('block', res);
-        block_list();
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-
-        console.log(err, 'her');
-        // showToast(err.response);
-      });
-  };
   const block_list = async () => {
-    setLoader(true);
-    axiosconfig
-      .get(`block-list`, {
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      })
-      .then(res => {
-        console.log('data', res.data);
-        setData(res?.data);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-
-        console.log(err);
-        // showToast(err.response);
-      });
+    setData(blocked);
   };
+
   const renderItem = (elem, i) => {
-    console.log(elem.item, 'a');
+    console.log('dum', elem?.item?.group);
     return (
       <View style={s.card}>
         <View style={[s.dp, {borderColor: getColor(elem?.item?.group)}]}>
@@ -102,8 +115,7 @@ const Block = ({navigation}) => {
         <TouchableOpacity style={{flex: 0.7, alignSelf: 'center'}}>
           <View>
             <View
-              style={{flexDirection: 'row', width: moderateScale(200, 0.1)}}
-            >
+              style={{flexDirection: 'row', width: moderateScale(200, 0.1)}}>
               <Text style={[s.name, s.nameBold, {color: textColor}]}>
                 {elem?.item?.name}
                 {elem?.item?.last_name}
@@ -119,9 +131,10 @@ const Block = ({navigation}) => {
       </View>
     );
   };
-  return (
+  return loader ? (
+    <Loader />
+  ) : (
     <SafeAreaView style={{flex: 1, backgroundColor: color}}>
-      {loader ? <Loader /> : null}
       <View style={{flexDirection: 'row'}}>
         <View style={{flex: 0.4}}>
           <Header navigation={navigation} />
@@ -131,17 +144,13 @@ const Block = ({navigation}) => {
         </View>
       </View>
       <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}
-      >
-        {/* <View>
-          <Text style={[s.HeadingText, {color: textColor}]}>Blocked</Text>
-        </View> */}
+        contentContainerStyle={[s.container, {backgroundColor: color}]}>
         {data.length > 0 ? (
           <>
             <FlatList
               data={data}
               renderItem={renderItem}
-              keyExtractor={(e, i) => i.toString()}
+              keyExtractor={(item, index) => String(index)}
               scrollEnabled={true}
             />
           </>
@@ -149,8 +158,7 @@ const Block = ({navigation}) => {
           <>
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
               <Text
-                style={{fontSize: moderateScale(16, 0.1), color: textColor}}
-              >
+                style={{fontSize: moderateScale(16, 0.1), color: textColor}}>
                 No blocked Users
               </Text>
             </View>

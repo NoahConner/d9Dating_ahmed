@@ -4,9 +4,6 @@ import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import Feather from 'react-native-vector-icons/Feather';
-
-// const InterRegular = 'Inter-Medium';
-// const InterBold = 'Inter-ExtraBold';
 const Poppins = '';
 
 const OTPModal = ({
@@ -61,14 +58,10 @@ const OTPModal = ({
             style={{width: '80%', height: 200}}
             pinCount={4}
             ref={otpRef}
-            // code={this.state.code} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-            // onCodeChanged = {code => { this.setState({code})}}
             autoFocusOnLoad={false}
             codeInputFieldStyle={s.underlineStyleBase}
             codeInputHighlightStyle={s.underlineStyleHighLighted}
-            onCodeFilled={code => {
-              console.log(`Code is ${code}, you are good to go!`);
-            }}
+            onCodeFilled={code => {}}
             onCodeChanged={code => {
               setOtp(code);
             }}
@@ -91,7 +84,6 @@ const OTPModal = ({
                 }
                 if (screen == 'Forgot') {
                   OtpSubmit();
-                  // navigation.navigate('ChangePass')
                 }
               }}>
               <Text style={[s.btnText, {color: '#222222'}]}>Submit</Text>
@@ -108,7 +100,9 @@ const OTPModal = ({
               w={moderateScale(140, 0.1)}
               h={moderateScale(35, 0.1)}
               alignItems={'center'}
-              onPressIn={() => submit()}>
+              onPressIn={() => {
+                console.log('resend');
+              }}>
               <Text style={[s.btnText, {color: '#222222'}]}>Resend</Text>
             </Button>
           </View>
@@ -132,7 +126,6 @@ const s = StyleSheet.create({
     zIndex: 1000,
   },
   headingText: {
-    //fontFamily: InterBold,
     color: '#fff',
     fontSize: moderateScale(25, 0.1),
     lineHeight: moderateScale(30, 0.1),
@@ -208,7 +201,6 @@ const s = StyleSheet.create({
     fontSize: moderateScale(22, 0.1),
     marginBottom: moderateScale(10, 0.1),
     lineHeight: moderateScale(26, 0.1),
-    //fontFamily: InterBold,
   },
   verifyText: {
     color: 'grey',
@@ -216,7 +208,6 @@ const s = StyleSheet.create({
     width: moderateScale(180, 0.1),
     lineHeight: moderateScale(15, 0.1),
     textAlign: 'center',
-    //fontFamily: InterRegular,
   },
   otpView: {
     height: moderateScale(130, 0.1),

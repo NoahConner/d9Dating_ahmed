@@ -6,8 +6,7 @@ import Video from 'react-native-video';
 import PropTypes from 'prop-types';
 import {StoryType} from '.';
 import { moderateScale } from 'react-native-size-matters';
-import { useSelector, useDispatch } from 'react-redux';
-import { setStoryID } from '../Redux/actions';
+
 const ScreenWidth = Dimensions.get('window').width;
 
 type Props = {
@@ -20,16 +19,18 @@ type Props = {
 };
 const Story = (props: Props) => {
   const {story} = props;
-  const dispatch = useDispatch();
+
   const {url, type, id} = story || {};
+  const [storyID, setStoryID] = useState('');
   const [isPortation, setIsPortation] = useState(false);
+
   const [heightScaled, setHeightScaled] = useState(moderateScale(231,0.1));
-  const storyID = useSelector(state=> state.reducer.storyID)
+
 
   useEffect(()=> {
     // console.log(setStoryID)
-    dispatch(setStoryID(id))
-    console.log(storyID)
+   setStoryID(id);
+
   },[])
 
   return (

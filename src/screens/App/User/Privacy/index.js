@@ -1,73 +1,65 @@
 import {Text, SafeAreaView, View, ScrollView} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, {useState} from 'react';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import Header from '../../../../Components/Header';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-// import openMap from 'react-native-open-maps';
-import {Input, Button, Menu, Pressable} from 'native-base';
+import {Input, Menu, Pressable} from 'native-base';
 import Icon1 from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {TouchableOpacity} from 'react-native-gesture-handler';
-import Loader from '../../../../Components/Loader';
 import axiosconfig from '../../../../Providers/axios';
+import {Header, Loader} from '../../../../Components/Index';
+import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {theme} from '../../../../Constants/Index';
+
 const Privacy = ({navigation}) => {
-  const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
-  const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [story, setStory] = useState('Public');
   const [post, setPost] = useState('Public');
   const [connect, setConnect] = useState('Public');
-  const userToken = useSelector(state => state.reducer.userToken);
+  const {token} = useAppContext(AppContext);
 
   const userPrivacy = async () => {
-    setLoader(true);
+    // setLoader(true);
     const data = {
       privacy_option: connect == '1' ? 'Everyone' : 'Friends of Friends',
     };
     await axiosconfig
       .post('user-privacy', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        console.log('data', res.data);
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
+        // setLoader(false);
         console.log(err);
-        // showToast(err.response);
       });
   };
   const postprivacy = async () => {
-    setLoader(true);
+    // setLoader(true);
     const data = {
       privacy_option: post == 'Public' ? '1' : post == 'Friends' ? '2' : '3',
     };
-    console.log(data, 'dataa');
     await axiosconfig
       .post('post-privacy', data, {
         headers: {
-          Authorization: `Bearer ${userToken}`,
+          Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       })
       .then(res => {
-        console.log('data', res.data);
-        setLoader(false);
+        // setLoader(false);
       })
       .catch(err => {
-        setLoader(false);
+        // setLoader(false);
         console.log(err);
-        // showToast(err.response);
       });
   };
 
@@ -76,8 +68,7 @@ const Privacy = ({navigation}) => {
       {loader ? <Loader /> : null}
       <Header navigation={navigation} />
       <ScrollView
-        contentContainerStyle={[s.container, {backgroundColor: color}]}
-      >
+        contentContainerStyle={[s.container, {backgroundColor: color}]}>
         <View style={{flexDirection: 'row'}}>
           <View style={s.username}>
             <Text style={[s.textBold, {color: textColor}]}>Privacy</Text>
@@ -117,8 +108,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {story}
                         </Text>
@@ -130,8 +120,7 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item onPress={() => setStory('Public')}>
                     <View style={s.optionView}>
                       <Entypo
@@ -173,7 +162,6 @@ const Privacy = ({navigation}) => {
                   </Menu.Item>
                 </Menu>
               }
-              // value={fname}
               placeholder="My Stories"
               placeholderTextColor={textColor}
             />
@@ -212,8 +200,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {post}
                         </Text>
@@ -225,14 +212,12 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item
                     onPress={() => {
                       setPost('Public');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'globe'}
@@ -248,9 +233,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setPost('Friends');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Icon
                         name={'user-friends'}
@@ -266,9 +250,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setPost('Only Me');
-                      postprivacy();
-                    }}
-                  >
+                      // postprivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'lock'}
@@ -283,7 +266,6 @@ const Privacy = ({navigation}) => {
                   </Menu.Item>
                 </Menu>
               }
-              // value={fname}
               placeholder="Posts"
               placeholderTextColor={textColor}
             />
@@ -322,8 +304,7 @@ const Privacy = ({navigation}) => {
                         {...triggerProps}
                         style={{
                           flexDirection: 'row',
-                        }}
-                      >
+                        }}>
                         <Text style={[s.option, {color: textColor}]}>
                           {connect == '1' ? 'Everyone' : 'Friends of Friends'}
                         </Text>
@@ -335,14 +316,12 @@ const Privacy = ({navigation}) => {
                         />
                       </Pressable>
                     );
-                  }}
-                >
+                  }}>
                   <Menu.Item
                     onPress={() => {
                       setConnect('1');
-                      userPrivacy();
-                    }}
-                  >
+                      // userPrivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Entypo
                         name={'globe'}
@@ -358,9 +337,8 @@ const Privacy = ({navigation}) => {
                   <Menu.Item
                     onPress={() => {
                       setConnect('2');
-                      userPrivacy();
-                    }}
-                  >
+                      // userPrivacy();
+                    }}>
                     <View style={s.optionView}>
                       <Icon
                         name={'users'}
@@ -375,65 +353,10 @@ const Privacy = ({navigation}) => {
                   </Menu.Item>
                 </Menu>
               }
-              // value={fname}
               placeholder="Connect"
               placeholderTextColor={textColor}
             />
           </View>
-          {/* <TouchableOpacity
-            style={s.input}
-            onPress={() => navigation.navigate('About')}
-          >
-            <Input
-              w="100%"
-              isReadOnly
-              variant="underlined"
-              color={textColor}
-              fontSize={moderateScale(12, 0.1)}
-              InputLeftElement={
-                <View style={s.icon}>
-                  <Entypo
-                    name={'info-with-circle'}
-                    size={moderateScale(20, 0.1)}
-                    solid
-                    color={textColor}
-                  />
-                </View>
-              }
-              // value={fname}
-              placeholder="About"
-              placeholderTextColor={textColor}
-            />
-<<<<<<< HEAD
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=> goToYosemite()}
-          style={s.input}>
-=======
-          </TouchableOpacity> */}
-
-          {/* <View style={s.input}>
->>>>>>> 380b0c24c2fc19ae48b3c471b0c1e9c65da7aaae
-            <Input
-              w="100%"
-              isReadOnly
-              variant="underlined"
-              color={textColor}
-              fontSize={moderateScale(12, 0.1)}
-              InputLeftElement={
-                <View style={s.icon}>
-                  <Inicon
-                    name={'location'}
-                    size={moderateScale(20, 0.1)}
-                    solid
-                    color={textColor}
-                  />
-                </View>
-              }
-              // value={fname}
-              placeholder="Live Location"
-              placeholderTextColor={textColor}
-            />
-          </View> */}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -441,83 +364,3 @@ const Privacy = ({navigation}) => {
 };
 
 export default Privacy;
-
-//  {optionsModal ? (
-//             <View
-//               style={[
-//                 s.modal,
-//                 {backgroundColor: color, borderColor: textColor},
-//               ]}
-//             >
-//               <Button
-//                 backgroundColor={color}
-//                 margin={0}
-//                 padding={0}
-//                 variant={'link'}
-//                 justifyContent={'flex-start'}
-//                 onPress={() => {
-//                   setStory('Public');
-//                   setOptionsModal(false);
-//                 }}
-//               >
-//                 <View style={[s.optionView]}>
-//                   <Entypo
-//                     name={'globe'}
-//                     color={textColor}
-//                     solid
-//                     style={{flex: 0.2}}
-//                     size={moderateScale(12, 0.1)}
-//                   />
-//                   <Text style={[s.optionBtns, {color: textColor}]}>
-//                     Public
-//                   </Text>
-//                 </View>
-//               </Button>
-//               <Button
-//                 backgroundColor={color}
-//                 margin={0}
-//                 padding={0}
-//                 variant={'link'}
-//                 justifyContent={'flex-start'}
-//                 onPress={() => {
-//                   setStory('Friends');
-//                   setOptionsModal(false);
-//                 }}
-//               >
-//                 <View style={s.optionView}>
-//                   <Icon
-//                     name={'user-friends'}
-//                     color={textColor}
-//                     size={moderateScale(13, 0.1)}
-//                     style={{flex: 0.2}}
-//                   />
-//                   <Text style={[s.optionBtns, {color: textColor}]}>
-//                     Friends
-//                   </Text>
-//                 </View>
-//               </Button>
-//               <Button
-//                 backgroundColor={color}
-//                 margin={0}
-//                 padding={0}
-//                 variant={'link'}
-//                 justifyContent={'flex-start'}
-//                 onPress={() => {
-//                   setStory('Only Me');
-//                   setOptionsModal(false);
-//                 }}
-//               >
-//                 <View style={s.optionView}>
-//                   <Entypo
-//                     name={'lock'}
-//                     color={textColor}
-//                     size={moderateScale(13, 0.1)}
-//                     style={{flex: 0.2}}
-//                   />
-//                   <Text style={[s.optionBtns, {color: textColor}]}>
-//                     Only Me
-//                   </Text>
-//                 </View>
-//               </Button>
-//             </View>
-//           ) : null}
