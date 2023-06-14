@@ -97,20 +97,20 @@ const UserListModal = ({
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const [searchText, setSearchText] = useState('');
-  const [searchedList, setSearchedList] = useState([]);
   const [user, setUser] = useState({});
-
+  
   const organization = useSelector(state => state.reducer.organization);
   const users = useSelector(state => state.reducer.users);
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const [disable, setDisable] = useState(false);
+  const [searchedList, setSearchedList] = useState(users);
 
   useEffect(() => {
     filterUser();
   }, []);
 
   const clearData = () => {
-    setSearchedList([]);
+    setSearchedList(users);
     setSearchText('');
   };
 
@@ -223,7 +223,7 @@ const UserListModal = ({
           }
         />
         <View style={styles.list}>
-          {searchedList.length > 0 ? (
+          {searchedList.length ? (
             <FlatList
               data={searchedList}
               renderItem={renderItem}
@@ -232,13 +232,7 @@ const UserListModal = ({
               showsVerticalScrollIndicator={false}
             />
           ) : (
-            <FlatList
-              data={users}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => String(index)}
-              scrollEnabled={true}
-              showsVerticalScrollIndicator={false}
-            />
+            <Text>No User Found</Text>
           )}
         </View>
       </View>

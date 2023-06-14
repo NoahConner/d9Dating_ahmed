@@ -20,18 +20,16 @@ import {dummyImage} from '../../../Constants/Index';
 const Message = ({navigation, route}) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const {token, setMessageAlert, uniqueId} = useAppContext(AppContext);
+  const {token, setMessageAlert, uniqueId, newMessageAlert, setNewMessageAlert} = useAppContext(AppContext);
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
-  const [userData, setUserData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [loader, setLoader] = useState(true);
   const [rooms, setRooms] = useState([]);
   const [myData, setMyData] = useState('');
   useEffect(() => {
     userslist();
-   
     setMessageAlert(false)
   }, [isFocused]);  
   useEffect(() => {
@@ -45,15 +43,13 @@ const Message = ({navigation, route}) => {
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
-      if(data){
-        setMyData(JSON.parse(data));
-      }
+      setMyData(JSON.parse(data));
     };
     getData();
-
     const handleMessage = ({from, to, message, time, socketUniqueId}) => {
-      if (to == userData?.id || to == uniqueId) {
+      if (to == myData?.id || to == uniqueId) {
         latestMsg();
+        setNewMessageAlert(true);
       }
     };
 
@@ -65,7 +61,7 @@ const Message = ({navigation, route}) => {
     return () => {
       socket.off('message', handleSocketMessage);
     };
-  }, [socket, userData]);
+  }, [socket, myData]);
   const userslist = async () => {
     setLoader(true);
     await axiosconfig
@@ -93,6 +89,7 @@ const Message = ({navigation, route}) => {
       })
       .then(res => {
         setRooms(res?.data);
+        console.log(res?.data);
         setLoader(false);
       })
       .catch(err => {
@@ -100,16 +97,6 @@ const Message = ({navigation, route}) => {
         console.log(err);
       });
   };
-
-  function formatTimestamp(timestamp) {
-    const now = moment();
-    const date = moment(timestamp);
-    if (now.isSame(date, 'day')) {
-      return date.format('h:mm A');
-    } else {
-      return date.format('DD/mm/yyyy');
-    }
-  }
 
   const handleCreateRoom = user => {
     navigation.navigate('InnerChat', user);
@@ -166,13 +153,13 @@ const Message = ({navigation, route}) => {
               </Text>
             </View>
 
-            {latest?.user_id === userData?.id || latest?.read_status == 1 ? (
+            {latest?.read_status == 1 ? (
               <Text style={[s.textSmall, s.nameBold, {color: textColor}]}>
                 {latest?.message}
               </Text>
             ) : (
               <Text style={[s.textSmall, s.nameBold, {color: '#FFD700'}]}>
-                {'New message'}
+                {newMessageAlert ? 'New message' : null}
               </Text>
             )}
           </TouchableOpacity>

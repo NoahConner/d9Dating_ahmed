@@ -9,7 +9,7 @@ export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 export const passRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
 export const dummyImage =
-  'https://designprosusa.com/the_night/storage/app/1678168286base64_image.png';
+  'https://www.nsb.gov.bt/wp-content/uploads/2020/12/nopicture.png';
 export const width = Dimensions.get('window').width;
 export const height = Dimensions.get('window').height;
 export const Organization = [
@@ -154,6 +154,14 @@ export const socketRequest = (from, to, type) => {
 };
 export const socketComment = (postId, postUserId, myId) => {
   socket.emit('comment', {
+    postId: postId,
+    postUserId: postUserId,
+    myId: myId,
+  });
+};
+export const socketCommentDelte = (postId, postUserId, myId) => {
+  console.log(postId, postUserId, myId, 'getting all idss');
+  socket.emit('commentDelete', {
     postId: postId,
     postUserId: postUserId,
     myId: myId,

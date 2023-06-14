@@ -8,6 +8,7 @@ import Antdesign from 'react-native-vector-icons/AntDesign';
 import ChatHeader from '../../../../Components/ChatHeader';
 import axiosconfig from '../../../../Providers/axios';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import {useIsFocused} from '@react-navigation/native';
 import {
   dummyImage,
   formatTimestamp,
@@ -28,7 +29,8 @@ const InnerChat = ({navigation, route}) => {
   const [loader, setLoader] = useState(true);
   const [chatMessages, setChatMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const {token} = useAppContext(AppContext);
+  const isFocused = useIsFocused();
+  const {token, setNewMessageAlert} = useAppContext(AppContext);
 
   useEffect(() => {
     if (route.params) {
@@ -36,7 +38,10 @@ const InnerChat = ({navigation, route}) => {
       getMessages();
     }
   }, [userData]);
-
+  useEffect(() => {
+    setNewMessageAlert(false)
+    readMessage()
+  }, [isFocused]);
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
@@ -98,7 +103,21 @@ const InnerChat = ({navigation, route}) => {
       console.log(err, 'message show API err');
     }
   };
-
+  const readMessage = async () => {
+    try {
+      await axiosconfig
+        .post(`read_status`,{id:userData?.id}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(res => {
+          console.log(res,"read message");
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  } 
   const handleNewMessage = async () => {
     if (message != '') {
       await setMessage('');

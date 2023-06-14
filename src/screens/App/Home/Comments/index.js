@@ -14,7 +14,8 @@ import Feather from 'react-native-vector-icons/Feather';
 import {Input} from 'native-base';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
-import {dummyImage, getColor} from '../../../../Constants/Index';
+import {dummyImage, getColor, socketComment, socketCommentDelte} from '../../../../Constants/Index';
+import socket from '../../../../utils/socket';
 
 const Comments = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -32,12 +33,17 @@ const Comments = ({navigation, route}) => {
   const [userID, setUserID] = useState('');
   const [edit, setEdit] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [userData, setUserData] = useState('');
+  const [userData, setUserData] = useState(route?.params?.data?.user_id);
+  const [myData, setMyData] = useState('');
   const [post, setPost] = useState(null);
   const Cid = route?.params?.data?.id;
   const Pid = route?.params?.data?.Pid;
   useEffect(() => {
+    setUserData(route?.params?.data?.user_id)
     getID();
+    notifcaitons()
+  }, []);
+  const notifcaitons = () => {
     if (route?.params?.from) {
       if (route?.params?.from == 'home') {
         getPosts(data?.id);
@@ -48,29 +54,11 @@ const Comments = ({navigation, route}) => {
       getPosts(Pid);
       getPublicPosts(Pid);
     }
-  }, []);
-  const getUserData = async id => {
-    setLoader(true);
-    axiosconfig
-      .get(`user_view/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(res => {
-        setUserData(res?.data?.user_details);
-        setLoader(false);
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err);
-      });
-  };
+  }
 
   const getID = async () => {
     const id = await AsyncStorage.getItem('id');
     setUserID(id);
-    getUserData(id);
   };
 
   const getItemLayout = (data, index) => ({
@@ -108,6 +96,7 @@ const Comments = ({navigation, route}) => {
         post_id: postid,
       };
     }
+    socketComment(postid, userData, myData?.id)
 
     await axiosconfig
       .post(edit ? 'comment_update' : 'comment_add', data, {
@@ -197,7 +186,38 @@ const Comments = ({navigation, route}) => {
         console.log(err);
       });
   };
+  useEffect(() => {
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
+    };
+    getData();
+    const handleComment = ({postId, postUserId, myId}) => {
+      console.log(postId, postUserId, myId,userData,'comment date');
+      if (postUserId == userData) {
+        notifcaitons()
+      }
+    };
 
+    const handleSocketComment = ({postId, postUserId, myId}) => {
+      handleComment({postId, postUserId, myId});
+    };
+    const handleCommentDelete = ({postId, postUserId, myId}) => {
+      console.log(postId, postUserId, myId,userData,'comment delete');
+        notifcaitons()
+    };
+
+    const handleSocketCommentDelete = ({postId, postUserId, myId}) => {
+      handleCommentDelete({postId, postUserId, myId});
+    };
+    socket.on('comment', handleSocketComment);
+    socket.on('commentDelete', handleSocketCommentDelete);
+
+    return () => {
+      socket.off('comment', handleSocketComment);
+      socket.off('commentDelete', handleSocketCommentDelete);
+    };
+  }, [socket, myData]);
   const getUpdatedComments = (array, postid) => {
     let temp = array.filter(elem => elem.id == postid);
     setPost(temp[0]);
@@ -255,6 +275,7 @@ const Comments = ({navigation, route}) => {
               <TouchableOpacity
                 onPress={() => {
                   deleteComment(elem?.item?.id);
+                  socketCommentDelte(elem?.item?.id, elem?.item?.user_id, myData?.id);
                 }}>
                 <Antdesign
                   name={'delete'}
@@ -335,7 +356,7 @@ const Comments = ({navigation, route}) => {
           extraData={refresh}
           getItemLayout={getItemLayout}
         />
-        {userData ? (
+        {myData ? (
           <View style={{marginBottom: 20}}>
             <Input
               w="100%"
@@ -356,12 +377,12 @@ const Comments = ({navigation, route}) => {
                   style={[
                     s.smallDp,
                     {
-                      borderColor: getColor(userData?.group),
+                      borderColor: getColor(myData?.group),
                     },
                   ]}>
-                  {userData?.image ? (
+                  {myData?.image ? (
                     <Image
-                      source={{uri: userData?.image}}
+                      source={{uri: myData?.image}}
                       style={s.dp1}
                       resizeMode={'cover'}
                     />
