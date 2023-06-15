@@ -50,7 +50,7 @@ const Notifications = ({navigation, route}) => {
     getData();
 
     const handleLike = ({postId, postUserId, myId}) => {
-      console.log(postUserId, myData?.id, 'idssso flike');
+      console.log('dummy socket');
       if (postUserId == myData?.id) {
         getNotification();
       }
@@ -60,7 +60,6 @@ const Notifications = ({navigation, route}) => {
       handleLike({postId, postUserId, myId});
     };
     const handleComment = ({postId, postUserId, myId}) => {
-      console.log(postUserId, myData?.id, 'idssso flike');
       if (postUserId == myData?.id) {
         getNotification();
       }
@@ -131,7 +130,7 @@ const Notifications = ({navigation, route}) => {
       if (loader) {
         setLoader(false);
       }
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -143,13 +142,12 @@ const Notifications = ({navigation, route}) => {
         },
       });
       setNotificationData(res?.data);
-      console.log(res?.data, 'helloers');
       setTimeout(() => {
         setLoader(false);
       }, 0);
     } catch (err) {
       setLoader(false);
-      console.log(err);
+      console.error(err);
     }
   };
   const connectAccept = async connectId => {
@@ -169,7 +167,7 @@ const Notifications = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   const connectDecline = async connectId => {
@@ -189,7 +187,7 @@ const Notifications = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 

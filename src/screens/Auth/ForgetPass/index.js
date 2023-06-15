@@ -8,6 +8,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import axiosconfig from '../../../provider/axios';
 import {emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
+import { useToast } from 'react-native-toast-notifications';
 
 const ForgetPassword = ({navigation}) => {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const ForgetPassword = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [submitted, setSubmitted] = useState();
   const [otp, setOtp] = useState();
-
+  const toast = useToast();
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
@@ -39,16 +40,27 @@ const ForgetPassword = ({navigation}) => {
         .post('forgot', data)
         .then(res => {
           setLoader(false);
-          console.log(res);
-          Alert.alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           setTimeout(() => {
             setModalVisible(!modalVisible);
           }, 3000);
         })
         .catch(err => {
           setLoader(false);
-          console.log(err?.response, 'aaa');
-          Alert.alert(err?.response?.data?.message);
+          console.error(err?.response, 'aaa');
+          toast.show(err?.response?.data?.message, {
+            type: "danger",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
         });
     }
   };
@@ -62,13 +74,25 @@ const ForgetPassword = ({navigation}) => {
       .post('otp_password', data)
       .then(res => {
         setLoader(false);
-        Alert.alert(res?.data);
+        toast.show(res?.data, {
+          type: "success",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         navigation.navigate('ChangePass', {email, otp});
       })
       .catch(err => {
         setLoader(false);
-        console.log(err?.response, 'aaa');
-        Alert.alert(err?.response?.data);
+        console.error(err?.response, 'aaa');
+        toast.show(err?.response?.data, {
+          type: "danger",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
       });
   };
 

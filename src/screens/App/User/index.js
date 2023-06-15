@@ -42,10 +42,12 @@ import {
   width,
 } from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const Profile = ({navigation, route}) => {
   const dispatch = useDispatch();
   const refRBSheet = useRef();
+  const toast = useToast();
   const phonenum = useRef();
   const isFocused = useIsFocused();
   const {token} = useAppContext(AppContext);
@@ -134,9 +136,6 @@ const Profile = ({navigation, route}) => {
     setForm({...form, gender: item.name});
   };
 
-  const showToast = msg => {
-    Alert.alert(msg);
-  };
 
   const getData = async () => {
     let SP = await AsyncStorage.getItem('id');
@@ -190,7 +189,13 @@ const Profile = ({navigation, route}) => {
       setForm({...form, image: base64image});
     }
     if (!phonenum.current.isValidNumber()) {
-      Alert.alert('Please enter valid phone number');
+      toast.show('Please enter valid phone number', {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       return;
     }
     setLoader(true);
@@ -208,7 +213,13 @@ const Profile = ({navigation, route}) => {
       )
       .then(res => {
         let message = res?.data?.message;
-        showToast(message);
+        toast.show(message, {
+          type: "success",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         setUserName(form.name + ' ' + form.last_name);
         dispatch(setUserData(form));
         setDisable4(false);
@@ -217,7 +228,13 @@ const Profile = ({navigation, route}) => {
       .catch(err => {
         setLoader(false);
         getData();
-        showToast(err.message);
+        toast.show(err.message, {
+          type: "danger",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
       });
   };
 

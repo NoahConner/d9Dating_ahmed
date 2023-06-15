@@ -34,13 +34,15 @@ const InnerChat = ({navigation, route}) => {
 
   useEffect(() => {
     if (route.params) {
-      setUserData(route.params?.userData);
+      getData(route.params?.userData?.id)
       getMessages();
     }
-  }, [userData]);
+  }, []);
+  
   useEffect(() => {
     setNewMessageAlert(false)
     readMessage()
+    getData(route.params?.userData?.id)
   }, [isFocused]);
   useEffect(() => {
     const getData = async () => {
@@ -87,7 +89,23 @@ const InnerChat = ({navigation, route}) => {
       socket.off('message', handleSocketMessage);
     };
   }, [socket, myData]);
-
+  const getData = async Userid => {
+    setLoader(true)
+    axiosconfig
+      .get(`user_view/${Userid}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(res => {
+        setUserData(res?.data?.user_details);
+    setLoader(false)
+        console.log(userData ,res?.data?.user_details,"helloblock",token);
+      })
+      .catch(err => {
+          setLoader(false);
+      });
+  };
   const getMessages = async () => {
     setLoader(true);
     try {
@@ -100,7 +118,7 @@ const InnerChat = ({navigation, route}) => {
       setLoader(false);
     } catch (err) {
       setLoader(false);
-      console.log(err, 'message show API err');
+      console.error(err, 'message show API err');
     }
   };
   const readMessage = async () => {
@@ -112,10 +130,9 @@ const InnerChat = ({navigation, route}) => {
           },
         })
         .then(res => {
-          console.log(res,"read message");
         });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   } 
   const handleNewMessage = async () => {
@@ -160,7 +177,7 @@ const InnerChat = ({navigation, route}) => {
         });
     } catch (err) {
       setLoader(false);
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -297,11 +314,14 @@ const InnerChat = ({navigation, route}) => {
           showsVerticalScrollIndicator={true}
         />
       </View>
-      <ChatFooter
-        message={message}
-        setMessage={setMessage}
-        handleNewMessage={handleNewMessage}
-      />
+      {
+        userData?.block_id == 'UnBlock' ? 
+        <ChatFooter
+          message={message}
+          setMessage={setMessage}
+          handleNewMessage={handleNewMessage}
+        /> : <Text style={{textAlign:'center', color:theme == 'dark' ? 'white' :'black'}}>User Blocked</Text>
+      }
     </View>
   );
 };

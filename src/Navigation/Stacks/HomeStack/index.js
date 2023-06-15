@@ -30,7 +30,6 @@ const HomeStack = () => {
           PushNotificationIOS.addEventListener(
             'error',
             function (key, message) {
-              // alert('error: ' + message);
             },
           );
         },

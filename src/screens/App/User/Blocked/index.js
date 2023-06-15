@@ -46,7 +46,7 @@ const Block = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'her');
+        console.error(err, 'her');
       });
   };
   const block_list = async () => {
@@ -63,7 +63,7 @@ const Block = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   const renderItem = (elem, i) => {

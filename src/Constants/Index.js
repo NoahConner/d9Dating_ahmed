@@ -26,9 +26,9 @@ export const Organization = [
 export const captureImage = async (type, refRBSheet, setFilePath) => {
   let options = {
     mediaType: type,
-    maxWidth: moderateScale(300, 0.1),
-    maxHeight: moderateScale(270, 0.1),
-    quality: 1,
+    quality: 0.5,
+    maxWidth: 1000,
+    maxHeight: 1000,
     videoQuality: 'low',
     durationLimit: 30,
     saveToPhotos: true,
@@ -63,7 +63,7 @@ const convertImage = async (image, setFilePath) => {
       setFilePath(base64);
     })
     .catch(err => {
-      console.log(err);
+      console.error(err);
     });
 };
 export const requestCameraPermission = async () => {
@@ -160,7 +160,6 @@ export const socketComment = (postId, postUserId, myId) => {
   });
 };
 export const socketCommentDelte = (postId, postUserId, myId) => {
-  console.log(postId, postUserId, myId, 'getting all idss');
   socket.emit('commentDelete', {
     postId: postId,
     postUserId: postUserId,
@@ -173,20 +172,19 @@ export const socketMessage = (from, to, message, time, socketUniqueId) => {
     to: to,
     message: message,
     time: time,
-    socketUniqueId:socketUniqueId
+    socketUniqueId: socketUniqueId,
   });
 };
-export const storeMsg = async (msg,token) => {
-  await axiosconfig.post('message_store', msg, {
+export const storeMsg = async (msg, token) => {
+  await axiosconfig
+    .post('message_store', msg, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then(res => {
-      console.log('message send', res.data);
-    })
+    .then(res => {})
     .catch(err => {
-      console.log(err)
+      console.error(err);
     });
 };
 export function formatTimestamp(timestamp) {

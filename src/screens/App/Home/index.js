@@ -51,7 +51,8 @@ import {
 import {Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import moment from 'moment';
-import { ActivityIndicator } from 'react-native';
+import {ActivityIndicator} from 'react-native';
+import {useToast} from 'react-native-toast-notifications';
 
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
@@ -98,6 +99,7 @@ const Home = ({navigation, route}) => {
   const postID = route?.params?.data?.id;
   const [myData, setMyData] = useState('');
   const [loadingStates, setLoadingStates] = useState({});
+  const toast = useToast();
   useEffect(() => {
     dispatch(setOrganization(Organization));
     getAllUsers();
@@ -126,7 +128,7 @@ const Home = ({navigation, route}) => {
         userList = sourceData;
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
   useEffect(() => {
@@ -195,7 +197,7 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       });
-
+      console.log(response,"hello");
       setPosts(response?.data?.post_friends);
       if (pid) {
         matchId(response?.data?.post_friends, pid);
@@ -205,6 +207,7 @@ const Home = ({navigation, route}) => {
       setOtherStoriesData(response?.data?.stories);
       myStoryData(response?.data?.myStories);
     } catch (error) {
+      console.error(error);
     } finally {
       if (loaderCondition) {
         setLoader(false);
@@ -223,9 +226,11 @@ const Home = ({navigation, route}) => {
       })
       .then(res => {
         setFunPostsData(res?.data?.post_public);
+        console.log(res?.data);
         setLoader(false);
       })
       .catch(err => {
+        console.log(err);
         setLoader(false);
       });
   };
@@ -252,7 +257,6 @@ const Home = ({navigation, route}) => {
       });
   };
   const hide = async id => {
-    console.log('hiding');
     setLoader(true);
     await axiosconfig
       .get(`post_action/${id}`, {
@@ -262,13 +266,12 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
-        console.log(res,'hiding');
         getPosts(null, true);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'hide error');
+        console.error(err, 'hide error');
       });
   };
 
@@ -321,6 +324,7 @@ const Home = ({navigation, route}) => {
 
   useEffect(() => {
     const handleLike = ({postId, postUserId, myId}) => {
+      console.log('dummy socket');
       setPosts(prevPosts => {
         return prevPosts.map(post => {
           if (post.id === postId) {
@@ -438,9 +442,9 @@ const Home = ({navigation, route}) => {
   const captureImage = async type => {
     let options = {
       mediaType: type,
-      maxWidth: width,
-      maxHeight: moderateScale(370, 0.1),
-      quality: 1,
+      quality: 0.5,
+      maxWidth: 1000,
+      maxHeight: 1000,
       videoQuality: 'low',
       durationLimit: 30,
       saveToPhotos: true,
@@ -528,7 +532,7 @@ const Home = ({navigation, route}) => {
           onCancel: () => {},
         });
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }, 1000);
   };
@@ -668,7 +672,13 @@ const Home = ({navigation, route}) => {
         },
       })
       .then(res => {
-        Alert.alert(res?.data?.message);
+        toast.show(res?.data?.message, {
+          type: 'success',
+          placement: 'bottom',
+          duration: 4000,
+          offset: 30,
+          animationType: 'zoom-in',
+        });
         getStories(token);
         id(false);
         setLoader(false);
@@ -687,19 +697,24 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       })
-      .then(async (res) => {
-        Alert.alert(res?.data?.message);
+      .then(async res => {
+        toast.show(res?.data?.message, {
+          type: 'success',
+          placement: 'bottom',
+          duration: 4000,
+          offset: 30,
+          animationType: 'zoom-in',
+        });
         await getPosts(token, true);
         setTimeout(() => {
           setLoader(false);
-        },0);
+        }, 0);
       })
       .catch(err => {
         setLoader(false);
       });
   };
   const myStoryData = elem => {
-    console.log(elem, 'elemelem');
     let temp = [
       {
         user_id: elem.id,
@@ -720,7 +735,6 @@ const Home = ({navigation, route}) => {
         }),
       },
     ];
-    console.log(temp, 'temptemp');
     setMyStories(temp);
   };
   const deleteAlert = (title, text, id) => {
@@ -910,9 +924,10 @@ const Home = ({navigation, route}) => {
               hitLike(elem?.item?.id, elem?.index, elem?.item?.user);
               socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
+            disabled={loadingStates[elem?.item?.id]}
             style={s.likes}>
             {loadingStates[elem?.item?.id] ? (
-              <ActivityIndicator size="small" color={"yellow"}/>
+              <ActivityIndicator size="small" color={'yellow'} />
             ) : (
               <Text style={s.likesCount}>
                 {' '}
@@ -994,7 +1009,7 @@ const Home = ({navigation, route}) => {
               }
               InputRightElement={
                 <TouchableOpacity
-                disabled={comment == ''}
+                  disabled={comment == ''}
                   onPress={() => {
                     addComment(elem?.item?.id, elem?.index);
                     socketComment(elem?.item?.id, elem?.item?.user_id, userID);

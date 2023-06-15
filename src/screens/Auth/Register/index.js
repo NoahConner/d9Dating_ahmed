@@ -3,10 +3,9 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert,
   ScrollView,
 } from 'react-native';
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState} from 'react';
 import axiosconfig from '../../../provider/axios';
 import s from './style';
 import Feather from 'react-native-vector-icons/Feather';
@@ -24,6 +23,7 @@ import socket from '../../../utils/socket';
 import {Organization, emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const Register = ({navigation}) => {
   const {setToken} = useAppContext(AppContext);
@@ -75,7 +75,7 @@ const Register = ({navigation}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const userLocation = useSelector(state => state.reducer.location);
   const [location, setLocation] = useState(userLocation);
-  useEffect(() => {}, []);
+  const toast = useToast();
   const onRadioBtnClick = item => {
     let updatedState = isSelected.map(isSelectedItem =>
       isSelectedItem.id === item.id
@@ -129,12 +129,24 @@ const Register = ({navigation}) => {
       return false;
     }
     if (password != confirmPassword) {
-      Alert.alert('password does not match');
+      toast.show("Password does not match", {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       sub = false;
       return false;
     }
     if (!phonenum.current.isValidNumber()) {
-      Alert.alert('Please enter valid Phone Number');
+      toast.show("Please enter a valid phone number", {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       sub = false;
       return false;
     }
@@ -152,20 +164,36 @@ const Register = ({navigation}) => {
       .post('otp', data)
       .then(res => {
         if (modalVisible == false) {
-          Alert.alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           setTimeout(() => {
             setModalVisible(!modalVisible);
           }, 3000);
           setLoader(false);
         } else {
-          Alert.alert('code sent');
+          toast.show('code sent', {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
         }
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'errors');
-        console.log(err.response?.data?.message, 'error messagaae');
-        Alert.alert(err?.response?.data?.message);
+        toast.show(err?.response?.data?.message, {
+          type: "danger",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
       });
   };
   const fcmToken = token => {
@@ -184,7 +212,7 @@ const Register = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'errors');
+        console.error(err, 'errors');
       });
   };
   const handleSubmit = () => {
@@ -207,7 +235,13 @@ const Register = ({navigation}) => {
     axiosconfig
       .post('register', data)
       .then(res => {
-        Alert.alert(res?.data?.message);
+        toast.show(res?.data?.message, {
+          type: "success",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         AsyncStorage.setItem('password', password);
         AsyncStorage.setItem('userToken', res?.data?.access_token);
         let id = res?.data?.userInfo.toString();
@@ -221,9 +255,13 @@ const Register = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'errors');
-        console.log(err?.response?.data?.message, 'msg');
-        Alert.alert(err.response?.data?.message);
+        toast.show(err.response?.data?.message, {
+          type: "danger",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
       });
   };
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -720,7 +758,7 @@ const Register = ({navigation}) => {
                 justifyContent: 'center',
                 marginBottom: moderateScale(20, 0.1),
               }}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>navigation.navigate('PrivacyPolicy')}>
                 <Text
                   style={[
                     s.forgetPass,
@@ -736,7 +774,7 @@ const Register = ({navigation}) => {
                 ]}>
                 {'  '}&{'  '}
               </Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>navigation.navigate('Terms')}>
                 <Text
                   style={[
                     s.forgetPass,

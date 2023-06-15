@@ -21,7 +21,6 @@ const Map = ({navigation, route}) => {
   const screen1 = route.params;
   const userLocation = useSelector(state => state.reducer.userLoc);
   const locat = useSelector(state => state.reducer.location);
-  console.log(locat, 'user locationnn');
   const [position, setPosition] = useState({
     latitude: 51.50853,
     longitude: -0.12574,
@@ -32,20 +31,13 @@ const Map = ({navigation, route}) => {
 
   const p = useSelector(state => state.reducer.postLocation);
   const [markerPosition, setMarkerPosition] = useState(position);
-  console.log(markerPosition, 'marker position');
-  console.log(position, 'drag position');
   const searchBarRef = useRef();
-
-  console.log(screen1, 'screen');
   const dispatch = useDispatch();
   const mapRef = useRef();
   const onMapRegionChange = newRegion => {
-    console.log(newRegion, 'new region');
     setMarkerPosition(newRegion);
-    console.log('get city name');
     Geocoder.from(newRegion.latitude, newRegion.longitude).then(json => {
       var addressComponent = json.results[0].address_components;
-      console.log(json.results, 'acc');
       setLoc(
         addressComponent[1]?.short_name + ' ' + addressComponent[2]?.short_name,
       );
@@ -64,14 +56,11 @@ const Map = ({navigation, route}) => {
         const grantCheck = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         );
-        console.log('granteCheck', grantCheck);
         if (grantCheck === false) {
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           );
-          console.log('granted', granted);
           if (granted == PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('You can use the geolocation');
             Geolocation.getCurrentPosition(pos => {
               setPosition({
                 latitude: pos?.coords?.latitude,
@@ -94,7 +83,6 @@ const Map = ({navigation, route}) => {
               Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
                 json => {
                   var addressComponent = json.results[0].address_components;
-                  console.log(json.results, 'current location address');
                   setLoc(
                     addressComponent[1]?.short_name +
                       ' ' +
@@ -102,7 +90,6 @@ const Map = ({navigation, route}) => {
                   );
                 },
               );
-              console.log(pos, 'possgg');
             });
           }
         } else {
@@ -128,7 +115,6 @@ const Map = ({navigation, route}) => {
             Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
               json => {
                 var addressComponent = json.results[0].address_components;
-                console.log(json.results, 'current location address');
                 setLoc(
                   addressComponent[1]?.short_name +
                     ' ' +
@@ -136,11 +122,10 @@ const Map = ({navigation, route}) => {
                 );
               },
             );
-            console.log(pos, 'possgg');
           });
         }
       } catch (err) {
-        console.warn(err);
+        console.error(err);
       }
     }
   };
@@ -149,9 +134,7 @@ const Map = ({navigation, route}) => {
       const granted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       );
-      console.log(granted, 'granted');
       if (granted === true) {
-        console.log('You can use the geolocation');
         Geolocation.getCurrentPosition(pos => {
           setPosition({
             latitude: pos?.coords?.latitude,
@@ -174,7 +157,6 @@ const Map = ({navigation, route}) => {
           Geocoder.from(pos?.coords?.latitude, pos?.coords?.longitude).then(
             json => {
               var addressComponent = json.results[0].address_components;
-              console.log(json.results, 'current location address');
               setLoc(
                 addressComponent[1]?.short_name +
                   ' ' +
@@ -182,10 +164,8 @@ const Map = ({navigation, route}) => {
               );
             },
           );
-          console.log(pos, 'possgg');
         });
       } else {
-        console.log('Geolocation permission denied');
         setPosition({
           latitude: 51.50853,
           longitude: -0.12574,
@@ -212,7 +192,6 @@ const Map = ({navigation, route}) => {
   };
 
   useEffect(() => {
-    console.log('he');
     Geocoder.init('AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU');
     if (screen1.from == 'user') {
       // setPosition(userLocation);
@@ -229,7 +208,6 @@ const Map = ({navigation, route}) => {
   }, [isFocused]);
 
   const onPress = (data, details) => {
-    console.log(data, 'aaa');
     setLoc(data.description);
     Geocoder.from(data.description)
       .then(json => {
@@ -252,13 +230,11 @@ const Map = ({navigation, route}) => {
       .catch(error => console.warn(error));
   };
   const getCityName = async coordinate => {
-    console.log('get city name');
     await Geocoder.from(coordinate)
       .then(json => {
         const cityName = json.results[0].address_components.find(ac =>
           ac.types.includes('locality'),
         ).long_name;
-        console.log(cityName, 'aaaaa');
       })
       .catch(error => console.warn(error));
   };
@@ -283,9 +259,7 @@ const Map = ({navigation, route}) => {
             longitude: -122.4324}}
           title={loc}
           onPress={() => {
-            console.log(markerPosition, 'before');
             setMarkerPosition(position);
-            console.log(markerPosition, 'after');
           }}
           onDragEnd={e => {
             const coordinate = JSON.stringify(e.nativeEvent?.coordinate);
@@ -401,7 +375,6 @@ const Map = ({navigation, route}) => {
 
       <TouchableOpacity
         onPress={() => {
-          console.log(loc, 'log');
           setModalVisible(!isModalVisible);
         }}
         style={{
@@ -472,19 +445,16 @@ const Map = ({navigation, route}) => {
               onPress={() => {
                 setModalVisible(!isModalVisible);
                 if (screen1?.from == 'createPost') {
-                  console.log('create post');
                   dispatch(setPostLocation(loc));
                   setTimeout(() => {
                     navigation.goBack();
                   }, 2000);
                 } else if (screen1?.from == 'register') {
-                  console.log('register');
                   dispatch(setLocation(loc));
                   setTimeout(() => {
                     navigation.goBack();
                   }, 2000);
                 } else if (screen1?.from == 'user') {
-                  console.log('user');
                   dispatch(setLocation(loc));
                   dispatch(setUserLoc(markerPosition));
 

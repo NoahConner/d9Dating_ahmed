@@ -65,7 +65,6 @@ const ProgressBar = (props: Props) => {
     if (index === currentIndex) {
       if (props.pause) {
         const endtime = Date.now();
-        console.log('endtime1', endtime);
         setPauseTime(endtime);
       }
 

@@ -38,6 +38,7 @@ const ViewUser = ({navigation, route}) => {
   const socketUsers = useSelector(state => state.reducer.socketUsers);
   const navigations = useNavigation();
   const [myData, setMyData] = useState('');
+
   useEffect(() => {
     getData(true);
     getId();
@@ -107,7 +108,7 @@ const ViewUser = ({navigation, route}) => {
         await setLoader(false);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         setLoader(false);
       });
   };
@@ -127,7 +128,7 @@ const ViewUser = ({navigation, route}) => {
         await setLoader(false);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         setLoader(false);
       });
   };
@@ -147,7 +148,7 @@ const ViewUser = ({navigation, route}) => {
         await setLoader(false);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         setLoader(false);
       });
   };
@@ -160,12 +161,14 @@ const ViewUser = ({navigation, route}) => {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then(res => {
-        getData(true);
-        setLoader(false);
+      .then(async res => {
+        const myId = await AsyncStorage.getItem('id');
+        await socketRequest(myId, Userid, 'unblock');
+        await getData(true);
+        await setLoader(false);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         setLoader(false);
       });
   };
@@ -178,14 +181,14 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
-        socketRequest(id, connectId, 'connect');
+        socketRequest(Userid, connectId, 'connect');
         setRequest(false);
         getData(true);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   const connectDecline = async connectId => {
@@ -197,14 +200,14 @@ const ViewUser = ({navigation, route}) => {
         },
       })
       .then(res => {
-        socketRequest(id, connectId, 'disconnect');
+        socketRequest(Userid, connectId, 'disconnect');
         setRequest(false);
         getData(true);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   return loader ? (
@@ -332,7 +335,7 @@ const ViewUser = ({navigation, route}) => {
                   </TouchableOpacity>
                 )
               ) : null}
-              {userData.block_status === 1 ? (
+              {userData.block_status === 1 && userData?.block_id == myData?.id ? (
                 <TouchableOpacity onPress={() => unblock()}>
                   <View style={s.btn}>
                     <Text style={[s.btnTxt]}>Unblock</Text>

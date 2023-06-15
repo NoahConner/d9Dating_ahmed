@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Input, Button} from 'native-base';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const Help = ({navigation}) => {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ const Help = ({navigation}) => {
   const [descreption, setDescreption] = useState(null);
   const [onsubmit, setOnsubmit] = useState(false);
   const [id, setId] = useState('');
+  const toast = useToast();
 
   useEffect(() => {
     getData();
@@ -49,7 +51,7 @@ const Help = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -77,7 +79,13 @@ const Help = ({navigation}) => {
           },
         })
         .then(res => {
-          Alert.alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           setLoader(false);
           setTimeout(() => {
             navigation.goBack();
@@ -85,7 +93,7 @@ const Help = ({navigation}) => {
         })
         .catch(err => {
           setLoader(false);
-          console.log(err);
+          console.error(err);
         });
     }
   };

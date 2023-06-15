@@ -15,11 +15,10 @@ import axiosconfig from '../../../provider/axios';
 import {Header, Loader} from '../../../Components/Index';
 import {captureImage, chooseFile, dummyImage, getColor} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const CreatePost = ({navigation, route}) => {
   const privacy = route?.params?.elem?.privacy_option;
-  const organization = useSelector(state => state.reducer.organization);
-
   useEffect(() => {
     if (privacy == '1') {
       setStory('Public');
@@ -84,6 +83,7 @@ const CreatePost = ({navigation, route}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const {token} = useAppContext(AppContext);
   const dispatch = useDispatch();
+  const toast = useToast();
   const refRBSheet = useRef();
   const postLocation = useSelector(state => state.reducer.postLocation);
   const [location, setLocation] = useState(
@@ -99,10 +99,22 @@ const CreatePost = ({navigation, route}) => {
 
   const onsubmit = () => {
     if (caption == '' || caption == null) {
-      alert('please write caption');
+      toast.show('please write caption', {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       return;
     } else if (filePath == '' || filePath == null) {
-      alert('please select an image');
+      toast.show('please select an image', {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       return;
     } else {
       let data = {
@@ -130,7 +142,13 @@ const CreatePost = ({navigation, route}) => {
         )
         .then(res => {
           setLoader(false);
-          alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           setFilePath(null);
           setCaption(null);
           dispatch(setPostLocation(null));
@@ -139,7 +157,13 @@ const CreatePost = ({navigation, route}) => {
         })
         .catch(err => {
           setLoader(false);
-          Alert.alert(err?.response?.data?.message);
+          toast.show(err?.response?.data?.message, {
+            type: "danger",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
         });
     }
   };
@@ -167,7 +191,7 @@ const CreatePost = ({navigation, route}) => {
         setUserData(res?.data?.user_details);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
   return loader ? (

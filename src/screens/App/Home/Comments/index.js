@@ -166,7 +166,7 @@ const Comments = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -183,7 +183,7 @@ const Comments = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   useEffect(() => {
@@ -193,7 +193,6 @@ const Comments = ({navigation, route}) => {
     };
     getData();
     const handleComment = ({postId, postUserId, myId}) => {
-      console.log(postId, postUserId, myId,userData,'comment date');
       if (postUserId == userData) {
         notifcaitons()
       }
@@ -203,7 +202,6 @@ const Comments = ({navigation, route}) => {
       handleComment({postId, postUserId, myId});
     };
     const handleCommentDelete = ({postId, postUserId, myId}) => {
-      console.log(postId, postUserId, myId,userData,'comment delete');
         notifcaitons()
     };
 

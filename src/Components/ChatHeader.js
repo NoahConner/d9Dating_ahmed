@@ -24,12 +24,11 @@ const ChatHeader = ({userData, getMessages, setLoader, navigation}) => {
         },
       })
       .then(res => {
-        console.log(res);
         getMessages();
         setLoader(false);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
         setLoader(false);
       });
   };

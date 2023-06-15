@@ -18,6 +18,7 @@ import axiosconfig from '../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Header, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const ChangePass = ({navigation, route}) => {
   const screen = route?.params?.screen;
@@ -30,9 +31,7 @@ const ChangePass = ({navigation, route}) => {
   const [submitted, setSubmitted] = useState();
   const [loader, setLoader] = useState(false);
   const theme = useSelector(state => state.reducer.theme);
-  const showToast = msg => {
-    ToastAndroid.show(msg, ToastAndroid.LONG);
-  };
+  const toast = useToast();
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const {token} = useAppContext(AppContext);
@@ -50,7 +49,13 @@ const ChangePass = ({navigation, route}) => {
       return;
     }
     if (password != confirmPassword) {
-      alert('password does not match');
+      toast.show("Password does not match", {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
+      });
       return;
     }
     if (!sub) {
@@ -86,7 +91,13 @@ const ChangePass = ({navigation, route}) => {
         )
         .then(res => {
           setLoader(false);
-          Alert.alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           {
             screen == 'Reset'
               ? (AsyncStorage.setItem('password', password),
@@ -97,8 +108,14 @@ const ChangePass = ({navigation, route}) => {
         })
         .catch(err => {
           setLoader(false);
-          console.log(err.response, 'aaa');
-          alert(err?.response?.data?.message);
+          console.error(err.response, 'aaa');
+          toast.show(err?.response?.data?.message, {
+            type: "danger",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
         });
     }
   };

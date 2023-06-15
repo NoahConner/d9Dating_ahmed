@@ -38,7 +38,7 @@ const Privacy = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err)
+        console.error(err)
       });
   };
   const postprivacy = async () => {
@@ -58,7 +58,7 @@ const Privacy = ({navigation}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 

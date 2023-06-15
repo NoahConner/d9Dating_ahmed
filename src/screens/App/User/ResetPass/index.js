@@ -16,6 +16,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import axiosconfig from '../../../../provider/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Header, Loader} from '../../../../Components/Index';
+import { useToast } from 'react-native-toast-notifications';
 
 const Resetpass = ({navigation}) => {
   const dispatch = useDispatch();
@@ -24,9 +25,7 @@ const Resetpass = ({navigation}) => {
   const [loader, setLoader] = useState(false);
   const [storedPassword, setStorePassword] = useState('');
   const theme = useSelector(state => state.reducer.theme);
-  const showToast = msg => {
-    ToastAndroid.show(msg, ToastAndroid.LONG);
-  };
+  const toast = useToast();
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   useEffect(() => {
@@ -43,37 +42,14 @@ const Resetpass = ({navigation}) => {
         screen: 'Reset',
       });
     } else {
-      Alert.alert('Password Incorrect');
-    }
-  };
-  const onsubmit = () => {
-    var data = {
-      password: 'admin123',
-    };
-    setLoader(true);
-    axiosconfig
-      .post('password_update', data)
-      .then(res => {
-        setLoader(false);
-        if (res.data.error) {
-          alert('invalid credentials');
-        } else {
-          alert('password matched', res);
-          navigation.navigate('ChangePass');
-        }
-      })
-      .catch(err => {
-        setLoader(false);
-        console.log(err.response, 'aaa');
-        if (err.response.data.errors) {
-          for (const property in err.response.data.errors) {
-            alert(err.response.data.errors[property][0]);
-            return;
-          }
-        } else {
-          alert(err.response.data.message);
-        }
+      toast.show('Password Incorrect', {
+        type: "danger",
+        placement: "bottom",
+        duration: 4000,
+        offset: 30,
+        animationType: "zoom-in",
       });
+    }
   };
 
   return loader ? (

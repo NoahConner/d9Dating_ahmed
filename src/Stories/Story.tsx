@@ -26,7 +26,6 @@ const Story = (props: any) => {
 
   useEffect(()=> {
     dispatch(setStoryID(id))
-    console.log(storyID)
   },[])
 
   return (

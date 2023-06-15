@@ -17,6 +17,7 @@ export const AppProvider = ({children}) => {
   const [uniqueId, setUniqueId] = useState(null);
   const [storyLoader, setStoryLoader] = useState(null);
   const [newMessageAlert, setNewMessageAlert] = useState(null);
+  const [blocked, setBlocked] = useState('');
 
   useEffect(() => {
     async function fetchStoredValues() {
@@ -34,7 +35,7 @@ export const AppProvider = ({children}) => {
           setUniqueId(JSON.parse(storedId));
         }
       } catch (error) {
-        console.log('Error retrieving data from AsyncStorage:', error);
+        console.error('Error retrieving data from AsyncStorage:', error);
       }
     }
 
@@ -47,7 +48,7 @@ export const AppProvider = ({children}) => {
         await AsyncStorage.setItem('userToken', JSON.stringify(token));
         await AsyncStorage.setItem('userUniqueId1', JSON.stringify(uniqueId));
       } catch (error) {
-        console.log('Error saving data to AsyncStorage:', error);
+        console.error('Error saving data to AsyncStorage:', error);
       }
     }
 
@@ -68,7 +69,8 @@ export const AppProvider = ({children}) => {
       setMessageAlert,
       storyLoader,
       setStoryLoader,
-      newMessageAlert, setNewMessageAlert
+      newMessageAlert, setNewMessageAlert,
+      blocked, setBlocked
     }),
     [
       token,
@@ -83,7 +85,8 @@ export const AppProvider = ({children}) => {
       setMessageAlert,
       storyLoader,
       setStoryLoader,
-      newMessageAlert, setNewMessageAlert
+      newMessageAlert, setNewMessageAlert,
+      blocked, setBlocked
     ],
   );
 

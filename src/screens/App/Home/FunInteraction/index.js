@@ -36,6 +36,7 @@ import {
 } from '../../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import moment from 'moment';
+import { useToast } from 'react-native-toast-notifications';
 const FunInteraction = ({}) => {
   const refRBSheet1 = useRef();
   const isFocused = useIsFocused();
@@ -63,6 +64,7 @@ const FunInteraction = ({}) => {
   const flatListRef = useRef(null);
   const [loadingStates, setLoadingStates] = useState({});
   const postID = route?.params?.data?.id;
+  const toast = useToast();
   useEffect(() => {
     getID();
   }, [isFocused]);
@@ -79,7 +81,7 @@ const FunInteraction = ({}) => {
       setDataSource(sourceData);
       getPosts();
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setLoader(false);
     }
   };
@@ -97,13 +99,12 @@ const FunInteraction = ({}) => {
       });
       const postData = await response?.data?.post_public;
       await setPublicPost(postData);
-      console.log(response);
       await matchId(postData);
       await setTimeout(async () => {
         await setLoader(false);
       }, 0);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       setLoader(false);
     }
   };
@@ -129,11 +130,12 @@ const FunInteraction = ({}) => {
         }));
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
   useEffect(() => {
     const handleLike = ({postId, postUserId, myId}) => {
+      console.log('dummy socket');
       setPublicPost(prevPosts => {
         return prevPosts?.map(post => {
           if (post.id === postId) {
@@ -243,14 +245,20 @@ const FunInteraction = ({}) => {
         },
       })
       .then(res => {
-        Alert.alert('post reported successfully');
+        toast.show('Post reported successfully', {
+          type: "success",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         getPosts(true);
         refRBSheet1.current.close();
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
   const hide = async id => {
@@ -263,13 +271,12 @@ const FunInteraction = ({}) => {
         },
       })
       .then(res => {
-        console.log(res,"hello hide res");
         getPosts(true);
         setLoader(false);
       })
       .catch(err => {
         setLoader(false);
-        console.log(err,"hello hide res");
+        console.error(err,"hello hide res");
       });
   };
 
@@ -296,7 +303,7 @@ const FunInteraction = ({}) => {
         .catch(err => {
           setLoader(false);
           setComment('');
-          console.log(err);
+          console.error(err);
         });
     }
   };
@@ -311,7 +318,13 @@ const FunInteraction = ({}) => {
         },
       })
       .then(res => {
-        Alert.alert(res?.data?.message);
+        toast.show(res?.data?.message, {
+          type: "success",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         getPosts(token);
         setLoader(false);
       })
@@ -509,6 +522,7 @@ const FunInteraction = ({}) => {
               hitLike(elem?.item?.id, elem?.item?.user_id, elem?.index);
               socketLike(elem?.item?.id, elem?.item?.user_id, userID);
             }}
+            disabled={loadingStates[elem?.item?.id]}
             style={s.likes}>
             {loadingStates[elem?.item?.id] ? (
               <ActivityIndicator size="small" color={"yellow"}/>

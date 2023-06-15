@@ -31,7 +31,7 @@ const Message = ({navigation}) => {
         setUsers(res.data.public);
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
   const getData = async () => {
@@ -49,7 +49,7 @@ const Message = ({navigation}) => {
         }
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
   };
   useEffect(() => {

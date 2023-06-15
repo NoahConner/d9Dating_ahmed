@@ -76,7 +76,7 @@ const Message = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -89,12 +89,12 @@ const Message = ({navigation, route}) => {
       })
       .then(res => {
         setRooms(res?.data);
-        console.log(res?.data);
         setLoader(false);
       })
       .catch(err => {
+        console.log(err,"hello message list response");
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 

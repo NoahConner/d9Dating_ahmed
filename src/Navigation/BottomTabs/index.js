@@ -30,41 +30,47 @@ const BottomTabs = () => {
     getData();
 
     const handleMessage = ({from, to, message, time}) => {
+      console.log('dummy socket');
       if (to == myData?.id) {
         setMessageAlert(true);
       }
     };
 
     const handleSocketMessage = ({from, to, message, time}) => {
+      console.log('dummy socket');
       handleMessage({from, to, message, time});
     };
     const handleRequest = ({from, to, type}) => {
+      console.log('dummy socket');
       if (to == myData?.id && type == 'connectRequest') {
         setRequest(true);
       }
     };
 
     const handleSocketRequest = ({from, to, type}) => {
+      console.log('dummy socket');
       handleRequest({from, to, type});
     };
     const handleLike = ({postId, postUserId, myId}) => {
-      console.log(postUserId, myData?.id, 'idssso flike');
+      console.log('dummy socket');
       if (postUserId == myData?.id && myId != myData?.id) {
         setRequest(true);
       }
     };
 
     const handleSocketLike = ({postId, postUserId, myId}) => {
+      console.log('dummy socket');
       handleLike({postId, postUserId, myId});
     };
     const handleComment = ({postId, postUserId, myId}) => {
-      console.log(postUserId, myData?.id, 'idssso flike');
+      console.log('dummy socket');
       if (postUserId == myData?.id && myId != myData?.id) {
         setRequest(true);
       }
     };
 
     const handleSocketComment = ({postId, postUserId, myId}) => {
+      console.log('dummy socket');
       handleComment({postId, postUserId, myId});
     };
     socket.on('message', handleSocketMessage);

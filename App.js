@@ -19,6 +19,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
 import {AppContext, AppProvider, useAppContext} from './src/Context/AppContext';
+import { ToastProvider } from 'react-native-toast-notifications';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -59,7 +60,7 @@ const App = () => {
         }
       }
     } catch (error) {
-      console.log('Error requesting notification permission: ', error);
+      console.error('Error requesting notification permission: ', error);
     }
   };
 
@@ -88,7 +89,7 @@ const App = () => {
             await requestNotificationPermission();
           }
         } catch (error) {
-          console.log('Error checking notification permission: ', error);
+          console.error('Error checking notification permission: ', error);
         }
       };
 
@@ -108,7 +109,7 @@ const App = () => {
       console.error('Socket error:', error);
     });
     socket.on('connect_error', error => {
-      console.log('Connection error:', error);
+      console.error('Connection error:', error);
     });
     return () => {
       socket.disconnect();
@@ -139,9 +140,7 @@ const App = () => {
   useEffect(() => {
     const handleAppStateChange = nextAppState => {
       if (nextAppState === 'active') {
-        console.log('App is in the foreground');
       } else {
-        console.log('App is in the background');
         updateLastSeen();
       }
     };
@@ -164,7 +163,7 @@ const App = () => {
         .then(res => {
         })
         .catch(err => {
-          console.log(err, 'last seen err1');
+          console.error(err, 'last seen err1');
         });
     }
   };
@@ -212,12 +211,14 @@ const App = () => {
             SplashScreen.hide();
           }, 1500);
         }
-        console.log('error', err);
+        console.error('error', err);
       });
   };
   return (
     <AppProvider>
+      <ToastProvider>
       <AppContent />
+      </ToastProvider>
     </AppProvider>
   );
 };

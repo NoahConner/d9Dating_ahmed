@@ -29,6 +29,7 @@ import {useIsFocused} from '@react-navigation/native';
 import { Header, Loader } from '../../../../Components/Index';
 import { AppContext, useAppContext } from '../../../../Context/AppContext';
 import { dummyImage } from '../../../../Constants/Index';
+import { useToast } from 'react-native-toast-notifications';
 
 const Settings = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const Settings = ({navigation, route}) => {
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const refRBSheet = useRef();
+  const toast = useToast();
 
   const [darkMode, setDarkMode] = useState(false);
   const [password, setPassword] = useState('');
@@ -50,9 +52,6 @@ const Settings = ({navigation, route}) => {
   const [loader, setLoader] = useState(false);
   const [submitted, setSubmitted] = useState();
   useEffect(() => {}, []);
-  const showToast = msg => {
-    Alert.alert(msg);
-  };
 
   const deleteAccount = async () => {
     setSubmitted(true);
@@ -78,7 +77,13 @@ const Settings = ({navigation, route}) => {
           },
         })
         .then(res => {
-          alert(res?.data?.message);
+          toast.show(res?.data?.message, {
+            type: "success",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
           AsyncStorage.removeItem('token');
           AsyncStorage.removeItem('userData');
 
@@ -86,9 +91,15 @@ const Settings = ({navigation, route}) => {
           setToken(null)
         })
         .catch(err => {
-          console.log(err);
-          alert(err.response?.data?.message);
-          console.log(err.response?.data?.message);
+          console.error(err);
+          toast.show(err.response?.data?.message, {
+            type: "danger",
+            placement: "bottom",
+            duration: 4000,
+            offset: 30,
+            animationType: "zoom-in",
+          });
+          console.error(err.response?.data?.message);
         });
     }
   };
@@ -107,7 +118,7 @@ const Settings = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -128,7 +139,7 @@ const Settings = ({navigation, route}) => {
       })
       .catch(err => {
         setLoader(false);
-        console.log(err, 'errrr');
+        console.error(err, 'errrr');
       });
   };
   const clearToken = async () => {

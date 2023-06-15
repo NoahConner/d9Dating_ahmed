@@ -5,7 +5,6 @@ import {
   View,
   Keyboard,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
@@ -20,6 +19,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import s from './style';
 import {height, width} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
+import { useToast } from 'react-native-toast-notifications';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -32,9 +32,7 @@ const Login = ({navigation}) => {
   const [submitted, setSubmitted] = useState(false);
   const [showPass, setShowPass] = useState(true);
   const [loader, setLoader] = useState(false);
-
-  useEffect(() => {}, []);
-
+  const toast = useToast();
   const fcmToken = useCallback(
     token => {
       const data = {
@@ -51,7 +49,7 @@ const Login = ({navigation}) => {
         })
         .catch(err => {
           setLoader(false);
-          console.log(err, 'errors');
+          console.error(err, 'errors');
         });
     },
     [FCMtoken],
@@ -96,8 +94,14 @@ const Login = ({navigation}) => {
         setLoader(false);
       })
       .catch(err => {
-        console.log(err.response);
-        Alert.alert(err.response.data.message);
+        console.error(err.response);
+        toast.show(err.response.data.message, {
+          type: "danger",
+          placement: "bottom",
+          duration: 4000,
+          offset: 30,
+          animationType: "zoom-in",
+        });
         setLoader(false);
       });
   }, [dispatch, email, password, fcmToken]);
@@ -270,7 +274,7 @@ const Login = ({navigation}) => {
               justifyContent: 'center',
               marginVertical: moderateScale(5),
             }}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate('PrivacyPolicy')}>
               <Text
                 style={[
                   s.forgetPass,
@@ -284,7 +288,7 @@ const Login = ({navigation}) => {
                 s.forgetPass,
                 {color: Textcolor, textDecorationLine: 'none'},
               ]}></Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate('Terms')}>
               <Text
                 style={[
                   s.forgetPass,
