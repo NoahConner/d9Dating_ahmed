@@ -17,10 +17,10 @@ import axiosconfig from '../../../Providers/axios';
 import {useIsFocused} from '@react-navigation/native';
 import {Header, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
-import socket from '../../../utils/socket';
 import {dummyImage, socketRequest, width} from '../../../Constants/Index';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {socket} from '../../../Navigation/BottomTabs';
 
 const Notifications = ({navigation, route}) => {
   const flatListRef = useRef(null);
@@ -49,15 +49,14 @@ const Notifications = ({navigation, route}) => {
     };
     getData();
 
-    const handleLike = ({postId, postUserId, myId}) => {
-      console.log('dummy socket');
-      if (postUserId == myData?.id) {
+    const handleLike = ({postId, postUserId, myId, type}) => {
+      if (postUserId == myData?.id && type == 'like') {
         getNotification();
       }
     };
 
-    const handleSocketLike = ({postId, postUserId, myId}) => {
-      handleLike({postId, postUserId, myId});
+    const handleSocketLike = ({postId, postUserId, myId, type}) => {
+      handleLike({postId, postUserId, myId, type});
     };
     const handleComment = ({postId, postUserId, myId}) => {
       if (postUserId == myData?.id) {
@@ -141,7 +140,7 @@ const Notifications = ({navigation, route}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setNotificationData(res?.data);
+      setNotificationData(res?.data?.reverse());
       setTimeout(() => {
         setLoader(false);
       }, 0);
@@ -292,7 +291,9 @@ const Notifications = ({navigation, route}) => {
                   : 'comment on your post'}
               </Text>
             </View>
-            <Text style={s.name1}>{moment(notification?.item?.created_at).fromNow()}</Text>
+            <Text style={s.name1}>
+              {moment(notification?.item?.created_at).fromNow()}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>

@@ -18,8 +18,8 @@ import {
   storeMsg,
 } from '../../../../Constants/Index';
 import ChatFooter from '../../../../Components/ChatFooter';
-import socket from '../../../../utils/socket';
 import Loader from '../../../../Components/Loader';
+import { socket } from '../../../../Navigation/BottomTabs';
 const InnerChat = ({navigation, route}) => {
   const theme = useSelector(state => state.reducer.theme);
   const color = theme === 'dark' ? '#222222' : '#fff';

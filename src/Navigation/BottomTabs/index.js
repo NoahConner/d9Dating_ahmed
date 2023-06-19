@@ -12,16 +12,46 @@ import ChatIcon from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Home from 'react-native-vector-icons/Foundation';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import socket from '../../utils/socket';
 import {AppContext, useAppContext} from '../../Context/AppContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { io } from 'socket.io-client';
 
 const Tab = createBottomTabNavigator();
-
+export const socket = io('https://d9dating.herokuapp.com');
 const BottomTabs = () => {
   const {request, setRequest, uniqueId, messageAlert, setMessageAlert} =
     useAppContext(AppContext);
   const [myData, setMyData] = useState('');
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log('Socket connected');
+    };
+
+    const handleDisconnect = reason => {
+      console.log('Socket disconnected');
+      console.log('Reason:', reason);
+    };
+
+    const handleError = error => {
+      console.error('Socket error:', error);
+    };
+
+    const handleConnectError = error => {
+      console.error('Connection error:', error);
+    };
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('error', handleError);
+    socket.on('connect_error', handleConnectError);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('error', handleError);
+      socket.off('connect_error', handleConnectError);
+    };
+  }, []);
   useEffect(() => {
     const getData = async () => {
       const data = await AsyncStorage.getItem('userData');
@@ -51,16 +81,16 @@ const BottomTabs = () => {
       console.log('dummy socket');
       handleRequest({from, to, type});
     };
-    const handleLike = ({postId, postUserId, myId}) => {
+    const handleLike = ({postId, postUserId, myId, type}) => {
       console.log('dummy socket');
-      if (postUserId == myData?.id && myId != myData?.id) {
+      if (postUserId == myData?.id && myId != myData?.id && type == 'like') {
         setRequest(true);
       }
     };
 
-    const handleSocketLike = ({postId, postUserId, myId}) => {
+    const handleSocketLike = ({postId, postUserId, myId, type}) => {
       console.log('dummy socket');
-      handleLike({postId, postUserId, myId});
+      handleLike({postId, postUserId, myId, type});
     };
     const handleComment = ({postId, postUserId, myId}) => {
       console.log('dummy socket');

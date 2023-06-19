@@ -19,11 +19,11 @@ import {setUserToken} from '../../../Redux/actions';
 import moment from 'moment';
 import Entypo from 'react-native-vector-icons/Entypo';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import socket from '../../../utils/socket';
 import {Organization, emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import { useToast } from 'react-native-toast-notifications';
+import { socket } from '../../../Navigation/BottomTabs';
 
 const Register = ({navigation}) => {
   const {setToken} = useAppContext(AppContext);
@@ -249,8 +249,6 @@ const Register = ({navigation}) => {
         // dispatch(setUserToken(res?.data?.access_token));
         setToken(res?.data?.access_token);
         fcmToken(res?.data?.access_token);
-        socket.auth = {username: email};
-        socket.connect();
         setLoader(false);
       })
       .catch(err => {

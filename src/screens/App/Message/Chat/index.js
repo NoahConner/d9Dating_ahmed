@@ -11,13 +11,6 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {moderateScale, ms} from 'react-native-size-matters';
-import s from './style';
-import Entypo from 'react-native-vector-icons/Entypo';
-import Inicon from 'react-native-vector-icons/Ionicons';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-import {Input, FormControl, Button} from 'native-base';
-import io from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const messages = [

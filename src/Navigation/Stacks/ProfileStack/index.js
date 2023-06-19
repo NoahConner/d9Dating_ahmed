@@ -11,7 +11,6 @@ import Map from '../../../screens/Auth/Register/Map';
 import Login from '../../../screens/Auth/Login';
 import Block from '../../../screens/App/User/Blocked';
 import HiddenPosts from '../../../screens/App/User/Hidden Posts';
-import socket from '../../../utils/socket';
 import {View, Text} from 'react-native';
 import {useToast} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -19,6 +18,7 @@ import {moderateScale} from 'react-native-size-matters';
 import {useEffect, useState} from 'react';
 import CreatePost from '../../../screens/App/CreatePost';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { socket } from '../../BottomTabs';
 const Stack = createStackNavigator();
 
 const ProfileStack = () => {

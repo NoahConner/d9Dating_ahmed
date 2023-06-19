@@ -2,9 +2,9 @@ import {Dimensions, PermissionsAndroid} from 'react-native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import RNFS from 'react-native-fs';
 import {moderateScale} from 'react-native-size-matters';
-import socket from '../utils/socket';
 import axiosconfig from '../Providers/axios';
 import moment from 'moment';
+import { socket } from '../Navigation/BottomTabs';
 export const emailReg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 export const passRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/;
@@ -138,11 +138,12 @@ export const getColor = id => {
   return color;
 };
 // socket functionality
-export const socketLike = (postId, postUserId, myId) => {
+export const socketLike = (postId, postUserId, myId, type) => {
   socket.emit('like', {
     postId: postId,
     postUserId: postUserId,
     myId: myId,
+    type:type
   });
 };
 export const socketRequest = (from, to, type) => {

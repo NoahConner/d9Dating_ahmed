@@ -24,8 +24,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Feather from 'react-native-vector-icons/Feather';
 import {useIsFocused} from '@react-navigation/native';
 import Antdesign from 'react-native-vector-icons/AntDesign';
-import io from 'socket.io-client';
-import socket from '../../../../utils/socket';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {Loader} from '../../../../Components/Index';
 import {
@@ -37,6 +35,7 @@ import {
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import moment from 'moment';
 import { useToast } from 'react-native-toast-notifications';
+import { socket } from '../../../../Navigation/BottomTabs';
 const FunInteraction = ({}) => {
   const refRBSheet1 = useRef();
   const isFocused = useIsFocused();
@@ -180,11 +179,12 @@ const FunInteraction = ({}) => {
     };
   }, [socket]);
   useEffect(() => {
-    const handleComment = ({postId, postUserId, myId}) => {
+  
+    const handleComment = ({ postId, postUserId, myId }) => {
       setPublicPost(prevPosts => {
-        return prevPosts?.map(post => {
-          if (post.id === postId) {
-            const updatedPost = {...post};
+        return prevPosts.map(post => {
+          if (post.id == postId) {
+            const updatedPost = { ...post };
             updatedPost.post_comments.push(myId);
             return updatedPost;
           }
@@ -192,11 +192,32 @@ const FunInteraction = ({}) => {
         });
       });
     };
-
-    socket.on('comment', handleComment);
-
+  
+    const handleCommentDelete = ({ postId, postUserId, myId }) => {
+      setPublicPost(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id == postId) {
+            const updatedPost = { ...post };
+            const index = updatedPost.post_comments.indexOf(myId);
+            if (index > -1) {
+              updatedPost.post_comments.splice(index, 1);
+            } else {
+              var removeIndex = updatedPost.post_comments.map(item => item?.user_id).indexOf(myId);
+              updatedPost.post_comments.splice(removeIndex, 1);}
+            return updatedPost;
+          }
+          return post;
+        });
+      });
+    };
+    const handleSocketComment = handleComment;
+    const handleSocketCommentDelete = handleCommentDelete;
+  
+    socket.on('comment', handleSocketComment);
+    socket.on('commentDelete', handleSocketCommentDelete);
     return () => {
-      socket.off('comment', handleComment);
+      socket.off('comment', handleSocketComment);
+      socket.off('commentDelete', handleSocketCommentDelete);
     };
   }, [socket]);
   var lastTap = null;
@@ -520,7 +541,7 @@ const FunInteraction = ({}) => {
                 [elem?.item?.id]: true,
               }));
               hitLike(elem?.item?.id, elem?.item?.user_id, elem?.index);
-              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
+              socketLike(elem?.item?.id, elem?.item?.user_id, userID, !liked ? 'like' : 'dislike',);
             }}
             disabled={loadingStates[elem?.item?.id]}
             style={s.likes}>

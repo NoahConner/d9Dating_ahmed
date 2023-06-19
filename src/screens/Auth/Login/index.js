@@ -14,12 +14,12 @@ import Icon2 from 'react-native-vector-icons/Fontisto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from '../../../provider/axios';
 import {Loader} from '../../../Components/Index';
-import socket from '../../../utils/socket';
 import {useDispatch, useSelector} from 'react-redux';
 import s from './style';
 import {height, width} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import { useToast } from 'react-native-toast-notifications';
+import { socket } from '../../../Navigation/BottomTabs';
 
 const Login = ({navigation}) => {
   const dispatch = useDispatch();
@@ -87,8 +87,6 @@ const Login = ({navigation}) => {
         AsyncStorage.setItem('userToken', res?.data?.access_token);
 
         fcmToken(res?.data?.access_token);
-        socket.auth = {username: email};
-        socket.connect();
         // dispatch(setUserToken(res?.data?.access_token));
         setToken(res?.data?.access_token);
         setLoader(false);

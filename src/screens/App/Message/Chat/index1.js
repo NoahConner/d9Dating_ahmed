@@ -16,11 +16,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {Input, FormControl, Button} from 'native-base';
-import socket from '../../../../utils/socket';
-import io from 'socket.io-client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
 const Chat = ({navigation, route}) => {
   const [msg, setMsg] = useState([]);
   const [input, setInput] = useState('');

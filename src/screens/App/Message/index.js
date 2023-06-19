@@ -9,6 +9,7 @@ import axiosconfig from '../../../Providers/axios';
 import firebase from 'firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import { AppContext, useAppContext } from '../../../Context/AppContext';
+import { socket } from '../../../Navigation/BottomTabs';
 const Message = ({navigation}) => {
   const dispatch = useDispatch();
   const theme = useSelector(state => state.reducer.theme);

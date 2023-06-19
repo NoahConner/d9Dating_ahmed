@@ -15,7 +15,7 @@ import {Input} from 'native-base';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, getColor, socketComment, socketCommentDelte} from '../../../../Constants/Index';
-import socket from '../../../../utils/socket';
+import { socket } from '../../../../Navigation/BottomTabs';
 
 const Comments = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -204,7 +204,6 @@ const Comments = ({navigation, route}) => {
     const handleCommentDelete = ({postId, postUserId, myId}) => {
         notifcaitons()
     };
-
     const handleSocketCommentDelete = ({postId, postUserId, myId}) => {
       handleCommentDelete({postId, postUserId, myId});
     };
@@ -273,7 +272,7 @@ const Comments = ({navigation, route}) => {
               <TouchableOpacity
                 onPress={() => {
                   deleteComment(elem?.item?.id);
-                  socketCommentDelte(elem?.item?.id, elem?.item?.user_id, myData?.id);
+                  socketCommentDelte(elem?.item?.post_id, elem?.item?.user_id, myData?.id);
                 }}>
                 <Antdesign
                   name={'delete'}

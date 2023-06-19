@@ -14,7 +14,6 @@ import AuthStack from './src/Navigation/Stacks/AuthStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosconfig from './src/Providers/axios';
 import messaging from '@react-native-firebase/messaging';
-import socket from './src/utils/socket';
 import SplashScreen from 'react-native-splash-screen';
 import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
@@ -96,25 +95,6 @@ const App = () => {
       checkAndRequestNotificationPermission();
     }
   };
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Socket connected');
-    });
-    socket.on('disconnect', reason => {
-      console.log('Socket disconnected');
-      console.log('Reason:', reason);
-      updateLastSeen();
-    });
-    socket.on('error', error => {
-      console.error('Socket error:', error);
-    });
-    socket.on('connect_error', error => {
-      console.error('Connection error:', error);
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
 
   useEffect(() => {
     requestUserPermission();
@@ -175,10 +155,6 @@ const App = () => {
     userData = JSON.parse(userData);
     dispatch(setExist(exist));
     setThemeMode();
-    if (token) {
-      socket.auth = {username: userData?.email};
-      socket.connect();
-    }
     dispatch(setUserToken(token));
   };
 

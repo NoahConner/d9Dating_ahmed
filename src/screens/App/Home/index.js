@@ -18,7 +18,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
 import {Input, Button, Stack, Menu, Pressable} from 'native-base';
-import socket from '../../../utils/socket';
 import Stories from '../../../Stories/App';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -53,6 +52,7 @@ import {AppContext, useAppContext} from '../../../Context/AppContext';
 import moment from 'moment';
 import {ActivityIndicator} from 'react-native';
 import {useToast} from 'react-native-toast-notifications';
+import {socket} from '../../../Navigation/BottomTabs';
 
 const Organization = [
   {id: 'Alpha Phi Alpha Fraternity, Inc.', color: 'blue'},
@@ -197,7 +197,7 @@ const Home = ({navigation, route}) => {
           Accept: 'application/json',
         },
       });
-      console.log(response,"hello");
+      console.log(response, 'hello');
       setPosts(response?.data?.post_friends);
       if (pid) {
         matchId(response?.data?.post_friends, pid);
@@ -321,7 +321,6 @@ const Home = ({navigation, route}) => {
         setLoader(false);
       });
   };
-
   useEffect(() => {
     const handleLike = ({postId, postUserId, myId}) => {
       console.log('dummy socket');
@@ -370,11 +369,12 @@ const Home = ({navigation, route}) => {
     };
   }, [socket]);
   useEffect(() => {
-    const handleComment = ({postId, postUserId, myId}) => {
+  
+    const handleComment = ({ postId, postUserId, myId }) => {
       setPosts(prevPosts => {
         return prevPosts.map(post => {
-          if (post.id === postId) {
-            const updatedPost = {...post};
+          if (post.id == postId) {
+            const updatedPost = { ...post };
             updatedPost.post_comments.push(myId);
             return updatedPost;
           }
@@ -382,31 +382,49 @@ const Home = ({navigation, route}) => {
         });
       });
     };
-
-    socket.on('comment', handleComment);
-
-    return () => {
-      socket.off('comment', handleComment);
+  
+    const handleCommentDelete = ({ postId, postUserId, myId }) => {
+      setPosts(prevPosts => {
+        return prevPosts.map(post => {
+          if (post.id == postId) {
+            const updatedPost = { ...post };
+            const index = updatedPost.post_comments.indexOf(myId);
+            if (index > -1) {
+              updatedPost.post_comments.splice(index, 1);
+            } else {
+              var removeIndex = updatedPost.post_comments.map(item => item?.user_id).indexOf(myId);
+              updatedPost.post_comments.splice(removeIndex, 1);}
+            return updatedPost;
+          }
+          return post;
+        });
+      });
     };
-  }, [socket]);
-  useEffect(() => {
-    const getData = async () => {
-      const data = await AsyncStorage.getItem('userData');
-      setMyData(JSON.parse(data));
-    };
-    getData();
-    const handleRequest = ({from, to, type}) => {
+  
+    const handleRequest = ({ from, to, type }) => {
       if (to == myData?.id && (type == 'connect' || type == 'disconnect')) {
         getPosts(null, false);
       }
     };
-
-    const handleSocketRequest = ({from, to, type}) => {
-      handleRequest({from, to, type});
+  
+    const getData = async () => {
+      const data = await AsyncStorage.getItem('userData');
+      setMyData(JSON.parse(data));
     };
+  
+    const handleSocketComment = handleComment;
+    const handleSocketCommentDelete = handleCommentDelete;
+    const handleSocketRequest = handleRequest;
+  
+    socket.on('comment', handleSocketComment);
+    socket.on('commentDelete', handleSocketCommentDelete);
     socket.on('request', handleSocketRequest);
-
+  
+    getData();
+  
     return () => {
+      socket.off('comment', handleSocketComment);
+      socket.off('commentDelete', handleSocketCommentDelete);
       socket.off('request', handleSocketRequest);
     };
   }, [socket, myData]);
@@ -922,7 +940,12 @@ const Home = ({navigation, route}) => {
                 [elem?.item?.id]: true,
               }));
               hitLike(elem?.item?.id, elem?.index, elem?.item?.user);
-              socketLike(elem?.item?.id, elem?.item?.user_id, userID);
+              socketLike(
+                elem?.item?.id,
+                elem?.item?.user_id,
+                userID,
+                !liked ? 'like' : 'dislike',
+              );
             }}
             disabled={loadingStates[elem?.item?.id]}
             style={s.likes}>

@@ -6,7 +6,6 @@ import {addUsers, addSocketUsers} from '../../../Redux/actions';
 import s from './style';
 import {FlatList} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
-import socket from '../../../utils/socket';
 import UserListModal from '../../../Components/userListModal';
 import axiosconfig from '../../../Providers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,6 +15,7 @@ import Inicon from 'react-native-vector-icons/Ionicons';
 import {Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {dummyImage} from '../../../Constants/Index';
+import { socket } from '../../../Navigation/BottomTabs';
 
 const Message = ({navigation, route}) => {
   const dispatch = useDispatch();
@@ -46,10 +46,9 @@ const Message = ({navigation, route}) => {
       setMyData(JSON.parse(data));
     };
     getData();
-    const handleMessage = ({from, to, message, time, socketUniqueId}) => {
+    const handleMessage = async ({from, to, message, time, socketUniqueId}) => {
       if (to == myData?.id || to == uniqueId) {
-        latestMsg();
-        setNewMessageAlert(true);
+        await latestMsg();
       }
     };
 
@@ -159,7 +158,7 @@ const Message = ({navigation, route}) => {
               </Text>
             ) : (
               <Text style={[s.textSmall, s.nameBold, {color: '#FFD700'}]}>
-                {newMessageAlert ? 'New message' : null}
+                {latest?.read_status == 0 ? 'New message' : null}
               </Text>
             )}
           </TouchableOpacity>

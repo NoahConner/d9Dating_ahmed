@@ -14,7 +14,7 @@ import ImageView from 'react-native-image-viewing';
 import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage, socketRequest} from '../../../../Constants/Index';
-import socket from '../../../../utils/socket';
+import { socket } from '../../../../Navigation/BottomTabs';
 
 const ViewUser = ({navigation, route}) => {
   const {post, screen} = route?.params;
