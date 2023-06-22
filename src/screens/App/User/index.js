@@ -5,8 +5,6 @@ import {
   View,
   Image,
   ScrollView,
-  PermissionsAndroid,
-  Platform,
   Alert,
   TouchableWithoutFeedback,
 } from 'react-native';
@@ -16,75 +14,27 @@ import s from './style';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Inicon from 'react-native-vector-icons/Ionicons';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import PhoneInput from 'react-native-phone-input';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Icon1 from 'react-native-vector-icons/FontAwesome';
-import Geocoder from 'react-native-geocoding';
-import Geolocation from '@react-native-community/geolocation';
-import GetLocation from 'react-native-get-location';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Input, Stack, Button, Pressable, Menu} from 'native-base';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import RadioButton from '../../../Components/Radio';
-import {launchImageLibrary} from 'react-native-image-picker';
-import axiosconfig from '../../../Providers/axios';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import RNFS from 'react-native-fs';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import {useIsFocused} from '@react-navigation/native';
 import {Header, Loader} from '../../../Components/Index';
-import {
-  captureImage,
-  chooseFile,
-  dummyImage,
-  width,
-} from '../../../Constants/Index';
+import {dummyImage} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {theme, Organization} from '../../../Constants/Index';
-
-const LATITUDE_DELTA = 0.0922;
-const LONGITUDE_DELTA = 0.0421;
-
-const userDummy = {
-  about_me: 'my about info',
-  block_status: 0,
-  connected: 0,
-  created_at: '2023-06-06T12:21:34.000000Z',
-  date: '6/06/2005',
-  date_login: '2023-06-07 07:33:48',
-  device_token:
-    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
-  email: 'emilymartin9875@gmail.com',
-  email_verified_at: null,
-  gender: 'Female',
-  group: 'Omega Psi Phi Fraternity, Inc.',
-  id: 2,
-  image:
-    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
-  last_name: 'martin',
-  location: 'London, UK',
-  month: null,
-  name: 'Emily',
-  notify: '0',
-  otp: '8405',
-  phone_number: '+443334443333',
-  post_privacy: '1',
-  privacy_option: '1',
-  status: '1',
-  story_privacy: '00000000001',
-  theme_mode: null,
-  updated_at: '2023-06-07T07:47:12.000000Z',
-  year: null,
-};
+import {postApi} from '../../../APIs';
+import RBSheetCam from '../../../Components/RBSheetCam';
 
 const Profile = ({navigation, route}) => {
   const refRBSheet = useRef();
   const phonenum = useRef();
   const isFocused = useIsFocused();
   const {token} = useAppContext(AppContext);
-
   const color = theme === 'dark' ? '#222222' : '#fff';
   const textColor = theme === 'light' ? '#000' : '#fff';
   const color2 = theme === 'dark' ? '#2E2D2D' : '#fff';
@@ -97,27 +47,25 @@ const Profile = ({navigation, route}) => {
   const [disable6, setDisable6] = useState(false);
   const [disable7, setDisable7] = useState(false);
   const [userName, setUserName] = useState('');
-  const [loc, setLoc] = useState('');
   const [location, setLocation] = useState('');
   const [address, setaddress] = useState(null);
   const [date, setDate] = useState(null);
-  const [id, setId] = useState('');
   const [borderColor, setBorderColor] = useState(greyColor);
   const [filePath, setFilePath] = useState(null);
 
   let formData = {
-    id: '',
-    name: '',
-    last_name: '',
     about_me: '',
-    group: '',
+    address: '',
+    dob: '',
     email: '',
-    phone_number: '',
-    location: '',
     gender: '',
-    month: '',
-    date: '',
-    image: '',
+    id: '',
+    last_name: '',
+    latitude: '',
+    longitude: '',
+    name: '',
+    organization: '',
+    phone: '',
   };
 
   const [loader, setLoader] = useState(false);
@@ -140,26 +88,6 @@ const Profile = ({navigation, route}) => {
     },
   ]);
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-  var check;
-  var month;
-  var dateex;
-  var year;
-
-  useEffect(() => {
-    getData();
-    // if (route?.params?.data === undefined) {
-    //   getData();
-    // } else {
-    // }
-  }, []);
-
   const onRadioBtnClick = item => {
     let updatedState = isSelected.map(isSelectedItem =>
       isSelectedItem.name === item.name
@@ -170,25 +98,53 @@ const Profile = ({navigation, route}) => {
     setForm({...form, gender: item.name});
   };
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  var check;
+  var month;
+  var dateex;
+  var year;
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   const showToast = msg => {
     Alert.alert(msg);
   };
 
   const getData = async () => {
-    setData(userDummy);
-    // setLoc(res?.data?.user_details?.location);
+    setLoader(true);
+    const res = await postApi('profile', {}, token);
+    if (res?.success) {
+      setData(res?.data);
+      setLoader(false);
+    } else {
+      setLoader(false);
+    }
   };
 
   const setData = data => {
     for (let item of Object.keys(formData)) {
       formData[item] = data[item];
-      if (item == 'location') {
-        setaddress(data[item]);
-        // getPhysicalAddress('London, UK');
-        formData[item] = data[item];
+      if (
+        item == 'updated_at' ||
+        item == 'type' ||
+        item == 'created_at' ||
+        item == 'email'
+      ) {
+        // console.log('do nothing');
       }
-      if (item == 'phone_number') {
-        formData[item] = data[item];
+      if (item == 'address') {
+        setaddress(data[item]);
       }
       if (item == 'gender') {
         let updatedState = isSelected.map(isSelectedItem =>
@@ -197,86 +153,61 @@ const Profile = ({navigation, route}) => {
             : {...isSelectedItem, selected: false},
         );
         setIsSelected(updatedState);
+      } else {
+        formData[item] = data[item];
       }
     }
+
     setForm(formData);
     setUserName(formData.name + ' ' + formData.last_name);
-
     // setLoader(false);
   };
 
-  const save = async base64image => {
-    setForm({...form, location: address});
-    if (base64image) {
-      setForm({...form, image: base64image});
-    }
-    if (!phonenum.current.isValidNumber()) {
-      Alert.alert('Please enter valid phone number');
-      return;
-    }
-    // setLoader(true);
-    await axiosconfig
-      .post(
-        'user_update',
-        base64image
-          ? {...form, image: base64image}
-          : {...form, location: userLocation},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .then(res => {
-        let message = res?.data?.message;
-        showToast(message);
-        setUserName(form.name + ' ' + form.last_name);
+  const update = async () => {
+    setLoader(true);
+    let info = {...form, address: address};
+    setForm({...form, address: address});
 
-        setDisable4(false);
-        // setLoader(false);
-      })
-      .catch(err => {
-        // setLoader(false);
-        getData();
-        showToast(err.message);
-      });
+    const res = await postApi('user-update', info, token);
+    // console.log(res, 'return');
+    if (res?.success) {
+      showToast(res?.message);
+      setLoader(false);
+    } else {
+      Alert.alert(res?.data?.message);
+      setLoader(false);
+    }
   };
 
   useEffect(() => {
-    console.log(location, 'new');
-  }, [location]);
-
-  const getPhysicalAddress = address => {
-    console.log(address, 'physical');
-    Geocoder.init('AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU');
-    setTimeout(() => {
-      Geocoder.from(address)
-        .then(json => {
-          var location = json.results[0].geometry.location;
-          console.log('loca', location);
-          setLocation({
-            latitude: location.lat,
-            longitude: location.lng,
-            latitudeDelta: LATITUDE_DELTA,
-            longitudeDelta: LONGITUDE_DELTA,
-          });
-          setaddress(address);
-        })
-        .catch(error => console.warn(error));
-    }, 1000);
-  };
-
-  useEffect(() => {
-    setForm({...form, image: filePath});
+    if (filePath) {
+      dpUpdate(filePath);
+    }
   }, [filePath]);
+
+  const dpUpdate = async base64 => {
+    let data = {
+      image: base64,
+    };
+    const res = await postApi('image-upload-64', data, token);
+    const dp = res?.data?.image_url;
+    // console.log(dp);
+    if (dp) {
+      setForm({...form, image: dp});
+      showToast(res?.message);
+    } else {
+      Alert.alert(res?.data?.message);
+    }
+    setLoader(false);
+  };
 
   const handleConfirm = datee => {
     check = moment(datee, 'YYYY/MM/DD');
     month = check.format('M');
     dateex = check.format('DD');
     year = check.format('YYYY');
-    setDate(`${month}/${dateex}/${year}`);
-    setForm({...form, date: `${month}/${dateex}/${year}`});
+    setDate(`${year}-${month}-${dateex}`);
+    setForm({...form, dob: `${year}-${month}-${dateex}`});
     hideDatePicker();
   };
 
@@ -498,7 +429,7 @@ const Profile = ({navigation, route}) => {
                             fontSize: moderateScale(12, 0.1),
                           },
                         ]}>
-                        {form?.group}
+                        {form?.organization}
                       </Text>
                       <View>
                         <Entypo
@@ -518,7 +449,7 @@ const Profile = ({navigation, route}) => {
                     <Menu.Item
                       key={i}
                       onPress={() => {
-                        setForm({...form, group: v.id});
+                        setForm({...form, organization: v.id});
                       }}>
                       <View style={s.optionView}>
                         <Text style={[s.optionBtns, {color: textColor}]}>
@@ -663,7 +594,7 @@ const Profile = ({navigation, route}) => {
               isFocused={disable5}
               placeholder={'Date of Birth'}
               placeholderTextColor={textColor}
-              value={form?.date}
+              value={form?.dob}
             />
           </View>
           <TouchableWithoutFeedback onPress={() => {}}>
@@ -690,7 +621,7 @@ const Profile = ({navigation, route}) => {
                   <TouchableOpacity
                     onPress={() => {
                       navigation.navigate('Map', {
-                        address: address,
+                        address: form.address,
                         location: location,
                         setLocation: setLocation,
                         setaddress: setaddress,
@@ -736,8 +667,7 @@ const Profile = ({navigation, route}) => {
             <Button
               size="sm"
               onPressIn={() => {
-                Alert.alert('User info updated');
-                // save()
+                update();
               }}
               variant={'solid'}
               _text={{
@@ -753,45 +683,11 @@ const Profile = ({navigation, route}) => {
             </Button>
           </View>
         </View>
-        <RBSheet
-          ref={refRBSheet}
-          closeOnDragDown={true}
-          height={300}
-          openDuration={250}
-          customStyles={{
-            container: {
-              alignItems: 'center',
-              height: moderateScale(220),
-              borderRadius: moderateScale(20, 0.1),
-            },
-          }}>
-          <View
-            style={{
-              marginVertical: moderateScale(30, 0.1),
-              justifyContent: 'center',
-              alignContent: 'center',
-            }}>
-            <Stack
-              direction={{
-                base: 'column',
-                md: 'row',
-              }}
-              space={4}>
-              <Button transparent style={s.capturebtn} onPressIn={() => {}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Ionicons name="camera" style={s.capturebtnicon} />
-                  <Text style={s.capturebtntxt}>Open Camera</Text>
-                </View>
-              </Button>
-              <Button transparent style={s.capturebtn} onPressIn={() => {}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Ionicons name="md-image-outline" style={s.capturebtnicon} />
-                  <Text style={s.capturebtntxt}>Open Gallery</Text>
-                </View>
-              </Button>
-            </Stack>
-          </View>
-        </RBSheet>
+        <RBSheetCam
+          refRBSheet={refRBSheet}
+          setData={setFilePath}
+          screen={'profile'}
+        />
       </ScrollView>
     </SafeAreaView>
   );

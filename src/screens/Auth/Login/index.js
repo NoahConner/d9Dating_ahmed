@@ -17,40 +17,10 @@ import axiosconfig from '../../../provider/axios';
 import {Loader} from '../../../Components/Index';
 import socket from '../../../utils/socket';
 import s from './style';
-import {height, width} from '../../../Constants/Index';
+import {dummyToken, height, width} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {theme} from '../../../Constants/Index';
-let userData = {
-  about_me: null,
-  block_status: 0,
-  connected: 0,
-  created_at: '2023-06-06T12:21:34.000000Z',
-  date: '6/06/2005',
-  date_login: '2023-06-07 07:27:08',
-  device_token:
-    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
-  email: 'emilymartin9875@gmail.com',
-  email_verified_at: null,
-  gender: 'Female',
-  group: 'Omega Psi Phi Fraternity, Inc.',
-  id: 2,
-  image:
-    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
-  last_name: 'martin',
-  location: null,
-  month: null,
-  name: 'Emily',
-  notify: '0',
-  otp: '8405',
-  phone_number: '+443334443333',
-  post_privacy: '1',
-  privacy_option: '1',
-  status: '1',
-  story_privacy: '00000000001',
-  theme_mode: null,
-  updated_at: '2023-06-07T07:29:02.000000Z',
-  year: null,
-};
+import {postApi} from '../../../APIs';
 const Login = ({navigation}) => {
   // const FCMtoken = useSelector(state => state.reducer.fToken);
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
@@ -85,59 +55,31 @@ const Login = ({navigation}) => {
   //   [FCMtoken],
   // );
 
-  const onSignInUser = () => {
-    AsyncStorage.setItem('password', '123');
-    const id = '2';
-    AsyncStorage.setItem('id', id);
-    AsyncStorage.setItem('userUniqueId1', JSON.stringify(userData));
-    setUniqueId(id);
-    AsyncStorage.setItem('userToken', '123');
-    setToken('123');
-  };
-  // const onSignInUser = useCallback(() => {
-  //   setSubmitted(false);
-  //   if (
-  //     email === null ||
-  //     email === '' ||
-  //     password === null ||
-  //     password === ''
-  //   ) {
-  //     setSubmitted(true);
-  //     return;
-  //   }
+  const onSignInUser = useCallback(async () => {
+    setSubmitted(false);
+    Keyboard.dismiss();
+    if (!email || !password) {
+      setSubmitted(true);
+      return;
+    }
+    setLoader(true);
+    const data = {
+      email: email,
+      password: password,
+    };
+    console.log(data, 'dsdas');
+    const res = await postApi('login', data);
+    console.log(res, 'return');
+    if (res?.token) {
+      await AsyncStorage.setItem('userToken', res?.token);
+      await AsyncStorage.setItem('password', password);
 
-  //   setLoader(true);
-  //   const data = {
-  //     email: email,
-  //     password: password,
-  //   };
-  //   Keyboard.dismiss();
-  //   axiosconfig
-  //     .post('login', data)
-  //     .then(res => {
-  //       AsyncStorage.setItem('password', password);
-  //       const id = res?.data?.userInfo.toString();
-  //       AsyncStorage.setItem('id', id);
-  //       AsyncStorage.setItem(
-  //         'userUniqueId1',
-  //         JSON.stringify(res?.data?.userInfo),
-  //       );
-  //       setUniqueId(id);
-  //       AsyncStorage.setItem('userToken', res?.data?.access_token);
-
-  //       fcmToken(res?.data?.access_token);
-  //       socket.auth = {username: email};
-  //       socket.connect();
-  //       // dispatch(setUserToken(res?.data?.access_token));
-  //       setToken(res?.data?.access_token);
-  //       setLoader(false);
-  //     })
-  //     .catch(err => {
-  //       console.log(err.response);
-  //       Alert.alert(err.response.data.message);
-  //       setLoader(false);
-  //     });
-  // }, [dispatch, email, password, fcmToken]);
+      setToken(res?.token);
+    } else {
+      Alert.alert(res?.data?.error);
+    }
+    setLoader(false);
+  }, [email, password]);
 
   return loader ? (
     <Loader />
@@ -178,7 +120,7 @@ const Login = ({navigation}) => {
               fontSize={moderateScale(14, 0.1)}
             />
           </View>
-          {submitted && (email == null || email === '') ? (
+          {submitted && !email ? (
             <>
               <View
                 style={{
@@ -232,7 +174,7 @@ const Login = ({navigation}) => {
               secureTextEntry={showPass}
             />
           </View>
-          {submitted && (password == null || password === '') ? (
+          {submitted && !password ? (
             <>
               <View
                 style={{

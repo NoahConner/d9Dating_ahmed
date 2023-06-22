@@ -6,7 +6,8 @@ import React, {
   useMemo,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import SplashScreen from 'react-native-splash-screen';
+import Loader from '../Components/Loader';
 export const AppContext = createContext();
 
 export const AppProvider = ({children}) => {
@@ -16,41 +17,18 @@ export const AppProvider = ({children}) => {
   const [messageAlert, setMessageAlert] = useState(false);
   const [uniqueId, setUniqueId] = useState(null);
   const [storyLoader, setStoryLoader] = useState(null);
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
-    async function fetchStoredValues() {
-      try {
-        const [storedToken, storedId] = await Promise.all([
-          AsyncStorage.getItem('userToken'),
-          AsyncStorage.getItem('userUniqueId1'),
-        ]);
-
-        if (storedToken !== null) {
-          setToken(JSON.parse(storedToken));
-        }
-
-        if (storedId !== null) {
-          setUniqueId(JSON.parse(storedId));
-        }
-      } catch (error) {
-        console.log('Error retrieving data from AsyncStorage:', error);
-      }
-    }
-
-    fetchStoredValues();
-  }, []);
-
-  useEffect(() => {
-    async function saveValuesToStorage() {
-      try {
-        await AsyncStorage.setItem('userToken', JSON.stringify(token));
-        await AsyncStorage.setItem('userUniqueId1', JSON.stringify(uniqueId));
-      } catch (error) {
-        console.log('Error saving data to AsyncStorage:', error);
-      }
-    }
-
-    saveValuesToStorage();
+    // async function saveValuesToStorage() {
+    //   try {
+    //     await AsyncStorage.setItem('userToken', JSON.stringify(token));
+    //     await AsyncStorage.setItem('userUniqueId1', JSON.stringify(uniqueId));
+    //   } catch (error) {
+    //     console.log('Error saving data to AsyncStorage:', error);
+    //   }
+    // }
+    // saveValuesToStorage();
   }, [token, uniqueId]);
 
   const contextValues = useMemo(
@@ -67,6 +45,8 @@ export const AppProvider = ({children}) => {
       setMessageAlert,
       storyLoader,
       setStoryLoader,
+      userData,
+      setUserData,
     }),
     [
       token,
@@ -81,6 +61,8 @@ export const AppProvider = ({children}) => {
       setMessageAlert,
       storyLoader,
       setStoryLoader,
+      userData,
+      setUserData,
     ],
   );
 

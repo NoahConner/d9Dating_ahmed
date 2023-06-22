@@ -5,10 +5,23 @@ const Poppins = '';
 const PoppinsBold = '';
 
 const styles = StyleSheet.create({
+  maincontainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: moderateScale(20, 0.1),
+  },
   container: {
     paddingHorizontal: moderateScale(12, 0.1),
     height: '100%',
     paddingBottom: moderateScale(70, 0.1),
+  },
+  header: {
+    position: 'absolute',
+    left: moderateScale(5, 0.1),
+  },
+  user: {
+    width: '75%',
+    alignSelf: 'center',
   },
   HeadingText: {
     fontSize: moderateScale(20, 0.1),
@@ -49,6 +62,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(53 / 2, 0.1),
     borderWidth: moderateScale(2, 0.1),
     marginRight: moderateScale(10, 0.1),
+    alignItems: 'center',
   },
   userName: {
     marginBottom: moderateScale(25, 0.1),
@@ -107,7 +121,7 @@ const styles = StyleSheet.create({
     marginBottom: moderateScale(5, 0.1),
   },
   name1: {
-    fontSize: moderateScale(10, 0.1),
+    fontSize: moderateScale(12, 0.1),
     lineHeight: moderateScale(15, 0.1),
     alignSelf: 'center',
     color: '#7B7A7A',
@@ -120,7 +134,8 @@ const styles = StyleSheet.create({
   textSmall: {
     fontSize: moderateScale(10, 0.1),
     lineHeight: moderateScale(13, 0.1),
-    marginVertical: moderateScale(5, 0.1),
+    marginTop: moderateScale(5, 0.1),
+    // marginVertical: moderateScale(5, 0.1),
   },
   img: {
     width: '100%',

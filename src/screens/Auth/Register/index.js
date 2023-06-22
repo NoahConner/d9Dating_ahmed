@@ -7,7 +7,6 @@ import {
   ScrollView,
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
-import axiosconfig from '../../../provider/axios';
 import s from './style';
 import Feather from 'react-native-vector-icons/Feather';
 import {Input, Button, Menu, Pressable} from 'native-base';
@@ -18,18 +17,16 @@ import RadioButton from '../../../Components/Radio';
 import moment from 'moment';
 import Entypo from 'react-native-vector-icons/Entypo';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import socket from '../../../utils/socket';
 import {Organization, emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
-import Geocoder from 'react-native-geocoding';
-import Geolocation from '@react-native-community/geolocation';
-import GetLocation from 'react-native-get-location';
 import {theme} from '../../../Constants/Index';
+import {postApi} from '../../../APIs';
 
 const Register = ({navigation}) => {
   const {setToken} = useAppContext(AppContext);
   const phonenum = useRef();
+  const [phone, setPhone] = useState('');
   const [fname, setFname] = useState(null);
   const [lastname, setLastname] = useState(null);
   const [email, setEmail] = useState(null);
@@ -73,7 +70,6 @@ const Register = ({navigation}) => {
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
   const color = theme === 'dark' ? '#222222' : '#fff';
   const [location, setLocation] = useState('');
-  const [locationon, setlocationon] = useState(true);
   const [address, setaddress] = useState(null);
 
   const onRadioBtnClick = item => {
@@ -97,20 +93,61 @@ const Register = ({navigation}) => {
     }
   };
 
-  const submit = () => {
-    onSignupUser();
+  const validate = () => {
+    setOnsubmit(true);
+    let sub = true;
+    if (
+      !fname ||
+      !lastname ||
+      !email ||
+      !date ||
+      !password ||
+      !organization ||
+      !address
+    ) {
+      sub = false;
+      return false;
+    }
+    if (!isEmail) {
+      Alert.alert('Please enter a valid email');
+      sub = false;
+      return false;
+    }
+    if (password != confirmPassword) {
+      Alert.alert('password does not match');
+      sub = false;
+      return false;
+    }
+    if (!phonenum.current.isValidNumber()) {
+      Alert.alert('Please enter valid Phone Number');
+      sub = false;
+      return false;
+    }
+    if (sub) {
+      sendOTP();
+    }
   };
 
-  const onSignupUser = () => {
+  const sendOTP = async () => {
     setOnsubmit(false);
-    if (modalVisible == false) {
-      Alert.alert('check email');
+    setLoader(true);
+
+    const data = {
+      email: email,
+      register: true,
+    };
+
+    const res = await postApi('verify', data);
+    console.log(res, 'return');
+    if (res?.status == 'success') {
+      // Alert.alert(res?.message);
       setTimeout(() => {
-        setModalVisible(!modalVisible);
-      }, 3000);
+        setModalVisible(true);
+      }, 2000);
     } else {
-      Alert.alert('code sent');
+      Alert.alert(res?.data?.message);
     }
+    setLoader(false);
   };
 
   // const fcmToken = token => {
@@ -133,34 +170,40 @@ const Register = ({navigation}) => {
   //     });
   // };
 
-  const handleSubmit = () => {
+  const register = async () => {
     setLoader(true);
-    setOnsubmit(false);
-    var data = {
+    setModalVisible(!modalVisible);
+    const form = {
       name: fname,
       last_name: lastname,
-      email: email,
-      otp: otp,
-      phone_number: phonenum.current.getValue(),
       gender: gender,
-      location: address,
-      group: organization,
+      roles: 'user',
+      dob: date,
+      phone: phone,
+      email: email,
+      organization: organization,
       password: password,
-      confirm_password: confirmPassword,
-      date: date,
-      type: 'user',
+      password_confirmation: confirmPassword,
+      latitude: 123.456,
+      longitude: 789.012,
+      otp: otp,
+      address: address,
     };
 
-    Alert.alert('registered successfully');
-    AsyncStorage.setItem('password', '123');
-    AsyncStorage.setItem('userToken', '123');
-    let id = '2';
-    AsyncStorage.setItem('id', id);
+    // console.log('data', form);
+    const res = await postApi('register', form);
+    // console.log(res, 'return');
 
-    setToken('123');
-    // fcmToken(res?.data?.access_token);
-    socket.auth = {username: email};
-    socket.connect();
+    if (res?.token) {
+      Alert.alert(res?.message);
+      await AsyncStorage.setItem('password', password);
+      await AsyncStorage.setItem('userToken', res?.token);
+      setToken(res?.token);
+      setLoader(false);
+    } else {
+      Alert.alert(res?.data?.message);
+      setLoader(false);
+    }
   };
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -184,50 +227,20 @@ const Register = ({navigation}) => {
     setM(month);
     setY(year);
     setD(dateex);
-    setDate(`${month}/${dateex}/${year}`);
+
+    setDate(`${year}-${month}-${dateex}`);
+    console.log('hh', date);
     hideDatePicker();
   };
 
   useEffect(() => {
-    // console.log(location, 'seet');
+    console.log(email, 'seet');
     // getCurrentLocation();
   }, []);
 
   useEffect(() => {
     console.log(location, 'new');
   }, [location]);
-
-  const getCurrentLocation = () => {
-    // setLoader(true);
-    try {
-      Geolocation.getCurrentPosition(location => {
-        setLocation(location);
-        console.log(location, 'location');
-        getPhysicalAddress(location);
-      });
-    } catch (error) {
-      setlocationon(false);
-      const {code, message} = error;
-      // setLoader(false);
-    }
-  };
-
-  const getPhysicalAddress = location => {
-    Geocoder.init('AIzaSyCYvOXB3SFyyeR0usVOgnLyoDiAd2XDunU');
-    setTimeout(() => {
-      Geocoder.from(location?.coords?.latitude, location?.coords.longitude)
-        .then(json => {
-          var addressComponent = json.results[0].formatted_address;
-          console.log('hi', addressComponent);
-          setaddress(addressComponent);
-          // setLoader(false);
-        })
-        .catch(error => {
-          console.warn(error);
-          // setLoader(false);
-        });
-    }, 1000);
-  };
 
   return loader ? (
     <Loader />
@@ -279,6 +292,7 @@ const Register = ({navigation}) => {
                     }}
                     placeholder="First Name"
                     variant="unstyled"
+                    value={fname}
                     placeholderTextColor={Textcolor}
                     onChangeText={e => setFname(e)}
                     color={Textcolor}
@@ -298,6 +312,7 @@ const Register = ({navigation}) => {
                       borderBottomWidth: 1,
                     }}
                     variant="unstyled"
+                    value={lastname}
                     placeholderTextColor={Textcolor}
                     color={Textcolor}
                     onChangeText={e => setLastname(e)}
@@ -418,6 +433,7 @@ const Register = ({navigation}) => {
                     placeholder: 'Enter Phone Number',
                     placeholderTextColor: Textcolor,
                   }}
+                  initialValue={phone}
                   pickerBackgroundColor={'grey'}
                   pickerButtonColor={'#fff'}
                   isReadOnly={disable}
@@ -426,6 +442,7 @@ const Register = ({navigation}) => {
                   isValidNumber={e => console.log(e, 'here')}
                   ref={phonenum}
                   onChangePhoneNumber={phNumber => {
+                    setPhone(phonenum.current.getValue());
                     if (phonenum.current.isValidNumber()) {
                       setIsPhone(true);
                     } else {
@@ -439,7 +456,7 @@ const Register = ({navigation}) => {
             <View style={s.input}>
               <View style={{flex: 0.4}}>
                 <Text style={[s.inputTxt, {color: Textcolor}]}>
-                  Email Adress
+                  Email Address
                 </Text>
               </View>
               <View style={{flex: 0.6}}>
@@ -450,10 +467,10 @@ const Register = ({navigation}) => {
                   }}
                   style={{
                     borderBottomWidth: 1,
-                    borderBottomColor:
-                      onsubmit && email == null ? 'red' : Textcolor,
+                    borderBottomColor: onsubmit && !email ? 'red' : Textcolor,
                   }}
                   variant="unstyled"
+                  value={email}
                   placeholderTextColor={Textcolor}
                   color={Textcolor}
                   fontSize={moderateScale(12, 0.1)}
@@ -462,7 +479,7 @@ const Register = ({navigation}) => {
                     setEmail(e);
                   }}
                 />
-                {onsubmit && isEmail === false && email != null ? (
+                {onsubmit && isEmail === false && email ? (
                   <>
                     <View
                       style={{
@@ -576,7 +593,7 @@ const Register = ({navigation}) => {
                     style={{
                       borderBottomWidth: 1,
                       borderBottomColor:
-                        onsubmit && location == null ? 'red' : Textcolor,
+                        onsubmit && address == null ? 'red' : Textcolor,
                     }}
                     isReadOnly={true}
                     variant="unstyled"
@@ -692,7 +709,7 @@ const Register = ({navigation}) => {
                 h={moderateScale(35, 0.1)}
                 alignItems={'center'}
                 style={s.shadow}
-                onPressIn={() => submit()}>
+                onPressIn={() => validate()}>
                 <Text style={s.btnText}>Register</Text>
               </Button>
             </View>
@@ -737,15 +754,12 @@ const Register = ({navigation}) => {
             navigation={navigation}
             modalVisible={modalVisible}
             setModalVisible={setModalVisible}
-            submit={submit}
-            onSignupUser={onSignupUser}
+            submit={register}
+            resend={sendOTP}
             setOtp={setOtp}
-            handleSubmit={handleSubmit}
             screen={'register'}
           />
-        ) : (
-          <></>
-        )}
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );

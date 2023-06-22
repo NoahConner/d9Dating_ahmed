@@ -27,7 +27,15 @@ const Header = ({
   return (
     <View style={[[s.main, s.container]]}>
       <View>
-        <TouchableOpacity style={s.backBtn} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={s.backBtn}
+          onPress={() => {
+            if (backbutton) {
+              backbutton();
+            } else {
+              navigation.goBack();
+            }
+          }}>
           <Inicon
             name="arrow-back-circle-outline"
             size={moderateScale(30)}

@@ -1,419 +1,302 @@
-import {Text, View, Image, TouchableOpacity, Alert} from 'react-native';
+import {
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  BackHandler,
+  Alert,
+} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {moderateScale} from 'react-native-size-matters';
 import s from './style';
-import RBSheet from 'react-native-raw-bottom-sheet';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {Button, Stack, Menu, Pressable, Input, ScrollView} from 'native-base';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import {Menu, Pressable, Input, ScrollView} from 'native-base';
 import Entypo from 'react-native-vector-icons/Entypo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useIsFocused} from '@react-navigation/native';
-import axiosconfig from '../../../provider/axios';
 import {Header, Loader} from '../../../Components/Index';
-import {
-  captureImage,
-  chooseFile,
-  dummyImage,
-  getColor,
-} from '../../../Constants/Index';
+import {dummyImage, getColor} from '../../../Constants/Index';
 import {AppContext, useAppContext} from '../../../Context/AppContext';
 import {theme} from '../../../Constants/Index';
+import {postApi} from '../../../APIs';
+import RBSheetCam from '../../../Components/RBSheetCam';
 
-const dummyData = {
-  about_me: null,
-  block_status: 0,
-  connected: 0,
-  created_at: '2023-06-06T12:21:34.000000Z',
-  date: '6/06/2005',
-  date_login: '2023-06-07 07:27:08',
-  device_token:
-    'cjpfF71SSfek0x-BdoI8w3:APA91bHe5BAFrEZ5_hpNF9Cz0z49kkXDoIeUiOcz5o87DP2Y-QtLaPk0XPpQGjBNgs2bM6fdiQZQJkOF3vmzJIRgbp5GPz6Ra0EqFu0p9kCUcPvyI_OfAKsXT3qUVK28tWM0Es1an1Sr',
-  email: 'emilymartin9875@gmail.com',
-  email_verified_at: null,
-  gender: 'Female',
-  group: 'Omega Psi Phi Fraternity, Inc.',
-  id: 2,
-  image:
-    'https://designprosusa.com/the_night/storage/app/1686122942base64_image.png',
-  last_name: 'martin',
-  location: null,
-  month: null,
-  name: 'Emily',
-  notify: '0',
-  otp: '8405',
-  phone_number: '+443334443333',
-  post_privacy: '1',
-  privacy_option: '1',
-  status: '1',
-  story_privacy: '00000000001',
-  theme_mode: null,
-  updated_at: '2023-06-07T07:29:02.000000Z',
-  year: null,
+const formData = {
+  address: '',
+  type: '',
+  caption: '',
+  post_img: '',
 };
 
 const CreatePost = ({navigation, route}) => {
-  const privacy = route?.params?.elem?.privacy_option;
-
+  const {token, userData} = useAppContext(AppContext);
+  const refRBSheet = useRef();
+  const Textcolor = theme === 'dark' ? '#fff' : '#222222';
+  const color = theme === 'dark' ? '#222222' : '#fff';
   const [address, setaddress] = useState('');
-
-  useEffect(() => {
-    if (privacy == '1') {
-      setStory('Public');
-    } else if (privacy == '2') {
-      setStory('Friends');
-    } else {
-      s;
-      setStory('Only Me');
-    }
-  }, []);
-
-  const [filePath, setFilePath] = useState(
-    route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
-      ? route?.params?.elem?.image
-      : null,
-  );
-
-  const [open, setOpen] = useState(false);
-  const [icon, setIcon] = useState('globe');
-  const [caption, setCaption] = useState(
-    route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
-      ? route?.params?.elem?.caption
-      : null,
-  );
-
   const [loader, setLoader] = useState(false);
-  const isFocused = useIsFocused();
-  const [userData, setUserData] = useState([]);
-
-  const [value, setValue] = useState([
+  const [filePath, setFilePath] = useState('');
+  const [icon, setIcon] = useState('globe');
+  const [menu, setMenu] = useState([
     {
       label: 'Public',
       value: '1',
-      icon: () => (
-        <Entypo
-          name={'globe'}
-          color={Textcolor}
-          size={moderateScale(15, 0.1)}
-        />
-      ),
+      icon: 'globe',
     },
     {
-      label: 'Freinds',
+      label: 'Friends',
       value: '2',
-      icon: () => (
-        <Icon
-          name={'user-friends'}
-          color={Textcolor}
-          size={moderateScale(15, 0.1)}
-        />
-      ),
+      icon: 'users',
     },
     {
       label: 'Only me',
       value: '3',
-      icon: () => (
-        <Entypo name={'lock'} color={Textcolor} size={moderateScale(15, 0.1)} />
-      ),
+      icon: 'lock',
     },
   ]);
-  const Textcolor = theme === 'dark' ? '#fff' : '#222222';
-  const color = theme === 'dark' ? '#222222' : '#fff';
-  const {token} = useAppContext(AppContext);
-  const refRBSheet = useRef();
   const [location, setLocation] = useState('');
-  const [story, setStory] = useState(
-    route?.params?.from == 'Home' || route?.params?.from == 'funInteraction'
-      ? route?.params?.elem?.privacy_option
-      : 'Public',
-  );
+  const [story, setStory] = useState('Only Me');
+  const [form, setForm] = useState(formData);
 
-  const onsubmit = () => {
-    Alert.alert('Post uploaded');
-    navigation.navigate('Home');
+  //backHandler
+  useEffect(() => {
+    const backAction = () => {
+      discardAlert();
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, [form]);
+
+  const discardAlert = () => {
+    let discard = false;
+    for (let item of Object.keys(form)) {
+      if (form[item]) {
+        discard = true;
+        break;
+      }
+    }
+    if (discard) {
+      Alert.alert('Hold on!', 'Are you sure you want to discard this Post?', [
+        {
+          text: 'Cancel',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: () => {
+            handleBackPress();
+          },
+        },
+      ]);
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const handleBackPress = () => {
+    setForm(formData);
+    navigation.goBack();
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    if (filePath) {
+      imageUpload(filePath);
+    }
+  }, [filePath]);
 
-  const getData = async () => {
-    setUserData(dummyData);
+  useEffect(() => {
+    if (address) {
+      setForm({...form, address: address});
+    }
+  }, [address]);
+
+  const imageUpload = async base64 => {
+    let data = {
+      image: base64,
+    };
+    const res = await postApi('image-upload-64', data, token);
+    const dp = res?.data?.image_url;
+    // console.log(res, data, 'errrrere');
+    if (dp) {
+      setForm({...form, post_img: dp});
+      setFilePath(null);
+    } else {
+      Alert.alert(res?.data?.message);
+    }
+    setLoader(false);
+  };
+
+  const validate = () => {
+    let submit = true;
+    for (let item of Object.keys(form)) {
+      if (!form[item]) {
+        submit = false;
+        Alert.alert('Please fill all fields');
+        break;
+      }
+    }
+    if (submit) {
+      post();
+    }
+  };
+
+  const post = async () => {
+    setLoader(true);
+    const res = await postApi('add-posts', form, token);
+    if (res?.success) {
+      Alert.alert(res?.messsage);
+      navigation.navigate('Home');
+    } else {
+      Alert.alert(res?.data?.message);
+    }
+    setLoader(false);
   };
 
   return loader ? (
     <Loader />
   ) : (
-    <ScrollView
-      style={{flex: 1, backgroundColor: theme == 'dark' ? '#222222' : '#fff'}}>
-      <View>
-        <View style={[s.container]}>
-          <View>
-            <Header navigation={navigation} />
-          </View>
-          <View style={s.row}>
-            <View
-              style={{
-                borderWidth: moderateScale(2, 0.1),
-                borderColor: getColor(userData?.group),
-                width: moderateScale(58, 0.1),
-                height: moderateScale(58, 0.1),
-                borderRadius: moderateScale(58 / 2, 0.1),
-                marginHorizontal: moderateScale(10, 0.1),
-              }}>
-              <Image
-                style={s.headerImage}
-                source={{uri: userData?.image ? userData?.image : dummyImage}}
-              />
-            </View>
-            <View style={{flex: 0.8, alignSelf: 'center'}}>
-              <View>
-                <Text style={[s.HeadingTxt, {color: Textcolor}]}>
-                  {userData?.name} {userData?.last_name}
-                </Text>
-              </View>
-              <View style={[s.btn]}>
-                <Menu
-                  w="180"
-                  borderWidth={moderateScale(1, 0.1)}
-                  borderBottomColor={'grey'}
-                  backgroundColor={color}
-                  // top={moderateScale(24, 0.1)}
-                  borderColor={Textcolor}
-                  trigger={triggerProps => {
-                    return (
-                      <Pressable
-                        accessibilityLabel="More options menu"
-                        {...triggerProps}
-                        style={{
-                          flexDirection: 'row',
-                          borderColor: Textcolor,
-                          borderWidth: 1,
-                          marginVertical: moderateScale(7),
-                          borderRadius: moderateScale(8, 0.1),
-                          paddingLeft: moderateScale(10, 0.1),
-                          width: moderateScale(180, 0.1),
-                          height: moderateScale(33, 0.1),
-                          alignItems: 'center',
-                        }}>
-                        <Entypo
-                          name={icon}
-                          color={Textcolor}
-                          size={moderateScale(15, 0.1)}
-                          style={{flex: 0.2}}
-                        />
-                        <Text style={[s.option, {color: Textcolor, flex: 0.6}]}>
-                          {story}
-                        </Text>
-
-                        <Entypo
-                          style={{flex: 0.2}}
-                          name={'chevron-down'}
-                          size={moderateScale(25, 0.1)}
-                          color={Textcolor}
-                        />
-                      </Pressable>
-                    );
-                  }}>
-                  <Menu.Item
-                    onPress={() => {
-                      setStory('Public');
-                      setIcon('globe');
-                    }}>
-                    <View style={s.optionView}>
-                      <Entypo
-                        name={'globe'}
-                        color={Textcolor}
-                        size={moderateScale(15, 0.1)}
-                        style={{marginRight: moderateScale(10, 0.1)}}
-                      />
-                      <Text style={[s.optionBtns, {color: Textcolor}]}>
-                        Public
-                      </Text>
-                    </View>
-                  </Menu.Item>
-                  <Menu.Item
-                    onPress={() => {
-                      setStory('Friends');
-                      setIcon('users');
-                    }}>
-                    <View style={s.optionView}>
-                      <Entypo
-                        name={'users'}
-                        color={Textcolor}
-                        size={moderateScale(15, 0.1)}
-                        style={{marginRight: moderateScale(10, 0.1)}}
-                      />
-                      <Text style={[s.optionBtns, {color: Textcolor}]}>
-                        Friends
-                      </Text>
-                    </View>
-                  </Menu.Item>
-                  <Menu.Item
-                    onPress={() => {
-                      setStory('Only Me');
-                      setIcon('lock');
-                    }}>
-                    <View style={s.optionView}>
-                      <Entypo
-                        name={'lock'}
-                        color={Textcolor}
-                        size={moderateScale(15, 0.1)}
-                        style={{marginRight: moderateScale(10, 0.1)}}
-                      />
-                      <Text style={[s.optionBtns, {color: Textcolor}]}>
-                        Only Me
-                      </Text>
-                    </View>
-                  </Menu.Item>
-                </Menu>
-              </View>
-            </View>
-          </View>
-          <View style={[s.mText]}>
-            <Input
-              cursorColor={Textcolor}
-              selectionColor={Textcolor}
-              variant="unstyled"
-              placeholder={'Write a caption....'}
-              placeholderTextColor={Textcolor}
-              value={caption}
-              onChangeText={text => {
-                setCaption(text);
-              }}
-              backgroundColor={color}
-              color={Textcolor}
-              fontSize={moderateScale(14, 0.1)}
+    <ScrollView style={{flex: 1, backgroundColor: color}}>
+      <View style={[s.container]}>
+        <Header navigation={navigation} backbutton={discardAlert} />
+        <View style={s.row}>
+          <View style={[s.dp, {borderColor: getColor(userData?.organization)}]}>
+            <Image
+              style={s.headerImage}
+              source={{uri: userData?.image ? userData?.image : dummyImage}}
             />
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Map', {
-                address: address,
-                location: location,
-                setLocation: setLocation,
-                setaddress: setaddress,
-              });
-            }}>
-            <View style={[s.mText]}>
-              <Text
-                style={{
-                  backgroundColor: color,
-                  marginLeft: moderateScale(10, 0.1),
-                  color: Textcolor,
-                  fontSize: moderateScale(14, 0.1),
+          <View style={s.name}>
+            <Text style={[s.headingTxt, {color: Textcolor}]}>
+              {userData?.name} {userData?.last_name}
+            </Text>
+
+            <View style={[s.btn]}>
+              <Menu
+                w="180"
+                borderWidth={moderateScale(1, 0.1)}
+                borderBottomColor={'grey'}
+                backgroundColor={color}
+                // top={moderateScale(24, 0.1)}
+                borderColor={Textcolor}
+                trigger={triggerProps => {
+                  return (
+                    <Pressable
+                      accessibilityLabel="More options menu"
+                      {...triggerProps}
+                      style={[
+                        s.privacy,
+                        {
+                          borderColor: Textcolor,
+                        },
+                      ]}>
+                      <Entypo
+                        name={icon}
+                        color={Textcolor}
+                        size={moderateScale(15, 0.1)}
+                        style={{flex: 0.2}}
+                      />
+                      <Text style={[s.option, {color: Textcolor, flex: 0.6}]}>
+                        {form.type ? form.type : story}
+                      </Text>
+
+                      <Entypo
+                        style={{flex: 0.2}}
+                        name={'chevron-down'}
+                        size={moderateScale(25, 0.1)}
+                        color={Textcolor}
+                      />
+                    </Pressable>
+                  );
                 }}>
-                {address ? address : 'Enter location...'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <View style={[s.imgView]}>
-            {filePath != null ? (
-              <>
-                <TouchableOpacity
-                  onPress={() => {
-                    if (route?.params?.from == 'Home') {
-                      return;
-                    } else {
-                      refRBSheet.current.open();
-                    }
-                  }}>
-                  <View style={s.img}>
-                    <Image
-                      source={{uri: filePath}}
-                      resizeMode={'cover'}
-                      style={s.galleryImage}></Image>
-                  </View>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <TouchableOpacity onPress={() => refRBSheet.current.open()}>
-                  <View style={s.img}>
-                    <Image
-                      style={{
-                        width: moderateScale(153, 0.1),
-                        height: moderateScale(136, 0.1),
-                      }}
-                      source={require('../../../assets/images/png/Vector.png')}
-                    />
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: moderateScale(120, 0.1),
+                {menu.map(elem => {
+                  return (
+                    <Menu.Item
+                      onPress={() => {
+                        setForm({...form, type: elem?.label});
+                        setStory(elem?.label);
+                        setIcon(elem.icon);
                       }}>
-                      <Ionicons
-                        name="add-circle-sharp"
-                        size={45}
-                        color="#302D2D"
-                      />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-
-            <RBSheet
-              ref={refRBSheet}
-              closeOnDragDown={true}
-              height={300}
-              openDuration={250}
-              customStyles={{
-                container: {
-                  alignItems: 'center',
-                  height: moderateScale(220),
-                  borderRadius: moderateScale(20, 0.1),
-                },
-              }}>
-              <View
-                style={{
-                  marginVertical: moderateScale(30, 0.1),
-                  justifyContent: 'center',
-                  alignContent: 'center',
-                }}>
-                <Stack
-                  direction={{
-                    base: 'column',
-                    md: 'row',
-                  }}
-                  space={4}>
-                  <Button transparent style={s.capturebtn} onPress={() => {}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Ionicons name="camera" style={s.capturebtnicon} />
-                      <Text style={s.capturebtntxt}>Open Camera</Text>
-                    </View>
-                  </Button>
-                  <Button transparent style={s.capturebtn} onPress={() => {}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Ionicons
-                        name="md-image-outline"
-                        style={s.capturebtnicon}
-                      />
-                      <Text style={s.capturebtntxt}>Open Gallery</Text>
-                    </View>
-                  </Button>
-                </Stack>
-              </View>
-            </RBSheet>
+                      <View style={s.optionView}>
+                        <Entypo
+                          name={elem?.icon}
+                          color={Textcolor}
+                          size={moderateScale(15, 0.1)}
+                          style={{marginRight: moderateScale(10, 0.1)}}
+                        />
+                        <Text style={[s.optionBtns, {color: Textcolor}]}>
+                          {elem?.label}
+                        </Text>
+                      </View>
+                    </Menu.Item>
+                  );
+                })}
+              </Menu>
+            </View>
           </View>
-
-          <TouchableOpacity onPress={() => onsubmit()}>
-            <View style={[s.postBtn, {borderColor: Textcolor}]}>
-              <Text style={[s.postTxt, {color: Textcolor}]}>Post</Text>
+        </View>
+        <View style={[s.mText]}>
+          <Input
+            cursorColor={Textcolor}
+            selectionColor={Textcolor}
+            variant="unstyled"
+            placeholder={'Write a caption....'}
+            placeholderTextColor={Textcolor}
+            value={form.caption}
+            onChangeText={text => {
+              setForm({...form, caption: text});
+            }}
+            backgroundColor={color}
+            color={Textcolor}
+            fontSize={moderateScale(14, 0.1)}
+          />
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Map', {
+              address: form.address,
+              location: location,
+              setLocation: setLocation,
+              setaddress: setaddress,
+            });
+          }}
+          style={[s.mText]}>
+          <Text style={[s.loc, {color: Textcolor}]}>
+            {form.address ? form.address : 'Enter location...'}
+          </Text>
+        </TouchableOpacity>
+        <View style={[s.imgView]}>
+          <TouchableOpacity onPress={() => refRBSheet.current.open()}>
+            <View style={s.img}>
+              <Image
+                style={form?.post_img ? s.galleryImage : s.postImg}
+                source={
+                  form?.post_img
+                    ? {uri: form?.post_img}
+                    : require('../../../assets/images/png/Vector.png')
+                }
+              />
+              {form?.post_img ? null : (
+                <View style={s.icon}>
+                  <Ionicons name="add-circle-sharp" size={45} color="#302D2D" />
+                </View>
+              )}
             </View>
           </TouchableOpacity>
-          {open ? (
-            <>
-              <View
-                style={{
-                  height: moderateScale(50, 0.1),
-                  width: moderateScale(60, 0.1),
-                }}></View>
-            </>
-          ) : (
-            <></>
-          )}
+          <RBSheetCam
+            refRBSheet={refRBSheet}
+            setData={setFilePath}
+            screen={'profile'}
+          />
         </View>
+
+        <TouchableOpacity
+          style={[s.postBtn, {borderColor: Textcolor}]}
+          onPress={() => validate()}>
+          <Text style={[s.postTxt, {color: Textcolor}]}>Post</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );

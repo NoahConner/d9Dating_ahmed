@@ -30,57 +30,26 @@ const styles = StyleSheet.create({
   optionBtns: {
     fontSize: moderateScale(14, 0.1),
   },
-  smallText: {
-    fontSize: moderateScale(12, 0.1),
-    position: 'absolute',
-    left: moderateScale(43, 0.1),
-    width: moderateScale(150, 0.1),
-    top: moderateScale(10, 0.1),
-    color: '#898989',
-  },
+
   btn: {
     justifyContent: 'center',
   },
-  HeadingTxt: {
+  headingTxt: {
     fontSize: moderateScale(15, 0.1),
     lineHeight: moderateScale(20, 0.1),
   },
 
-  btnView: {
-    width: moderateScale(75, 0.1),
-    height: moderateScale(25, 0.1),
-    borderWidth: moderateScale(1.5, 0.1),
-    borderColor: '#fff',
-    borderRadius: moderateScale(15, 0.1),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   headerImage: {
     width: moderateScale(54, 0.1),
     height: moderateScale(54, 0.1),
     borderRadius: moderateScale(54 / 2, 0.1),
   },
-  buttonText: {
-    fontSize: moderateScale(13, 0.1),
-    alignSelf: 'center',
-    textAlign: 'center',
-    color: '#fff',
-    backgroundColor: 'transparent',
-  },
-  mainText: {
-    fontSize: moderateScale(15, 0.1),
-    lineHeight: moderateScale(19, 0.1),
-  },
+
   mText: {
     paddingHorizontal: moderateScale(28, 0.1),
     marginVertical: moderateScale(8, 0.1),
   },
-  location: {
-    paddingHorizontal: moderateScale(28, 0.1),
-    marginVertical: moderateScale(8, 0.1),
-    justifyContent: 'center',
-    backgroundColor: 'gray',
-  },
+
   imgView: {
     marginVertical: moderateScale(15, 0.1),
     paddingHorizontal: moderateScale(12, 0.1),
@@ -123,11 +92,10 @@ const styles = StyleSheet.create({
   postBtn: {
     marginVertical: moderateScale(15, 0.1),
     width: moderateScale(93, 0.1),
-    height: moderateScale(25, 0.1),
+    height: moderateScale(30, 0.1),
     borderWidth: moderateScale(1.5, 0.1),
-    borderColor: '#fff',
     borderRadius: moderateScale(20, 0.1),
-    marginHorizontal: moderateScale(25, 0.1),
+    marginHorizontal: moderateScale(35, 0.1),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -135,6 +103,49 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(13, 0.1),
     lineHeight: moderateScale(19.5, 0.1),
     color: '#fff',
+  },
+  postImg: {
+    width: moderateScale(153, 0.1),
+    height: moderateScale(136, 0.1),
+  },
+  icon: {
+    position: 'absolute',
+    top: moderateScale(120, 0.1),
+  },
+  rbs: {
+    alignItems: 'center',
+    height: moderateScale(220),
+    borderRadius: moderateScale(20, 0.1),
+  },
+  rbsView: {
+    marginVertical: moderateScale(30, 0.1),
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  privacy: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    marginVertical: moderateScale(7),
+    borderRadius: moderateScale(8, 0.1),
+    paddingLeft: moderateScale(10, 0.1),
+    width: moderateScale(180, 0.1),
+    height: moderateScale(33, 0.1),
+    alignItems: 'center',
+  },
+  dp: {
+    borderWidth: moderateScale(2, 0.1),
+    width: moderateScale(58, 0.1),
+    height: moderateScale(58, 0.1),
+    borderRadius: moderateScale(58 / 2, 0.1),
+    marginHorizontal: moderateScale(10, 0.1),
+  },
+  name: {
+    flex: 0.8,
+    alignSelf: 'center',
+  },
+  loc: {
+    marginLeft: moderateScale(10, 0.1),
+    fontSize: moderateScale(14, 0.1),
   },
 });
 

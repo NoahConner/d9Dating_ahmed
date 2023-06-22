@@ -28,6 +28,7 @@ import {Header, Loader} from '../../../../Components/Index';
 import {AppContext, useAppContext} from '../../../../Context/AppContext';
 import {dummyImage} from '../../../../Constants/Index';
 import {theme} from '../../../../Constants/Index';
+import {getApi, postApi} from '../../../../APIs';
 
 const Settings = ({navigation, route}) => {
   const {token, setToken} = useAppContext(AppContext);
@@ -65,14 +66,22 @@ const Settings = ({navigation, route}) => {
   };
 
   const LogoutApi = async () => {
-    clearToken();
-    let exist = await AsyncStorage.getItem('already');
-    setToken(null);
+    setLoader(true);
+    const res = await getApi('logout', token);
+    if (res?.status) {
+      clearToken();
+      showToast(res?.message);
+    } else {
+      Alert.alert(res?.data?.message);
+      setLoader(false);
+    }
   };
+
   const clearToken = async () => {
     setToken(null);
-    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userToken');
     await AsyncStorage.removeItem('password');
+    setLoader(false);
   };
 
   return (

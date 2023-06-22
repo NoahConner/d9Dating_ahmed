@@ -138,10 +138,14 @@ const styles = StyleSheet.create({
     flex: 0.7,
   },
   userName: {
-    marginBottom: moderateScale(25, 0.1),
+    textAlign: 'center',
     marginTop: moderateScale(5, 0.1),
     fontSize: moderateScale(11, 0.1),
-    width: moderateScale(100, 0.1),
+  },
+  hscroll: {
+    height: moderateScale(120, 0.1),
+    marginVertical: moderateScale(20, 0.1),
+    flexDirection: 'row',
   },
   addBtn: {
     width: moderateScale(25, 0.1),
@@ -157,10 +161,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   myStory: {
+    flexDirection: 'column',
     width: moderateScale(70, 0.1),
     height: moderateScale(70, 0.1),
+
     marginLeft: moderateScale(15, 0.1),
-    marginBottom: moderateScale(50, 0.1),
+    // marginBottom: moderateScale(50, 0.1),
     borderRadius: moderateScale(70 / 2, 0.1),
   },
   col: {
@@ -300,6 +306,41 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(10, 0.1),
     width: moderateScale(180, 0.1),
     backgroundColor: '#302D2D',
+  },
+  report: {
+    alignSelf: 'center',
+    marginVertical: moderateScale(10, 0.1),
+  },
+
+  storyImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: moderateScale(65, 0.1),
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    marginBottom: moderateScale(120, 0.1),
+  },
+  imgOptions: {
+    marginVertical: moderateScale(30, 0.1),
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  gap: {
+    paddingHorizontal: moderateScale(13, 0.1),
+  },
+
+  name: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: moderateScale(5, 0.1),
+  },
+  greyText: {
+    color: 'grey',
+    marginVertical: 0,
+    textTransform: 'capitalize',
   },
 });
 

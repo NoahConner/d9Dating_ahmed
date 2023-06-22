@@ -5,7 +5,7 @@ import ViewUser from '../../../screens/App/Home/ViewUser/index';
 import FunInteraction from '../../../screens/App/Home/FunInteraction';
 import Comments from '../../../screens/App/Home/Comments';
 import CreatePost from '../../../screens/App/CreatePost';
-import Map from '../../../screens/Auth/Register/Map';
+import Map from '../../../screens/Auth/Register/MapTest';
 import Likes from '../../../screens/App/Home/Likes';
 import * as RootNavigation from '../../../../RootNavigation';
 import PushNotification from 'react-native-push-notification';
@@ -80,8 +80,6 @@ const HomeStack = () => {
       <Stack.Screen name="FunInteraction" component={FunInteraction} />
       <Stack.Screen name="Comments" component={Comments} />
       <Stack.Screen name="Likes" component={Likes} />
-      <Stack.Screen name="createPost" component={CreatePost} />
-      <Stack.Screen name="Map" component={Map} />
       <Stack.Screen name="Chat" component={Chat} />
     </Stack.Navigator>
   );

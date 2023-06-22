@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import {KeyboardAvoidingView, Platform, PermissionsAndroid} from 'react-native';
-import React, {memo, useEffect} from 'react';
+import React, {memo, useState, useEffect} from 'react';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {NavigationContainer} from '@react-navigation/native';
 import {NativeBaseProvider, useToast} from 'native-base';
@@ -17,6 +17,8 @@ import SplashScreen from 'react-native-splash-screen';
 import {navigationRef} from './RootNavigation';
 import {AppState} from 'react-native';
 import {AppContext, AppProvider, useAppContext} from './src/Context/AppContext';
+import {createStackNavigator} from '@react-navigation/stack';
+import Loader from './src/Components/Loader';
 
 const user_details = {
   about_me: null,
@@ -64,7 +66,6 @@ const App = () => {
   //   if (fcmToken) {
   //     dispatch(setFToken(fcmToken));
   //   }
-
   // };
 
   const requestNotificationPermission = async () => {
@@ -147,53 +148,54 @@ const App = () => {
     // checkToken();
   }, []);
 
-  useEffect(() => {}, []);
-
   return (
     <AppProvider>
       <AppContent />
     </AppProvider>
   );
 };
+
+const MainStack = createStackNavigator();
+
 const AppContent = memo(() => {
   const {token, setToken} = useAppContext(AppContext);
+  const [loader, setLoader] = useState(true);
 
   useEffect(() => {
+    const getToken = async () => {
+      let token = await AsyncStorage.getItem('userToken');
+      setToken(token);
+    };
     const init = async () => {
       getToken();
-      
     };
-
     init().finally(async () => {
       if (Platform.OS == 'ios') {
         await RNBootSplash.hide({fade: true, duration: 500});
       } else {
-        setTimeout(() => {
-          SplashScreen.hide();
-        }, 1500);
+        SplashScreen.hide();
+        setLoader(false);
       }
     });
   }, []);
-
-  const getToken = async () => {
-    let token = await AsyncStorage.getItem('userToken');
-    let exist = await AsyncStorage.getItem('already');
-    let userData = await AsyncStorage.getItem('userData');
-    userData = JSON.parse(userData);
-    if (token) {
-      socket.auth = {username: userData?.email};
-      socket.connect();
-    }
-    setToken(token);
-  };
 
   return (
     <NativeBaseProvider>
       <SafeAreaProvider>
         <MyStatusBar backgroundColor="#000" barStyle="light-content" />
-        <NavigationContainer ref={navigationRef}>
-          {token === null ? <AuthStack /> : <BottomTabs />}
-        </NavigationContainer>
+        {loader && !token ? (
+          <Loader />
+        ) : (
+          <NavigationContainer ref={navigationRef}>
+            <MainStack.Navigator screenOptions={{headerShown: false}}>
+              {token ? (
+                <MainStack.Screen name="BottomTabs" component={BottomTabs} />
+              ) : (
+                <MainStack.Screen name="AuthStack" component={AuthStack} />
+              )}
+            </MainStack.Navigator>
+          </NavigationContainer>
+        )}
       </SafeAreaProvider>
     </NativeBaseProvider>
   );

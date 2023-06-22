@@ -76,7 +76,7 @@ const BottomTabs = () => {
       socket.off('message', handleSocketMessage);
       socket.off('request', handleSocketRequest);
       socket.off('like', handleSocketLike);
-    socket.off('comment', handleSocketComment);
+      socket.off('comment', handleSocketComment);
     };
   }, [socket, myData]);
   return (

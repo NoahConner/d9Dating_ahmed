@@ -12,7 +12,7 @@ const OTPModal = ({
   screen,
   setModalVisible,
   submit,
-  onSignupUser,
+  resend,
   setOtp,
   navigation,
   handleSubmit,
@@ -80,7 +80,7 @@ const OTPModal = ({
               alignItems={'center'}
               onPressIn={() => {
                 if (screen == 'register') {
-                  handleSubmit();
+                  submit();
                 }
                 if (screen == 'Forgot') {
                   OtpSubmit();
@@ -101,7 +101,7 @@ const OTPModal = ({
               h={moderateScale(35, 0.1)}
               alignItems={'center'}
               onPressIn={() => {
-                console.log('resend');
+                resend();
               }}>
               <Text style={[s.btnText, {color: '#222222'}]}>Resend</Text>
             </Button>

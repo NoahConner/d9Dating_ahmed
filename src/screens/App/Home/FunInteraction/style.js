@@ -257,6 +257,44 @@ const styles = StyleSheet.create({
     marginVertical: moderateScale(9, 0.1),
     borderBottomColor: 'gray',
   },
+  report: {
+    alignSelf: 'center',
+    marginVertical: moderateScale(10, 0.1),
+  },
+
+  storyImg: {
+    width: '100%',
+    height: '100%',
+    borderRadius: moderateScale(65, 0.1),
+  },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    marginBottom: moderateScale(120, 0.1),
+  },
+  imgOptions: {
+    marginVertical: moderateScale(30, 0.1),
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  gap: {
+    paddingHorizontal: moderateScale(13, 0.1),
+  },
+  userName: {
+    flex: 0.9,
+    marginTop: moderateScale(5, 0.1),
+  },
+  name: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginBottom: moderateScale(5, 0.1),
+  },
+  greyText: {
+    color: 'grey',
+    marginVertical: 0,
+    textTransform: 'capitalize',
+  },
 });
 
 export default styles;

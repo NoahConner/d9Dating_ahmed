@@ -4,30 +4,52 @@ import s from './style';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Input, Button} from 'native-base';
 import {moderateScale} from 'react-native-size-matters';
-import axiosconfig from '../../../provider/axios';
 import {emailReg} from '../../../Constants/Index';
 import {Header, OTPModal, Loader} from '../../../Components/Index';
 import {theme} from '../../../Constants/Index';
+import {postApi} from '../../../APIs';
 
 const ForgetPassword = ({navigation}) => {
   const [email, setEmail] = useState(null);
-  const [validEmail, setValidEmail] = useState('');
   const [loader, setLoader] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [submitted, setSubmitted] = useState();
   const [otp, setOtp] = useState();
   const color = theme === 'dark' ? '#222222' : '#fff';
   const Textcolor = theme === 'dark' ? '#fff' : '#222222';
+  const [emailErr, setEmailErr] = useState('');
 
-  const Reset = () => {
-    Alert.alert('check email');
-    setTimeout(() => {
-      setModalVisible(!modalVisible);
-    }, 3000);
+  const sendOTP = async () => {
+    if (!email) {
+      setLoader(false);
+      return;
+    }
+    if (emailErr) {
+      setLoader(false);
+      return;
+    }
+    setLoader(true);
+    const data = {
+      email: email,
+      forget: true,
+    };
+    const res = await postApi('verify', data);
+    // console.log(res, data, 'return');
+
+    if (res?.status == 'success') {
+      // Alert.alert(res?.message);
+      setTimeout(() => {
+        setModalVisible(true);
+      }, 1000);
+    } else {
+      Alert.alert(res?.data?.message);
+    }
+    setLoader(false);
   };
-  const OtpSubmit = () => {
-    Alert.alert('valid code');
-    navigation.navigate('ChangePass', {email, otp});
+
+  const verifyOTP = () => {
+    setModalVisible(!modalVisible);
+    navigation.navigate('ChangePass', {email: email, otp: otp});
   };
 
   return loader ? (
@@ -64,17 +86,32 @@ const ForgetPassword = ({navigation}) => {
               onChangeText={email => {
                 setEmail(email);
                 let valid = emailReg.test(email);
-                setValidEmail(valid);
+                setEmailErr(!valid);
               }}
               color={Textcolor}
               fontSize={moderateScale(14, 0.1)}
             />
+            {emailErr === true && email ? (
+              <>
+                <View
+                  style={{
+                    height: 15,
+                    justifyContent: 'center',
+                    width: '90%',
+                    marginBottom: 20,
+                  }}>
+                  <Text style={{fontSize: 12, color: 'red'}}>
+                    please enter valid email
+                  </Text>
+                </View>
+              </>
+            ) : null}
           </View>
 
           <View style={s.button}>
             <Button
               onPressIn={() => {
-                Reset();
+                sendOTP();
               }}
               size="sm"
               variant={'solid'}
@@ -112,13 +149,13 @@ const ForgetPassword = ({navigation}) => {
           navigation={navigation}
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          OtpSubmit={OtpSubmit}
+          submit={verifyOTP}
+          resend={sendOTP}
+          OtpSubmit={verifyOTP}
           screen={'Forgot'}
           setOtp={setOtp}
         />
-      ) : (
-        <></>
-      )}
+      ) : null}
     </SafeAreaView>
   );
 };

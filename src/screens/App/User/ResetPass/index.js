@@ -39,13 +39,14 @@ const Resetpass = ({navigation}) => {
   };
 
   const validate = () => {
-    // if (password == storedPassword) {
-    navigation.navigate('ChangePass', {
-      screen: 'Reset',
-    });
-    // } else {
-    //   Alert.alert('Password Incorrect');
-    // }
+    console.log(password, storedPassword);
+    if (password == storedPassword) {
+      navigation.navigate('ChangePass', {
+        screen: 'Reset',
+      });
+    } else {
+      Alert.alert('Password Incorrect');
+    }
   };
 
   return loader ? (
